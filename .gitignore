@@ -22,7 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
 # dependencies
 node_modules/
 
@@ -62,6 +61,8 @@ Thumbs.db
 
 # eslint cache
 .eslintcache
+
+next_instructions.md
 
 # optional: lockfiles (ONLY if you're not standardizing package manager)
 # package-lock.json
