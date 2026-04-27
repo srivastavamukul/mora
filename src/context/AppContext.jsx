@@ -14,11 +14,12 @@ function load(key, fallback) {
 }
 
 export function AppProvider({ children }) {
-  const [items] = useState(initialItems)
+  const [items, setItems] = useState(() => load('mora_items', initialItems))
   const [sources, setSources] = useState(() => load('mora_sources', initialSources))
   const [selectedItemId, setSelectedItemId] = useState(() => load('mora_selectedItemId', null))
   const [flags, setFlags] = useState(() => load('mora_flags', {}))
 
+  useEffect(() => { localStorage.setItem('mora_items', JSON.stringify(items)) }, [items])
   useEffect(() => { localStorage.setItem('mora_sources', JSON.stringify(sources)) }, [sources])
   useEffect(() => { localStorage.setItem('mora_selectedItemId', JSON.stringify(selectedItemId)) }, [selectedItemId])
   useEffect(() => { localStorage.setItem('mora_flags', JSON.stringify(flags)) }, [flags])
@@ -38,8 +39,18 @@ export function AppProvider({ children }) {
     }))
   }
 
+  const updateItem = (id, data) => {
+    setItems(prev => prev.map(item =>
+      item.id === id ? { ...item, ...data } : item
+    ))
+  }
+
+  const deleteItem = (id) => {
+    setItems(prev => prev.filter(item => item.id !== id))
+  }
+
   return (
-    <AppContext.Provider value={{ items, sources, selectedItemId, setSelectedItemId, toggleSource, flags, toggleFlag }}>
+    <AppContext.Provider value={{ items, setItems, sources, setSources, selectedItemId, setSelectedItemId, toggleSource, flags, setFlags, toggleFlag, updateItem, deleteItem }}>
       {children}
     </AppContext.Provider>
   )

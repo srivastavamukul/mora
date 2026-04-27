@@ -34,7 +34,7 @@ function RelatedCard({ item, onClick }) {
 
 export default function ItemDetail() {
   const navigate = useNavigate()
-  const { items, selectedItemId, setSelectedItemId, flags, toggleFlag } = useApp()
+  const { items, selectedItemId, setSelectedItemId, flags, toggleFlag, deleteItem } = useApp()
   const item = items.find(i => i.id === selectedItemId)
 
   if (!item) {
@@ -59,16 +59,39 @@ export default function ItemDetail() {
     navigate('/item')
   }
 
+  const handleDelete = () => {
+    if (confirm('Are you sure you want to delete this item?')) {
+      deleteItem(item.id)
+      navigate('/moodboard')
+    }
+  }
+
   return (
     <div className="pt-8 pb-24 px-6 lg:px-12 min-h-screen relative w-full max-w-7xl mx-auto">
-      <div className="mb-8">
+      <div className="flex items-center justify-between gap-4 mb-8">
         <Link
           to="/moodboard"
-          className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm uppercase tracking-widest w-fit"
+          className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm uppercase tracking-widest"
         >
           <span className="material-symbols-outlined">arrow_back</span>
           Back
         </Link>
+        <div className="flex gap-3">
+          <button
+            onClick={() => navigate(`/add?id=${item.id}`)}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container border border-white/10 text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high hover:border-primary transition-all"
+          >
+            <span className="material-symbols-outlined text-[18px]">edit</span>
+            Edit
+          </button>
+          <button
+            onClick={handleDelete}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container border border-tertiary-container/30 text-tertiary font-label-sm text-label-sm hover:bg-tertiary-container/10 transition-all"
+          >
+            <span className="material-symbols-outlined text-[18px]">delete</span>
+            Delete
+          </button>
+        </div>
       </div>
 
       <h1 className="font-display-xl text-display-xl text-on-surface mb-4">{item.title}</h1>

@@ -7,6 +7,7 @@ import Constellations from './pages/Constellations'
 import Sources from './pages/Sources'
 import NudgeCenter from './pages/NudgeCenter'
 import ItemDetail from './pages/ItemDetail'
+import AddItem from './pages/AddItem'
 import Settings from './pages/Settings'
 import EmptyState from './pages/EmptyState'
 
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/sources" element={<Sources />} />
           <Route path="/nudge" element={<NudgeCenter />} />
           <Route path="/item" element={<ItemDetail />} />
+          <Route path="/add" element={<AddItem />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/empty" element={<EmptyState />} />
         </Route>

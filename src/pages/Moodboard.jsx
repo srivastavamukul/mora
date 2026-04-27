@@ -107,13 +107,27 @@ function renderTileContent(item) {
 
 export default function Moodboard() {
   const [activeFilter, setActiveFilter] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
   const { items, setSelectedItemId } = useApp()
 
+  const matchesSearch = (item) => {
+    const query = searchQuery.trim().toLowerCase()
+    if (!query) return true
 
-  const filtered = activeFilter === 'all'
-    ? items
-    : items.filter(item => item.filterKey === activeFilter)
+    return (
+      item.title.toLowerCase().includes(query) ||
+      item.source.toLowerCase().includes(query) ||
+      item.tags.some(tag => tag.toLowerCase().includes(query)) ||
+      (item.mood && item.mood.toLowerCase().includes(query))
+    )
+  }
+
+  const filtered = items.filter(item => {
+    const matchesType = activeFilter === 'all' || item.filterKey === activeFilter
+    const matchesSearch_result = matchesSearch(item)
+    return matchesType && matchesSearch_result
+  })
 
   const filteredTagSet = new Set(filtered.flatMap(i => i.tags))
   const suggestions = activeFilter === 'all'
@@ -125,12 +139,21 @@ export default function Moodboard() {
 
       {/* Page header */}
       <section className="mb-xl relative">
-        <div className="flex items-center gap-4 mb-sm">
-          <h1 className="font-headline-lg text-headline-lg text-on-surface">Digital Sentiment</h1>
-          <div className="px-3 py-1 rounded-full bg-surface-container-high border border-white/10 flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-secondary-container shadow-[0_0_8px_#00eefc]" />
-            <span className="font-label-sm text-label-sm text-secondary-fixed">Reflective Neon</span>
+        <div className="flex items-center justify-between gap-4 mb-sm">
+          <div className="flex items-center gap-4">
+            <h1 className="font-headline-lg text-headline-lg text-on-surface">Digital Sentiment</h1>
+            <div className="px-3 py-1 rounded-full bg-surface-container-high border border-white/10 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-secondary-container shadow-[0_0_8px_#00eefc]" />
+              <span className="font-label-sm text-label-sm text-secondary-fixed">Reflective Neon</span>
+            </div>
           </div>
+          <button
+            onClick={() => navigate('/add')}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-on-primary font-label-sm text-label-sm hover:shadow-[0_0_15px_#ff479c] transition-all whitespace-nowrap"
+          >
+            <span className="material-symbols-outlined text-[20px]">add</span>
+            Add Item
+          </button>
         </div>
         <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
           Your curated memories from the past cycle, organized by emotional resonance rather than chronology.
@@ -147,28 +170,42 @@ export default function Moodboard() {
             <h2 className="font-headline-md text-headline-md text-on-surface">What should I revisit today?</h2>
           </div>
 
-          {/* Filter chips */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 flex-wrap">
-            {FILTER_KEYS.map(key => (
-              <button
-                key={key}
-                onClick={() => setActiveFilter(key)}
-                className={`px-3 py-1 rounded-full font-label-sm text-label-sm border whitespace-nowrap transition-all duration-200 ${
-                  activeFilter === key
-                    ? 'bg-primary/20 border-primary text-primary'
-                    : 'bg-surface-container-high border-white/10 text-on-surface-variant hover:border-white/30 hover:text-on-surface'
-                }`}
-              >
-                {FILTER_LABELS[key]}
-              </button>
-            ))}
+          {/* Search input */}
+          <div className="flex items-center gap-2 flex-1 sm:flex-none sm:max-w-xs">
+            <span className="material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
+            <input
+              type="text"
+              placeholder="Search items..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 px-3 py-2 rounded-full bg-surface-container border border-white/10 text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary transition-colors font-body-sm text-body-sm"
+            />
           </div>
+        </div>
+
+        {/* Filter chips */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 flex-wrap mb-md">
+          {FILTER_KEYS.map(key => (
+            <button
+              key={key}
+              onClick={() => setActiveFilter(key)}
+              className={`px-3 py-1 rounded-full font-label-sm text-label-sm border whitespace-nowrap transition-all duration-200 ${
+                activeFilter === key
+                  ? 'bg-primary/20 border-primary text-primary'
+                  : 'bg-surface-container-high border-white/10 text-on-surface-variant hover:border-white/30 hover:text-on-surface'
+              }`}
+            >
+              {FILTER_LABELS[key]}
+            </button>
+          ))}
         </div>
 
         {/* Dynamic bento grid */}
         {filtered.length === 0 ? (
           <div className="flex items-center justify-center h-48 border border-white/5 rounded-xl bg-surface-container-lowest">
-            <p className="text-on-surface-variant font-body-md text-body-md">No items for this filter.</p>
+            <p className="text-on-surface-variant font-body-md text-body-md">
+              {searchQuery.trim() ? 'No items found.' : 'No items for this filter.'}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter">
