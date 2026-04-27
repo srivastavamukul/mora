@@ -2,22 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { FILTER_KEYS, FILTER_LABELS } from '../data/items'
-
-const BADGE_CONFIG = {
-  song: { badge: 'SONG CLIP', badgeColor: 'text-primary' },
-  image: { badge: 'PINNED IMAGE', badgeColor: 'text-tertiary' },
-  note: { badge: 'NOTE', badgeColor: 'text-secondary' },
-  insight: { badge: 'INSIGHT', badgeColor: 'text-secondary' },
-  activity: { badge: 'ACTIVITY', badgeColor: 'text-on-surface-variant' },
-}
-
-const COLSPAN_CONFIG = {
-  song: 'md:col-span-8',
-  image: 'md:col-span-5',
-  note: 'md:col-span-4',
-  insight: 'md:col-span-4',
-  activity: 'md:col-span-6',
-}
+import { normalizeItem } from '../utils/normalizeCapture'
 
 export default function AddItem() {
   const navigate = useNavigate()
@@ -35,6 +20,7 @@ export default function AddItem() {
     imageUrl: '',
     tags: '',
     mood: '',
+    url: '',
   })
 
   useEffect(() => {
@@ -42,10 +28,11 @@ export default function AddItem() {
       setFormData({
         title: existingItem.title,
         source: existingItem.source,
-        filterKey: existingItem.filterKey,
-        imageUrl: existingItem.imageUrl || '',
-        tags: existingItem.tags.join(', '),
+        filterKey: existingItem.type,
+        imageUrl: existingItem.metadata?.thumbnail || '',
+        tags: existingItem.tags ? existingItem.tags.join(', ') : '',
         mood: existingItem.mood || '',
+        url: existingItem.url || '',
       })
     }
   }, [existingItem])
@@ -58,33 +45,19 @@ export default function AddItem() {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    const parsedTags = formData.tags
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0)
-
-    const itemData = {
-      title: formData.title,
-      source: formData.source,
-      filterKey: formData.filterKey,
-      imageUrl: formData.imageUrl,
-      tags: parsedTags.length > 0 ? parsedTags : ['uncategorized'],
-      mood: formData.mood || null,
-      ...BADGE_CONFIG[formData.filterKey],
-      colSpanClass: COLSPAN_CONFIG[formData.filterKey],
+    // Validation: either title or URL required
+    if (!formData.title.trim() && !formData.url) {
+      alert("Title or URL is required")
+      return
     }
+
+    // Create normalized item
+    const itemData = normalizeItem(formData, existingItem)
 
     if (isEditing) {
       updateItem(existingItem.id, itemData)
     } else {
-      const newItem = {
-        id: String(Date.now()),
-        body: 'Added just now',
-        daysAgo: 0,
-        tiltClass: '',
-        ...itemData,
-      }
-      setItems(prev => [...prev, newItem])
+      setItems(prev => [...prev, itemData])
     }
 
     navigate('/moodboard')
@@ -106,10 +79,26 @@ export default function AddItem() {
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* URL */}
+        <div>
+          <label htmlFor="url" className="block font-label-lg text-label-lg text-on-surface mb-2">
+            URL (optional)
+          </label>
+          <input
+            id="url"
+            type="url"
+            name="url"
+            value={formData.url}
+            onChange={handleChange}
+            placeholder="https://..."
+            className="w-full px-4 py-3 rounded-xl bg-surface-container border border-white/10 text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary transition-colors"
+          />
+        </div>
+
         {/* Title */}
         <div>
           <label htmlFor="title" className="block font-label-lg text-label-lg text-on-surface mb-2">
-            Title *
+            Title {!formData.url && '*'}
           </label>
           <input
             id="title"
@@ -117,16 +106,21 @@ export default function AddItem() {
             name="title"
             value={formData.title}
             onChange={handleChange}
-            required
+            required={!formData.url}
             placeholder="Enter item title"
             className="w-full px-4 py-3 rounded-xl bg-surface-container border border-white/10 text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary transition-colors"
           />
+          {formData.url && !formData.title && (
+            <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
+              Will be derived from URL if left empty
+            </p>
+          )}
         </div>
 
         {/* Source */}
         <div>
           <label htmlFor="source" className="block font-label-lg text-label-lg text-on-surface mb-2">
-            Source *
+            Source {!formData.url && '*'}
           </label>
           <input
             id="source"
@@ -134,10 +128,15 @@ export default function AddItem() {
             name="source"
             value={formData.source}
             onChange={handleChange}
-            required
+            required={!formData.url}
             placeholder="e.g., spotify, pinterest, instagram"
             className="w-full px-4 py-3 rounded-xl bg-surface-container border border-white/10 text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary transition-colors"
           />
+          {formData.url && !formData.source && (
+            <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
+              Will be derived from URL if left empty
+            </p>
+          )}
         </div>
 
         {/* Type (filterKey) */}

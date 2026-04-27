@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
+import { mapItemToUI } from '../utils/mapItemToUI'
 
 export default function Constellations() {
   const { items, setSelectedItemId } = useApp()
@@ -33,7 +34,9 @@ export default function Constellations() {
               #{tag}
             </h2>
             <div className="flex flex-col gap-3">
-              {groupItems.map(item => (
+              {groupItems.map(item => {
+                const { badge } = mapItemToUI(item)
+                return (
                 <button
                   key={item.id}
                   onClick={() => handleItemClick(item.id)}
@@ -42,7 +45,7 @@ export default function Constellations() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">
-                        {item.badge}
+                        {badge}
                       </span>
                       <p className="font-body-lg text-body-lg text-on-surface mt-1">{item.title}</p>
                     </div>
@@ -55,7 +58,7 @@ export default function Constellations() {
                     </div>
                   </div>
                 </button>
-              ))}
+              )})}
             </div>
           </section>
         ))}

@@ -1,5 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
+import { mapItemToUI } from '../utils/mapItemToUI'
 
 function FlagButton({ active, icon, label, onClick }) {
   return (
@@ -18,6 +19,7 @@ function FlagButton({ active, icon, label, onClick }) {
 }
 
 function RelatedCard({ item, onClick }) {
+  const { badge } = mapItemToUI(item)
   return (
     <article
       onClick={onClick}
@@ -26,7 +28,7 @@ function RelatedCard({ item, onClick }) {
       <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20 flex-shrink-0" />
       <div className="min-w-0">
         <p className="font-label-sm text-label-sm text-on-surface truncate">{item.title}</p>
-        <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60">{item.badge}</p>
+        <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60">{badge}</p>
       </div>
     </article>
   )

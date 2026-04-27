@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FILTER_KEYS, FILTER_LABELS } from '../data/items'
 import { useApp } from '../context/AppContext'
+import { mapItemToUI } from '../utils/mapItemToUI'
 
 function SongTile({ item }) {
   return (
@@ -95,13 +96,23 @@ const TILE_BG = {
 }
 
 function renderTileContent(item) {
-  switch (item.filterKey) {
+  switch (item.type || item.filterKey) {
     case 'song':     return <SongTile item={item} />
     case 'insight':  return <InsightTile item={item} />
     case 'image':    return <ImageTile item={item} />
     case 'note':     return <NoteTile item={item} />
     case 'activity': return <ActivityTile item={item} />
-    default:         return null
+    default:
+    return (
+      <div className="p-4">
+        <h3 className="text-on-surface font-headline-md">
+          {item.title || 'Saved Link'}
+        </h3>
+        <p className="text-on-surface-variant text-body-sm">
+          {item.source || 'Unknown source'}
+        </p>
+      </div>
+    )
   }
 }
 
@@ -124,7 +135,7 @@ export default function Moodboard() {
   }
 
   const filtered = items.filter(item => {
-    const matchesType = activeFilter === 'all' || item.filterKey === activeFilter
+    const matchesType = activeFilter === 'all' || (item.type || item.filterKey) === activeFilter
     const matchesSearch_result = matchesSearch(item)
     return matchesType && matchesSearch_result
   })
@@ -132,7 +143,7 @@ export default function Moodboard() {
   const filteredTagSet = new Set(filtered.flatMap(i => i.tags))
   const suggestions = activeFilter === 'all'
     ? []
-    : items.filter(i => i.filterKey !== activeFilter && i.tags.some(t => filteredTagSet.has(t)))
+    : items.filter(i => i.type !== activeFilter && i.tags.some(t => filteredTagSet.has(t)))
 
   return (
     <div className="pt-8 pb-24 px-6 md:px-12 relative min-h-screen">
@@ -209,23 +220,31 @@ export default function Moodboard() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter">
-            {filtered.map(item => (
-              <article
-                key={item.id}
-                onClick={() => { setSelectedItemId(item.id); navigate('/item') }}
-                className={`
-                  ${item.colSpanClass}
-                  ${TILE_BG[item.filterKey]}
-                  rounded-xl border border-white/10 relative group cursor-pointer
-                  transform ${item.tiltClass} hover:-translate-y-1 transition-transform duration-300
-                `}
-              >
-                <div className={`absolute top-4 right-4 bg-surface-container-highest/90 px-2 py-1 border border-white/10 rounded font-label-sm text-label-sm z-20 ${item.badgeColor}`}>
-                  {item.badge}
-                </div>
-                {renderTileContent(item)}
-              </article>
-            ))}
+            {filtered.map(item => {
+              const { badge, badgeColor, colSpanClass, tiltClass } = mapItemToUI(item)
+              return (
+                <article
+                  key={item.id}
+                  onClick={() => { setSelectedItemId(item.id); navigate('/item') }}
+                  className={`
+                    ${colSpanClass}
+                    ${TILE_BG[item.type || item.filterKey] || 'bg-surface-container'}
+                    min-h-[140px]
+                    rounded-xl border border-white/10 relative group cursor-pointer
+                    transform ${tiltClass} hover:-translate-y-1 transition-transform duration-300
+                  `}
+                >
+                  <div className={`absolute top-4 right-4 bg-surface-container-highest/90 px-2 py-1 border border-white/10 rounded font-label-sm text-label-sm z-20 ${badgeColor}`}>
+                    {badge}
+                  </div>
+                  {renderTileContent({
+                    ...item,
+                    title: item.title || 'Saved Link',
+                    body: item.body || 'Saved item'
+                  })}
+                </article>
+              )
+            })}
           </div>
         )}
       </section>
@@ -238,20 +257,23 @@ export default function Moodboard() {
             <h2 className="font-headline-md text-headline-md text-on-surface">Suggested for you</h2>
           </div>
           <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-3">
-            {suggestions.map(item => (
-              <article
-                key={item.id}
-                onClick={() => { setSelectedItemId(item.id); navigate('/item') }}
-                className="cursor-pointer flex items-center gap-3 p-3 rounded-xl bg-surface-container-high border border-white/10 hover:border-white/30 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20 flex-shrink-0" />
-                <div className="min-w-0">
-                  <p className="font-label-sm text-label-sm text-on-surface truncate">{item.title}</p>
-                  <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60">{item.badge}</p>
-                </div>
-                <span className="material-symbols-outlined text-on-surface-variant ml-auto text-[16px]">chevron_right</span>
-              </article>
-            ))}
+            {suggestions.map(item => {
+              const { badge } = mapItemToUI(item)
+              return (
+                <article
+                  key={item.id}
+                  onClick={() => { setSelectedItemId(item.id); navigate('/item') }}
+                  className="cursor-pointer flex items-center gap-3 p-3 rounded-xl bg-surface-container-high border border-white/10 hover:border-white/30 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="font-label-sm text-label-sm text-on-surface truncate">{item.title}</p>
+                    <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60">{badge}</p>
+                  </div>
+                  <span className="material-symbols-outlined text-on-surface-variant ml-auto text-[16px]">chevron_right</span>
+                </article>
+              )
+            })}
           </div>
         </section>
       )}
