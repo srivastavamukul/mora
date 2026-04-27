@@ -1,0 +1,69 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# dependencies
+node_modules/
+
+# build output
+dist/
+build/
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# cache
+.cache/
+.temp/
+.tmp/
+
+# vite specific
+.vite/
+
+# eslint cache
+.eslintcache
+
+# optional: lockfiles (ONLY if you're not standardizing package manager)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
