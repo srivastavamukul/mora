@@ -114,6 +114,12 @@ export function inferTitle(url, source, userTitle) {
 }
 
 export function normalizeTags(tagsInput) {
+  if (Array.isArray(tagsInput)) {
+    return tagsInput
+      .map(t => String(t).trim())
+      .filter(Boolean)
+      .filter((t, i, a) => a.indexOf(t) === i)
+  }
   if (!tagsInput || typeof tagsInput !== 'string') return []
 
   return tagsInput
@@ -130,36 +136,31 @@ export function normalizeItem(formData, existingItem = null) {
   const source = formData.source?.trim() || inferSource(formData.url)
   const title = inferTitle(formData.url, source, formData.title)
   const type = existingItem
-  ? existingItem.type
-  : (formData.filterKey || inferType(source))
+    ? existingItem.type
+    : (formData.type || formData.filterKey || inferType(source))
   const tags = normalizeTags(formData.tags)
 
   return {
     id: isEditing ? existingItem.id : String(now),
     title,
     url: formData.url || null,
-    source: source || 'manual',
+    source: source || 'web',
     type,
     tags,
     mood: formData.mood?.trim() || null,
-    body: '',
+    body: formData.body || (isEditing ? existingItem.body : '') || '',
     createdAt: isEditing ? existingItem.createdAt : now,
     updatedAt: isEditing ? now : null,
-    externalId: null,
+    externalId: formData.externalId ?? null,
+    schemaVersion: existingItem?.schemaVersion || 1,
     metadata: {
-        thumbnail: formData.imageUrl || null,
-        platform: inferPlatform(formData.url) || 'unknown',
-        hostname: safeParseUrl(formData.url)?.hostname || null,
-        canonicalUrl: formData.url || null,
-        captureMode: 'manual',
+      thumbnail: formData.imageUrl || formData.metadata?.thumbnail || null,
+      platform: inferPlatform(formData.url) || null,
+      hostname: safeParseUrl(formData.url)?.hostname || null,
+      canonicalUrl: formData.url || null,
+      origin: formData.origin || 'manual',
+      capturedAt: isEditing ? existingItem.metadata?.capturedAt : now,
     },
-    raw: {
-      title: formData.title,
-      source: formData.source,
-      url: formData.url,
-      tags: formData.tags,
-      mood: formData.mood,
-      imageUrl: formData.imageUrl,
-    },
+    raw: formData.raw || existingItem?.raw || {},
   }
 }

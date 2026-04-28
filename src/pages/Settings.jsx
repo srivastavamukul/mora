@@ -1,11 +1,13 @@
 import { useRef } from 'react'
 import { useApp } from '../context/AppContext'
+import { migrateItem } from '../utils/migrateItem'
 
 export default function Settings() {
   const fileInputRef = useRef(null)
   const { items, sources, flags, setItems, setSources, setFlags, setSelectedItemId } = useApp()
   const handleExport = () => {
     const backup = {
+      schemaVersion: 1,
       items,
       sources,
       flags,
@@ -40,8 +42,11 @@ export default function Settings() {
         if (!Array.isArray(data.sources)) throw new Error('sources must be an array')
         if (typeof data.flags !== 'object' || data.flags === null) throw new Error('flags must be an object')
 
+        // Migrate items to ensure compatibility
+        const migratedItems = data.items.map(migrateItem).filter(Boolean)
+
         // Update state (triggers localStorage via useEffect)
-        setItems(data.items)
+        setItems(migratedItems)
         setSources(data.sources)
         setFlags(data.flags)
         setSelectedItemId(null)

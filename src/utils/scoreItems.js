@@ -1,3 +1,6 @@
+import { getEngagementScore } from './engagementScore.js'
+import { getContextScore } from './contextScore.js'
+
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000
 const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000
 const TWO_DAYS = 2 * 24 * 60 * 60 * 1000
@@ -57,6 +60,18 @@ export function scoreItems(items, flags, context) {
     if ((context?.isMorning || context?.isWorkHours) && hasKeyword(item, FOCUS_KEYWORDS)) {
       score += 10
       reasons.push('Good for focus time')
+    }
+
+    const eng = getEngagementScore(item.id)
+    if (eng.score > 0) {
+      score += eng.score
+      reasons.push(eng.reasons[0])
+    }
+
+    const ctx = getContextScore(item, items)
+    if (ctx.score > 0) {
+      score += ctx.score
+      if (ctx.reason) reasons.push(ctx.reason)
     }
 
     return {

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { items as initialItems } from '../data/items'
 import { sources as initialSources } from '../data/sources'
+import { migrateItem } from '../utils/migrateItem'
 
 const AppContext = createContext(null)
 
@@ -14,7 +15,11 @@ function load(key, fallback) {
 }
 
 export function AppProvider({ children }) {
-  const [items, setItems] = useState(() => load('mora_items', initialItems))
+  const [items, setItems] = useState(() =>
+    load('mora_items', initialItems)
+    .map(migrateItem)
+    .filter(Boolean)
+  )
   const [sources, setSources] = useState(() => load('mora_sources', initialSources))
   const [selectedItemId, setSelectedItemId] = useState(() => load('mora_selectedItemId', null))
   const [flags, setFlags] = useState(() => load('mora_flags', {}))

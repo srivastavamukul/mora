@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { mapItemToUI } from '../utils/mapItemToUI'
+import { logEvent } from '../utils/eventLogger'
 
 function FlagButton({ active, icon, label, onClick }) {
   return (
@@ -39,6 +41,11 @@ export default function ItemDetail() {
   const { items, selectedItemId, setSelectedItemId, flags, toggleFlag, deleteItem } = useApp()
   const item = items.find(i => i.id === selectedItemId)
 
+  useEffect(() => {
+    if (!item) return
+    logEvent(item.id, 'open')
+  }, [item?.id])
+
   if (!item) {
     return (
       <div className="pt-8 pb-24 px-6 lg:px-12 min-h-screen w-full max-w-7xl mx-auto">
@@ -54,7 +61,8 @@ export default function ItemDetail() {
   }
 
   const itemFlags = flags[item.id] ?? {}
-  const relatedItems = items.filter(i => i.id !== item.id && i.tags.some(t => item.tags.includes(t)))
+  const itemTags = Array.isArray(item.tags) ? item.tags : []
+  const relatedItems = items.filter(i => i.id !== item.id && (Array.isArray(i.tags) ? i.tags : []).some(t => itemTags.includes(t)))
 
   const handleRelatedClick = (relatedItem) => {
     setSelectedItemId(relatedItem.id)
@@ -96,7 +104,7 @@ export default function ItemDetail() {
         </div>
       </div>
 
-      <h1 className="font-display-xl text-display-xl text-on-surface mb-4">{item.title}</h1>
+      <h1 className="font-display-xl text-display-xl text-on-surface mb-4">{item.title || 'Saved Link'}</h1>
 
       <div className="w-full h-64 rounded-xl bg-surface-container-high mb-6 overflow-hidden">
         <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
@@ -120,7 +128,7 @@ export default function ItemDetail() {
 
       {/* Tags */}
       <div className="flex flex-wrap gap-2 mb-10">
-        {item.tags.map(tag => (
+        {itemTags.map(tag => (
           <span
             key={tag}
             className="px-3 py-1 rounded-full bg-surface-container-high border border-white/10 font-label-sm text-label-sm text-on-surface-variant"

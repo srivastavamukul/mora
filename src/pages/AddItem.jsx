@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { FILTER_KEYS, FILTER_LABELS } from '../data/items'
-import { normalizeItem } from '../utils/normalizeCapture'
+import { captureItem } from '../utils/captureItem'
+import { deduplicateCapture } from '../utils/deduplicateCapture'
+import { logEvent } from '../utils/eventLogger'
 
 export default function AddItem() {
   const navigate = useNavigate()
@@ -51,15 +53,25 @@ export default function AddItem() {
       return
     }
 
-    // Create normalized item
-    const itemData = normalizeItem(formData, existingItem)
+    // Create normalized item using unified capture pipeline
+    const itemData = captureItem({
+      ...formData,
+      type: formData.filterKey,
+    }, existingItem)
 
     if (isEditing) {
       updateItem(existingItem.id, itemData)
+      logEvent(existingItem.id, 'edit')
     } else {
-      setItems(prev => [...prev, itemData])
+      setItems(prev => {
+        const { isDuplicate } = deduplicateCapture(prev, itemData)
+        if (isDuplicate) return prev
+      
+        logEvent(itemData.id, 'save')
+        return [...prev, itemData]
+      })
     }
-
+    
     navigate('/moodboard')
   }
 
