@@ -87,6 +87,15 @@ export default function ItemDetail() {
           Back
         </Link>
         <div className="flex gap-3">
+          {item.url && (
+            <button
+              onClick={() => window.open(item.url, '_blank', 'noopener,noreferrer')}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container border border-white/10 text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high hover:border-primary transition-all"
+            >
+              <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+              Open
+            </button>
+          )}
           <button
             onClick={() => navigate(`/add?id=${item.id}`)}
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container border border-white/10 text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high hover:border-primary transition-all"
@@ -104,11 +113,24 @@ export default function ItemDetail() {
         </div>
       </div>
 
-      <h1 className="font-display-xl text-display-xl text-on-surface mb-4">{item.title || 'Saved Link'}</h1>
+      <h1 className="font-display-xl text-display-xl text-on-surface mb-1">{item.title || 'Saved Link'}</h1>
+      {item.source && (
+        <p className="font-label-sm text-label-sm text-on-surface-variant/60 mb-4 flex items-center gap-1">
+          <span className="material-symbols-outlined text-[13px]">link</span>
+          {item.source}
+        </p>
+      )}
 
       <div className="w-full h-64 rounded-xl bg-surface-container-high mb-6 overflow-hidden">
-        <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
+        {(item.thumbnail || '')
+          ? <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
+          : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
+        }
       </div>
+
+      {(item.description || '') && (
+        <p className="font-body-md text-body-md text-on-surface-variant mb-6 line-clamp-4">{item.description}</p>
+      )}
 
       {/* Flags */}
       <div className="flex flex-wrap gap-3 mb-6">

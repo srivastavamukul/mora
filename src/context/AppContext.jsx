@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import { items as initialItems } from '../data/items'
 import { sources as initialSources } from '../data/sources'
 import { migrateItem } from '../utils/migrateItem'
+import { initBridge } from '../utils/moraBridge'
 
 const AppContext = createContext(null)
 
@@ -24,6 +25,7 @@ export function AppProvider({ children }) {
   const [selectedItemId, setSelectedItemId] = useState(() => load('mora_selectedItemId', null))
   const [flags, setFlags] = useState(() => load('mora_flags', {}))
 
+  useEffect(() => initBridge(setItems), [])
   useEffect(() => { localStorage.setItem('mora_items', JSON.stringify(items)) }, [items])
   useEffect(() => { localStorage.setItem('mora_sources', JSON.stringify(sources)) }, [sources])
   useEffect(() => { localStorage.setItem('mora_selectedItemId', JSON.stringify(selectedItemId)) }, [selectedItemId])

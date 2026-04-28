@@ -149,15 +149,73 @@ function renderTileContent(item) {
   switch (item.type || item.filterKey) {
     case 'song':     return <SongTile item={item} />
     case 'insight':  return <InsightTile item={item} />
-    case 'image':    return <ImageTile item={item} />
+    case 'image':
+      if (item.url || item.thumbnail) {
+        return (
+          <>
+            {item.source && <span className="absolute top-2 left-2 z-20 px-1.5 py-0.5 rounded bg-black/60 border border-white/10 text-[10px] text-white/70 capitalize leading-none">{item.source}</span>}
+            <div className="h-40 w-full relative overflow-hidden rounded-t-xl">
+              {(item.thumbnail || '')
+                ? <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
+                : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
+              }
+            </div>
+            <div className="p-4">
+              <h3 className="text-on-surface font-headline-md leading-snug">{item.title}</h3>
+            </div>
+          </>
+        )
+      }
+      return <ImageTile item={item} />
     case 'note':     return <NoteTile item={item} />
     case 'activity': return <ActivityTile item={item} />
+    case 'video':
+      return (
+        <>
+          {item.source && <span className="absolute top-2 left-2 z-20 px-1.5 py-0.5 rounded bg-black/60 border border-white/10 text-[10px] text-white/70 capitalize leading-none">{item.source}</span>}
+          <div className="h-40 w-full relative overflow-hidden rounded-t-xl">
+            {(item.thumbnail || '')
+              ? <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
+              : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
+            }
+            <div className="absolute inset-0 bg-black/30" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-black/50 border border-white/20 flex items-center justify-center backdrop-blur-sm">
+                <span className="material-symbols-outlined text-white/90 text-[20px]">play_arrow</span>
+              </div>
+            </div>
+          </div>
+          <div className="p-4">
+            <h3 className="text-on-surface font-headline-md leading-snug">{item.title}</h3>
+            {item.source && (
+              <p className="font-label-sm text-label-sm text-on-surface-variant/60 mt-1 flex items-center gap-1">
+                <span className="material-symbols-outlined text-[12px]">link</span>
+                {item.source}
+              </p>
+            )}
+          </div>
+        </>
+      )
     default:
       return (
-        <div className="p-4">
-          <h3 className="text-on-surface font-headline-md">{item.title}</h3>
-          <p className="text-on-surface-variant text-body-sm">{item.source}</p>
-        </div>
+        <>
+          {item.source && <span className="absolute top-2 left-2 z-20 px-1.5 py-0.5 rounded bg-black/60 border border-white/10 text-[10px] text-white/70 capitalize leading-none">{item.source}</span>}
+          <div className="h-32 w-full relative overflow-hidden rounded-t-xl">
+            {(item.thumbnail || '')
+              ? <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
+              : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
+            }
+          </div>
+          <div className="p-4">
+            <h3 className="text-on-surface font-headline-md leading-snug">{item.title}</h3>
+            {item.source && (
+              <p className="font-label-sm text-label-sm text-on-surface-variant/60 mt-1 flex items-center gap-1">
+                <span className="material-symbols-outlined text-[12px]">link</span>
+                {item.source}
+              </p>
+            )}
+          </div>
+        </>
       )
   }
 }
@@ -183,6 +241,14 @@ function BentoGrid({ items, onSelect }) {
             <div className={`absolute top-4 right-4 bg-surface-container-highest/90 px-2 py-1 border border-white/10 rounded font-label-sm text-label-sm z-20 ${badgeColor}`}>
               {badge}
             </div>
+            {item.url && (
+              <button
+                onClick={e => { e.stopPropagation(); window.open(item.url, '_blank', 'noopener,noreferrer') }}
+                className="absolute bottom-3 right-3 z-30 w-7 h-7 flex items-center justify-center rounded-full bg-surface-container-highest/80 border border-white/10 text-on-surface-variant hover:text-primary hover:border-primary/50 transition-all opacity-0 group-hover:opacity-100"
+              >
+                <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+              </button>
+            )}
             {renderTileContent(safe)}
           </article>
         )
@@ -467,7 +533,12 @@ export default function Moodboard() {
                   onClick={() => handleSelect(item.id)}
                   className="cursor-pointer flex items-center gap-3 p-3 rounded-xl bg-surface-container-high border border-white/10 hover:border-white/30 transition-colors"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20 flex-shrink-0" />
+                  <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden">
+                    {item.thumbnail
+                      ? <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
+                      : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
+                    }
+                  </div>
                   <div className="min-w-0">
                     <p className="font-label-sm text-label-sm text-on-surface truncate">{safe.title}</p>
                     <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60">{badge}</p>
