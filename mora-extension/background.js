@@ -1,4 +1,5 @@
 chrome.runtime.onMessage.addListener((message) => {
+  console.log("BG RECEIVED:", message.payload);
   if (message.type !== "PAGE_DATA") return;
 
   const { url, title, description, thumbnail, source, type, selectedText } = message.payload;
@@ -29,5 +30,6 @@ chrome.runtime.onMessage.addListener((message) => {
         }
       });
     });
+    console.log("QUEUE AFTER PUSH:", queue.length);
   });
 });
