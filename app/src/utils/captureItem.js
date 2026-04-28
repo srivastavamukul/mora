@@ -6,7 +6,7 @@ export function captureItem(input = {}, existingItem = null) {
   return normalizeItem(
     {
       ...rest,
-      origin: captureMode || rest.origin || 'manual',
+      origin: rest.origin || captureMode || 'manual',
       raw: input.raw ?? input,
     },
     existingItem

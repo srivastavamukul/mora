@@ -21,14 +21,12 @@ chrome.runtime.onMessage.addListener((message) => {
 
     queue.push(item);
 
-    chrome.storage.local.set({ mora_capture_queue: queue });
-
-    chrome.tabs.query({ url: "http://localhost:5173/*" }, (tabs) => {
-      if (!tabs.length) return;
-
-      chrome.tabs.sendMessage(tabs[0].id, {
-        type: "MORA_CAPTURE",
-        items: [item],
+    chrome.storage.local.set({ mora_capture_queue: queue }, () => {
+      chrome.tabs.query({ url: "http://localhost:5173/*" }, (tabs) => {
+        for (const tab of tabs) {
+          chrome.tabs.sendMessage(tab.id, { type: "MORA_CAPTURE", items: [item] })
+            .catch(() => {});
+        }
       });
     });
   });

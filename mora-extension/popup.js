@@ -9,10 +9,11 @@ btn.addEventListener("click", async () => {
 
   await chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    files: ["extractor.js"]
+    files: ["extractor.js"],
   });
 
   setTimeout(() => {
     status.textContent = "Saved ✓";
-  }, 600);
+    btn.disabled = false;
+  }, 1000);
 });
