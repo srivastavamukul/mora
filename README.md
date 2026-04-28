@@ -66,17 +66,33 @@ All content items are normalized to the following structure:
 | `metadata` | Object | Supplemental data |
 | `raw` | Object | Original input object |
 
+## 📁 Project Structure
+
+The project is structured as a monorepo containing the main web application and a browser extension:
+
+*   `/app`: The main React application (Vite, React 18+, Tailwind CSS).
+*   `/mora-extension`: The Chrome extension for capturing and sending data to the main app.
+*   `package.json`: The root workspace configuration managing the scripts and dependencies.
+
 ## 🚀 Local Development
 
-1. **Install dependencies**:
+1. **Install dependencies** (from the root, this will install workspace dependencies):
    ```bash
    npm install
    ```
-2. **Start development server**:
+2. **Start development server** (starts the Vite app):
    ```bash
    npm run dev
    ```
-3. **Build for production**:
+3. **Build for production** (builds the Vite app):
    ```bash
    npm run build
    ```
+
+### 🧩 Browser Extension
+
+To load the capture extension locally:
+1. Open Chrome and navigate to `chrome://extensions/`.
+2. Enable **Developer mode** in the top right corner.
+3. Click **Load unpacked** and select the `mora-extension` directory inside this project.
+4. The extension communicates directly with the web app running at `http://localhost:5173`.

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mora Capture</title>
+  <style>
+    body {
+      width: 200px;
+      padding: 16px;
+      font-family: sans-serif;
+      background: #0d0d0d;
+      color: #f0f0f0;
+      margin: 0;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #7c3aed;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+    #status {
+      margin-top: 10px;
+      font-size: 12px;
+      text-align: center;
+      color: #a0a0a0;
+      min-height: 16px;
+    }
+  </style>
+</head>
+<body>
+  <button id="saveBtn">Save to Mora</button>
+  <div id="status"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
