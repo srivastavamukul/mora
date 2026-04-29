@@ -11,15 +11,16 @@
     return ''
   }
 
+  
   // Discard if user navigated away during async extraction
   function send(payload) {
     if (window.location.href !== url) return
     chrome.runtime.sendMessage({ type: 'PAGE_DATA', payload })
   }
-
+  
   let source = 'web'
   let type = 'link'
-
+  
   if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
     source = 'youtube'
     type = 'video'
@@ -30,12 +31,20 @@
     source = 'instagram'
     type = 'post'
   }
-
+  
   const selectedText = window.getSelection()?.toString() || ''
-
+  
   // Instagram: og: meta tags are NOT updated on SPA navigation.
   // Read live DOM. sendMessage fires inside callback only.
   if (source === 'instagram') {
+    function isValidInstagramMedia(src) {
+      return src && (
+        src.includes('cdninstagram') ||
+        src.includes('fbcdn') ||
+        src.includes('scontent')
+      )
+    }
+    
     function isInstagramCDN(src) {
       return src && (
         src.includes('cdninstagram') ||
@@ -44,7 +53,7 @@
       )
     }
 
-    function getInstagramThumbnail() {
+    function getInstagramThumbnail(attemppts) {
       // Reels: video poster attribute is the thumbnail, not an img element
       const videoPoster = [...document.querySelectorAll('video[poster]')]
         .map(v => v.poster || '')
@@ -66,21 +75,25 @@
         .find(isInstagramCDN)
       if (unloaded) return unloaded
 
-      return getMeta(['meta[property="og:image"]', 'meta[name="twitter:image"]']) || ''
+      const metaImg = getMeta(['meta[property="og:image"]', 'meta[name="twitter:image"]']) || ''
+
+      // ONLY use meta as LAST fallback (not primary)
+      return attempts >= 4 ? metaImg : ''
     }
 
     function getInstagramTitle() {
       const title = document.title || ''
       // document.title is just "Instagram" during SPA transition — use og:title as fallback
-      if (title && title.toLowerCase() !== 'instagram') return title
+      if (title && title.toLowerCase() !== 'instagram' && !title.includes('•')) return title
       return getMeta(['meta[property="og:title"]']) || title || ''
     }
 
     function extractInstagram(attempts) {
-      const thumbnail = getInstagramThumbnail()
+      const thumbnail = getInstagramThumbnail(attempts)
       const title = getInstagramTitle()
+      const validThumbnail = isValidInstagramMedia(thumbnail)
 
-      if (thumbnail || attempts >= 6) {
+      if (validThumbnail || attempts >= 6) {
         const article = document.querySelector('article')
         const caption = article?.querySelector('span[dir="auto"]')?.textContent?.trim() || ''
         const description =

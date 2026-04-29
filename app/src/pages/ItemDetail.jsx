@@ -78,6 +78,64 @@ export default function ItemDetail() {
 
   return (
     <div className="pt-8 pb-24 px-6 lg:px-12 min-h-screen relative w-full max-w-7xl mx-auto">
+      {/* Platform-specific banner */}
+      {item.source === 'youtube' ? (
+        <div
+          className="w-full h-64 rounded-xl bg-surface-container-high mb-6 overflow-hidden cursor-pointer group relative"
+          onClick={() => item.url && window.open(item.url, '_blank', 'noopener,noreferrer')}
+        >
+          {item.thumbnail
+            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
+          }
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-16 h-16 rounded-full bg-black/60 flex items-center justify-center group-hover:bg-black/80 transition-colors">
+              <span className="material-symbols-outlined text-white text-[36px] translate-x-0.5">play_arrow</span>
+            </div>
+          </div>
+          <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/60 text-white font-label-sm text-label-sm tracking-wide pointer-events-none">YouTube</span>
+        </div>
+      ) : item.source === 'instagram' ? (
+        <div
+          className={`w-full rounded-xl bg-surface-container-high mb-6 overflow-hidden cursor-pointer group relative ${item.type === 'video' ? 'aspect-[9/16] max-h-[480px]' : 'aspect-square max-h-[400px]'}`}
+          onClick={() => item.url && window.open(item.url, '_blank', 'noopener,noreferrer')}
+        >
+          {item.thumbnail
+            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
+          }
+          {item.type === 'video' && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-14 h-14 rounded-full bg-black/60 flex items-center justify-center">
+                <span className="material-symbols-outlined text-white text-[30px] translate-x-0.5">play_arrow</span>
+              </div>
+            </div>
+          )}
+          <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/60 text-white font-label-sm text-label-sm tracking-wide pointer-events-none">Instagram</span>
+        </div>
+      ) : item.source === 'pinterest' ? (
+        <div
+          className="w-full h-80 rounded-xl bg-surface-container-high mb-6 overflow-hidden cursor-pointer group relative"
+          onClick={() => item.url && window.open(item.url, '_blank', 'noopener,noreferrer')}
+        >
+          {item.thumbnail
+            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
+          }
+          <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/60 text-white font-label-sm text-label-sm tracking-wide pointer-events-none">Pinterest</span>
+        </div>
+      ) : (
+        <div
+          className="w-full h-64 rounded-xl bg-surface-container-high mb-6 overflow-hidden cursor-pointer group"
+          onClick={() => item.url && window.open(item.url, '_blank', 'noopener,noreferrer')}
+        >
+          {item.thumbnail
+            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
+          }
+        </div>
+      )}
+
       <div className="flex items-center justify-between gap-4 mb-8">
         <Link
           to="/moodboard"
@@ -121,15 +179,8 @@ export default function ItemDetail() {
         </p>
       )}
 
-      <div className="w-full h-64 rounded-xl bg-surface-container-high mb-6 overflow-hidden">
-        {(item.thumbnail || '')
-          ? <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
-          : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
-        }
-      </div>
-
       {(item.description || '') && (
-        <p className="font-body-md text-body-md text-on-surface-variant mb-6 line-clamp-4">{item.description}</p>
+        <p className="font-body-md text-body-md text-on-surface-variant mb-6">{item.description}</p>
       )}
 
       {/* Flags */}

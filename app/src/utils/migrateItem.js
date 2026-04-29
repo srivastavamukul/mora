@@ -3,16 +3,18 @@
  * Ensures old items are compatible with the latest schema
  */
 
-const CURRENT_SCHEMA_VERSION = 1
+const CURRENT_SCHEMA_VERSION = 2
 
 export function migrateItem(item) {
   if (!item || typeof item !== 'object') return null
 
-  // Create new object without mutation
   const migrated = { ...item }
 
-  // Ensure required fields exist with proper defaults
-  if (migrated.url === undefined) migrated.url = null
+  if (!migrated.url || typeof migrated.url !== 'string') return null
+  migrated.url = migrated.url.trim()
+  if (!migrated.title) migrated.title = 'Untitled'
+  if (!migrated.thumbnail) migrated.thumbnail = ''
+  if (!migrated.description) migrated.description = ''
   if (!migrated.metadata || typeof migrated.metadata !== 'object') migrated.metadata = {}
   if (!migrated.raw || typeof migrated.raw !== 'object') migrated.raw = {}
   if (!Array.isArray(migrated.tags)) migrated.tags = []
@@ -20,10 +22,17 @@ export function migrateItem(item) {
   if (migrated.externalId === undefined) migrated.externalId = null
   if (migrated.body === undefined) migrated.body = ''
 
-  // Standardize metadata structure
+  // filterKey → type (if type is missing)
+  if (!migrated.type && migrated.filterKey) migrated.type = migrated.filterKey
+  if (!migrated.type) migrated.type = 'link'
+  if (!migrated.source) migrated.source = 'web'
+
   const oldMetadata = migrated.metadata
   migrated.metadata = {
-    thumbnail: oldMetadata?.thumbnail || null,
+    thumbnail: oldMetadata?.thumbnail || migrated.thumbnail || '',
+    description: oldMetadata?.description || migrated.description || '',
+    source: oldMetadata?.source || migrated.source || 'web',
+    type: oldMetadata?.type || migrated.type || 'link',
     platform: oldMetadata?.platform || null,
     hostname: oldMetadata?.hostname || null,
     canonicalUrl: oldMetadata?.canonicalUrl || null,
@@ -31,7 +40,6 @@ export function migrateItem(item) {
     capturedAt: oldMetadata?.capturedAt || migrated.createdAt,
   }
 
-  // Handle missing timestamps
   if (!migrated.createdAt || typeof migrated.createdAt !== 'number') {
     migrated.createdAt = Date.now()
   }
@@ -39,24 +47,7 @@ export function migrateItem(item) {
     migrated.updatedAt = null
   }
 
-  // Map legacy fields
-  // filterKey → type (if type is missing)
-  if (!migrated.type && migrated.filterKey) {
-    migrated.type = migrated.filterKey
-  }
-  if (!migrated.type) {
-    migrated.type = 'link'
-  }
-
-  // Ensure source has fallback
-  if (!migrated.source) {
-    migrated.source = 'web'
-  }
-
-  // Add schemaVersion if missing
-  if (!migrated.schemaVersion) {
-    migrated.schemaVersion = CURRENT_SCHEMA_VERSION
-  }
+  migrated.schemaVersion = CURRENT_SCHEMA_VERSION
 
   return migrated
 }

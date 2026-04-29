@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FILTER_KEYS, FILTER_LABELS } from '../data/items'
 import { useApp } from '../context/AppContext'
@@ -299,7 +299,8 @@ export default function Moodboard() {
     return matchesType && matchesSearch(item)
   })
 
-  const sorted = sortItems(filtered, flags, sortMode)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const sorted = useMemo(() => sortItems(filtered, flags, sortMode), [filtered, flags, sortMode])
   const dominantTag = detectDominantTag(sorted)
 
   const groups = dominantTag
