@@ -85,11 +85,14 @@ export default function ItemDetail() {
           onClick={() => item.url && window.open(item.url, '_blank', 'noopener,noreferrer')}
         >
           {item.thumbnail
-            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 group-hover:opacity-95 transition-transform duration-300" onError={(e) => {
+              e.target.style.display = "none"
+              e.target.parentNode.style.background = "linear-gradient(to bottom right, rgba(255,71,156,0.2), rgba(0,0,0,0.2))"
+            }}/>
             : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
           }
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-16 h-16 rounded-full bg-black/60 flex items-center justify-center group-hover:bg-black/80 transition-colors">
+            <div className="w-16 h-16 rounded-full bg-black/60 flex items-center justify-center group-hover:bg-black/80 group-hover:opacity-95 transition-colors">
               <span className="material-symbols-outlined text-white text-[36px] translate-x-0.5">play_arrow</span>
             </div>
           </div>
@@ -101,7 +104,10 @@ export default function ItemDetail() {
           onClick={() => item.url && window.open(item.url, '_blank', 'noopener,noreferrer')}
         >
           {item.thumbnail
-            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 group-hover:opacity-95transition-transform duration-300" onError={(e) => {
+              e.target.style.display = "none"
+              e.target.parentNode.style.background = "linear-gradient(to bottom right, rgba(255,71,156,0.2), rgba(0,0,0,0.2))"
+            }}/>
             : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
           }
           {item.type === 'video' && (
@@ -119,7 +125,10 @@ export default function ItemDetail() {
           onClick={() => item.url && window.open(item.url, '_blank', 'noopener,noreferrer')}
         >
           {item.thumbnail
-            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 group-hover:opacity-95 transition-transform duration-300" onError={(e) => {
+              e.target.style.display = "none"
+              e.target.parentNode.style.background = "linear-gradient(to bottom right, rgba(255,71,156,0.2), rgba(0,0,0,0.2))"
+            }}/>
             : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
           }
           <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/60 text-white font-label-sm text-label-sm tracking-wide pointer-events-none">Pinterest</span>
@@ -130,7 +139,10 @@ export default function ItemDetail() {
           onClick={() => item.url && window.open(item.url, '_blank', 'noopener,noreferrer')}
         >
           {item.thumbnail
-            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 group-hover:opacity-95 transition-transform duration-300" onError={(e) => {
+              e.target.style.display = "none"
+              e.target.parentNode.style.background = "linear-gradient(to bottom right, rgba(255,71,156,0.2), rgba(0,0,0,0.2))"
+            }}/>
             : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
           }
         </div>
@@ -171,7 +183,7 @@ export default function ItemDetail() {
         </div>
       </div>
 
-      <h1 className="font-display-xl text-display-xl text-on-surface mb-1">{item.title || 'Saved Link'}</h1>
+      <h1 className="font-display-xl text-display-xl text-on-surface mb-1">{item.title || 'Untitled'}</h1>
       {item.source && (
         <p className="font-label-sm text-label-sm text-on-surface-variant/60 mb-4 flex items-center gap-1">
           <span className="material-symbols-outlined text-[13px]">link</span>
