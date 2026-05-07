@@ -269,7 +269,7 @@ export default function Moodboard() {
   const [sortMode, setSortMode] = useState('default')
   const [urlInput, setUrlInput] = useState('')
   const navigate = useNavigate()
-  const { items, setItems, flags, setSelectedItemId } = useApp()
+  const { items, setItems, flags, setSelectedItemId, interestClusters } = useApp()
 
   const handleUrlAdd = () => {
     const raw = urlInput.trim()
@@ -418,6 +418,28 @@ export default function Moodboard() {
       </section>
 
       <div className="pixel-divider mb-xl w-full" />
+
+      {/* Top Interests */}
+      {interestClusters.length > 0 && (
+        <section className="mb-xl">
+          <div className="flex items-center gap-2 mb-md">
+            <span className="material-symbols-outlined text-tertiary text-[20px]">interests</span>
+            <h2 className="font-title-sm text-title-sm text-on-surface-variant uppercase tracking-widest">Top Interests</h2>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {interestClusters.map(({ tag, count }) => (
+              <button
+                key={tag}
+                onClick={() => setSearchQuery(tag)}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high border border-white/10 hover:border-white/30 transition-colors"
+              >
+                <span className="font-label-sm text-label-sm text-on-surface">#{tag}</span>
+                <span className="font-label-sm text-label-sm text-on-surface-variant opacity-60">{count}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Revisit section */}
       <section className="mb-xl">

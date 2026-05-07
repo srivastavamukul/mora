@@ -1,8 +1,9 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import { items as initialItems } from '../data/items'
 import { sources as initialSources } from '../data/sources'
 import { migrateItem } from '../utils/migrateItem'
 import { initBridge } from '../utils/moraBridge'
+import { buildInterestClusters } from '../utils/buildInterestClusters'
 
 const AppContext = createContext(null)
 
@@ -56,8 +57,10 @@ export function AppProvider({ children }) {
     setItems(prev => prev.filter(item => item.id !== id))
   }
 
+  const interestClusters = useMemo(() => buildInterestClusters(items), [items])
+
   return (
-    <AppContext.Provider value={{ items, setItems, sources, setSources, selectedItemId, setSelectedItemId, toggleSource, flags, setFlags, toggleFlag, updateItem, deleteItem }}>
+    <AppContext.Provider value={{ items, setItems, sources, setSources, selectedItemId, setSelectedItemId, toggleSource, flags, setFlags, toggleFlag, updateItem, deleteItem, interestClusters }}>
       {children}
     </AppContext.Provider>
   )
