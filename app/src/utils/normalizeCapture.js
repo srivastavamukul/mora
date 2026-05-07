@@ -113,6 +113,23 @@ export function inferTitle(url, source, userTitle) {
   return 'Saved Link'
 }
 
+const STOPWORDS = new Set([
+  'the','and','for','with','this','that','from','you','your','are','was',
+  'its','has','had','not','but','they','will','can','all','more','have',
+  'been','what','how','when','who','which','into','about','than','also',
+])
+
+export function extractTags(text) {
+  if (!text || typeof text !== 'string') return []
+  return [...new Set(
+    text
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length >= 3 && !STOPWORDS.has(w))
+  )].slice(0, 5)
+}
+
 export function normalizeTags(tagsInput) {
   if (Array.isArray(tagsInput)) {
     return tagsInput
@@ -138,7 +155,11 @@ export function normalizeItem(formData, existingItem = null) {
   const type = existingItem
     ? existingItem.type
     : (formData.type || formData.filterKey || inferType(source))
-  const tags = normalizeTags(formData.tags)
+  const manualTags = normalizeTags(formData.tags)
+  const textBlob = [formData.title, formData.description, formData.source, formData.selectedText]
+    .filter(Boolean).join(' ')
+  const autoTags = extractTags(textBlob)
+  const tags = [...new Set([...manualTags, ...autoTags.filter(t => !manualTags.includes(t))])].slice(0, 8)
 
   return {
     id: isEditing ? existingItem.id : String(now),
