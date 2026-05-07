@@ -4,7 +4,7 @@ import { migrateItem } from '../utils/migrateItem'
 
 export default function Settings() {
   const fileInputRef = useRef(null)
-  const { items, sources, flags, setItems, setSources, setFlags, setSelectedItemId } = useApp()
+  const { items, sources, flags, setItems, setSources, setFlags, setSelectedItemId, behaviorSignals } = useApp()
   const handleExport = () => {
     const backup = {
       schemaVersion: 1,
@@ -105,6 +105,40 @@ export default function Settings() {
           Export your items, sources, and preferences as a JSON file. Import to restore from backup.
         </p>
       </section>
+
+      {/* Memory Signals Section */}
+      {behaviorSignals && items.length > 0 && (
+        <section className="mb-12">
+          <h2 className="font-headline-md text-headline-md text-on-surface mb-1">Memory Signals</h2>
+          <p className="font-body-sm text-body-sm text-on-surface-variant mb-6">Derived from your saves. No tracking.</p>
+          <div className="flex flex-col gap-3 max-w-md">
+            {behaviorSignals.topSources[0] && (
+              <div className="px-4 py-3 rounded-xl bg-surface-container border border-white/10">
+                <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">Most Active Source</span>
+                <p className="font-body-md text-body-md text-on-surface mt-0.5 capitalize">{behaviorSignals.topSources[0].source}</p>
+              </div>
+            )}
+            {behaviorSignals.topTags[0] && (
+              <div className="px-4 py-3 rounded-xl bg-surface-container border border-white/10">
+                <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">You Save a Lot of</span>
+                <p className="font-body-md text-body-md text-on-surface mt-0.5">
+                  {behaviorSignals.topTags.slice(0, 3).map(t => t.tag).join(', ')}
+                </p>
+              </div>
+            )}
+            {behaviorSignals.dominantType && (
+              <div className="px-4 py-3 rounded-xl bg-surface-container border border-white/10">
+                <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">Dominant Type</span>
+                <p className="font-body-md text-body-md text-on-surface mt-0.5 capitalize">{behaviorSignals.dominantType}</p>
+              </div>
+            )}
+            <div className="px-4 py-3 rounded-xl bg-surface-container border border-white/10">
+              <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">Save Frequency</span>
+              <p className="font-body-md text-body-md text-on-surface mt-0.5 capitalize">{behaviorSignals.saveFrequency}</p>
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   )
 }
