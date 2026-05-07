@@ -4,6 +4,7 @@ import { sources as initialSources } from '../data/sources'
 import { migrateItem } from '../utils/migrateItem'
 import { initBridge } from '../utils/moraBridge'
 import { buildInterestClusters } from '../utils/buildInterestClusters'
+import { buildTimelineGroups } from '../utils/buildTimelineGroups'
 
 const AppContext = createContext(null)
 
@@ -58,9 +59,10 @@ export function AppProvider({ children }) {
   }
 
   const interestClusters = useMemo(() => buildInterestClusters(items), [items])
+  const timelineGroups = useMemo(() => buildTimelineGroups(items), [items])
 
   return (
-    <AppContext.Provider value={{ items, setItems, sources, setSources, selectedItemId, setSelectedItemId, toggleSource, flags, setFlags, toggleFlag, updateItem, deleteItem, interestClusters }}>
+    <AppContext.Provider value={{ items, setItems, sources, setSources, selectedItemId, setSelectedItemId, toggleSource, flags, setFlags, toggleFlag, updateItem, deleteItem, interestClusters, timelineGroups }}>
       {children}
     </AppContext.Provider>
   )

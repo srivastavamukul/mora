@@ -5,6 +5,8 @@ import { useApp } from '../context/AppContext'
 import { mapItemToUI } from '../utils/mapItemToUI'
 import { scoreItems } from '../utils/scoreItems'
 import { getContext } from '../utils/getContext'
+import { getRecencyScore } from '../utils/getRecencyScore'
+import { buildTimelineGroups } from '../utils/buildTimelineGroups'
 import { captureItem } from '../utils/captureItem'
 import { deduplicateCapture } from '../utils/deduplicateCapture'
 import { logEvent } from '../utils/eventLogger'
@@ -27,9 +29,9 @@ function sortItems(items, flags, sortMode) {
   if (sortMode === 'relevant') {
     return scoreItems(items, flags, getContext()).map(r => r.item)
   }
-  // default: saved-not-tried → score desc → older first
+  // default: saved-not-tried → (score + small recency boost) desc → older first
   const scoreMap = new Map(
-    scoreItems(items, flags, getContext()).map(r => [r.item.id, r.score])
+    scoreItems(items, flags, getContext()).map(r => [r.item.id, r.score + getRecencyScore(r.item.createdAt) * 0.1])
   )
   return [...items].sort((a, b) => {
     const aP = !!(flags[a.id]?.isSaved && !flags[a.id]?.isTried)
@@ -308,7 +310,9 @@ export default function Moodboard() {
         { label: dominantTag, items: sorted.filter(i => (Array.isArray(i.tags) ? i.tags : []).includes(dominantTag)) },
         { label: null, items: sorted.filter(i => !(Array.isArray(i.tags) ? i.tags : []).includes(dominantTag)) },
       ].filter(g => g.items.length > 0)
-    : null
+    : sortMode === 'recent'
+      ? buildTimelineGroups(sorted)
+      : null
 
   const visibleIds = new Set(sorted.map(i => i.id))
   const filteredTagSet = new Set(sorted.flatMap(i => Array.isArray(i.tags) ? i.tags : []))
