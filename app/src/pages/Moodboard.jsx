@@ -476,21 +476,16 @@ export default function Moodboard() {
 
         {/* Grid / empty states */}
         {items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 border border-white/5 rounded-xl bg-surface-container-lowest gap-4">
+          <div className="flex flex-col items-center justify-center h-64 border border-white/5 rounded-xl bg-surface-container-lowest gap-4 text-center px-6">
             <span className="material-symbols-outlined text-on-surface-variant text-4xl">add_box</span>
-            <p className="text-on-surface font-body-md text-body-md text-center">Start by adding or capturing items</p>
-            <button
-              onClick={() => navigate('/add')}
-              className="px-4 py-2 rounded-full bg-primary text-on-primary font-label-sm text-label-sm hover:shadow-[0_0_15px_#ff479c] transition-all"
-            >
-              Add Item
-            </button>
+            <p className="text-on-surface font-body-md text-body-md">No saved items yet</p>
+            <p className="text-on-surface-variant font-body-sm text-body-sm">Save links, posts, videos, and notes to build your Mora.</p>
           </div>
         ) : sorted.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 border border-white/5 rounded-xl bg-surface-container-lowest gap-2 text-center px-6">
             <span className="material-symbols-outlined text-on-surface-variant text-3xl">search_off</span>
-            <p className="text-on-surface font-body-md text-body-md">No items match your search</p>
-            <p className="text-on-surface-variant font-body-sm text-body-sm">Try a different filter or add new items</p>
+            <p className="text-on-surface font-body-md text-body-md">No matching items</p>
+            <p className="text-on-surface-variant font-body-sm text-body-sm">Try changing filters or search terms.</p>
           </div>
         ) : groups ? (
           <div className="space-y-8">

@@ -21,10 +21,10 @@ export function initBridge(setItems) {
       for (const raw of payload) {
         try {
           console.log("RAW ITEM:", raw)
-          if (!raw || typeof raw !== 'object') continue
+          if (!raw || typeof raw !== 'object') { batchOutcomes.push('invalid'); continue }
           const candidate = captureItem({ ...raw, origin: 'extension' })
           console.log("CANDIDATE:", candidate)
-          if (!candidate || !candidate.url) continue
+          if (!candidate || !candidate.url) { batchOutcomes.push('invalid'); continue }
           const { isDuplicate } = deduplicateCapture(next, candidate)
           console.log("DEDUP RESULT:", isDuplicate)
           if (isDuplicate) {
@@ -37,7 +37,7 @@ export function initBridge(setItems) {
             console.log("ITEM ADDED:", candidate)
           }
         } catch {
-          // ignore malformed
+          batchOutcomes.push('invalid')
         }
       }
       return changed ? next : current
@@ -45,7 +45,9 @@ export function initBridge(setItems) {
 
     setTimeout(() => {
       if (batchOutcomes.length === 0) return
-      const status = batchOutcomes.includes('duplicate') ? 'duplicate'
+      const allInvalid = batchOutcomes.every(o => o === 'invalid')
+      const status = allInvalid ? 'nothing_valid'
+        : batchOutcomes.includes('duplicate') ? 'duplicate'
         : batchOutcomes.includes('partial') ? 'partial'
         : 'added'
       window.postMessage({ source: 'mora-extension-feedback', status }, window.location.origin)

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { mapItemToUI } from '../utils/mapItemToUI'
@@ -49,15 +49,32 @@ export default function ItemDetail() {
   if (!item) {
     return (
       <div className="pt-8 pb-24 px-6 lg:px-12 min-h-screen w-full max-w-7xl mx-auto">
-        <div className="mb-8">
-          <Link to="/moodboard" className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm uppercase tracking-widest w-fit">
-            <span className="material-symbols-outlined">arrow_back</span>
-            Back
+        <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
+          <span className="material-symbols-outlined text-on-surface-variant text-4xl">error_outline</span>
+          <p className="text-on-surface font-body-md text-body-md">Item not found</p>
+          <Link
+            to="/moodboard"
+            className="px-4 py-2 rounded-full bg-primary text-on-primary font-label-sm text-label-sm hover:shadow-[0_0_15px_#ff479c] transition-all"
+          >
+            Back to Moodboard
           </Link>
         </div>
-        <p className="text-on-surface-variant font-body-md text-body-md">No item selected.</p>
       </div>
     )
+  }
+
+  const [linkError, setLinkError] = useState(false)
+
+  useEffect(() => { setLinkError(false) }, [item?.id])
+
+  const handleOpenLink = (url) => {
+    if (!url) { setLinkError(true); return }
+    try {
+      const w = window.open(url, '_blank', 'noopener,noreferrer')
+      if (!w) setLinkError(true)
+    } catch {
+      setLinkError(true)
+    }
   }
 
   const itemFlags = flags[item.id] ?? {}
@@ -82,7 +99,7 @@ export default function ItemDetail() {
       {item.source === 'youtube' ? (
         <div
           className="w-full h-64 rounded-xl bg-surface-container-high mb-6 overflow-hidden cursor-pointer group relative"
-          onClick={() => item.url && window.open(item.url, '_blank', 'noopener,noreferrer')}
+          onClick={() => handleOpenLink(item.url)}
         >
           {item.thumbnail
             ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 group-hover:opacity-95 transition-transform duration-300" onError={(e) => {
@@ -101,7 +118,7 @@ export default function ItemDetail() {
       ) : item.source === 'instagram' ? (
         <div
           className={`w-full rounded-xl bg-surface-container-high mb-6 overflow-hidden cursor-pointer group relative ${item.type === 'video' ? 'aspect-[9/16] max-h-[480px]' : 'aspect-square max-h-[400px]'}`}
-          onClick={() => item.url && window.open(item.url, '_blank', 'noopener,noreferrer')}
+          onClick={() => handleOpenLink(item.url)}
         >
           {item.thumbnail
             ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 group-hover:opacity-95transition-transform duration-300" onError={(e) => {
@@ -122,7 +139,7 @@ export default function ItemDetail() {
       ) : item.source === 'pinterest' ? (
         <div
           className="w-full h-80 rounded-xl bg-surface-container-high mb-6 overflow-hidden cursor-pointer group relative"
-          onClick={() => item.url && window.open(item.url, '_blank', 'noopener,noreferrer')}
+          onClick={() => handleOpenLink(item.url)}
         >
           {item.thumbnail
             ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 group-hover:opacity-95 transition-transform duration-300" onError={(e) => {
@@ -136,7 +153,7 @@ export default function ItemDetail() {
       ) : (
         <div
           className="w-full h-64 rounded-xl bg-surface-container-high mb-6 overflow-hidden cursor-pointer group"
-          onClick={() => item.url && window.open(item.url, '_blank', 'noopener,noreferrer')}
+          onClick={() => handleOpenLink(item.url)}
         >
           {item.thumbnail
             ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 group-hover:opacity-95 transition-transform duration-300" onError={(e) => {
@@ -146,6 +163,10 @@ export default function ItemDetail() {
             : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
           }
         </div>
+      )}
+
+      {linkError && (
+        <p className="font-label-sm text-label-sm text-on-surface-variant/60 text-center mb-4">Link unavailable</p>
       )}
 
       <div className="flex items-center justify-between gap-4 mb-8">
@@ -159,7 +180,7 @@ export default function ItemDetail() {
         <div className="flex gap-3">
           {item.url && (
             <button
-              onClick={() => window.open(item.url, '_blank', 'noopener,noreferrer')}
+              onClick={() => handleOpenLink(item.url)}
               className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container border border-white/10 text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high hover:border-primary transition-all"
             >
               <span className="material-symbols-outlined text-[18px]">open_in_new</span>
