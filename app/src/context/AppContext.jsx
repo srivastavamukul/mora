@@ -6,6 +6,7 @@ import { initBridge } from '../utils/moraBridge'
 import { buildInterestClusters } from '../utils/buildInterestClusters'
 import { buildTimelineGroups } from '../utils/buildTimelineGroups'
 import { buildBehaviorSignals } from '../utils/buildBehaviorSignals'
+import { getRecentlyRelevantItems } from '../utils/getRecentlyRelevantItems'
 
 const AppContext = createContext(null)
 
@@ -62,9 +63,10 @@ export function AppProvider({ children }) {
   const interestClusters = useMemo(() => buildInterestClusters(items), [items])
   const timelineGroups = useMemo(() => buildTimelineGroups(items), [items])
   const behaviorSignals = useMemo(() => buildBehaviorSignals(items), [items])
+  const recentlyRelevant = useMemo(() => getRecentlyRelevantItems(items), [items])
 
   return (
-    <AppContext.Provider value={{ items, setItems, sources, setSources, selectedItemId, setSelectedItemId, toggleSource, flags, setFlags, toggleFlag, updateItem, deleteItem, interestClusters, timelineGroups, behaviorSignals }}>
+    <AppContext.Provider value={{ items, setItems, sources, setSources, selectedItemId, setSelectedItemId, toggleSource, flags, setFlags, toggleFlag, updateItem, deleteItem, interestClusters, timelineGroups, behaviorSignals, recentlyRelevant }}>
       {children}
     </AppContext.Provider>
   )

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { mapItemToUI } from '../utils/mapItemToUI'
 import { logEvent } from '../utils/eventLogger'
+import { getRelatedItems } from '../utils/getRelatedItems'
 
 function FlagButton({ active, icon, label, onClick }) {
   return (
@@ -79,7 +80,7 @@ export default function ItemDetail() {
 
   const itemFlags = flags[item.id] ?? {}
   const itemTags = Array.isArray(item.tags) ? item.tags : []
-  const relatedItems = items.filter(i => i.id !== item.id && (Array.isArray(i.tags) ? i.tags : []).some(t => itemTags.includes(t)))
+  const relatedItems = getRelatedItems(item, items)
 
   const handleRelatedClick = (relatedItem) => {
     setSelectedItemId(relatedItem.id)
