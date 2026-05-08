@@ -10,6 +10,7 @@ import { buildTimelineGroups } from '../utils/buildTimelineGroups'
 import { captureItem } from '../utils/captureItem'
 import { deduplicateCapture } from '../utils/deduplicateCapture'
 import { logEvent } from '../utils/eventLogger'
+import { semanticSearch } from '../utils/scoreSearchMatch'
 
 function safeItem(item) {
   return {
@@ -284,25 +285,18 @@ export default function Moodboard() {
     setUrlInput('')
   }
 
-  const matchesSearch = (item) => {
-    const query = searchQuery.trim().toLowerCase()
-    if (!query) return true
-    const safe = safeItem(item)
-    return (
-      safe.title.toLowerCase().includes(query) ||
-      safe.source.toLowerCase().includes(query) ||
-      safe.tags.some(tag => tag.toLowerCase().includes(query)) ||
-      (item.mood && item.mood.toLowerCase().includes(query))
-    )
-  }
+  const typeFiltered = items.filter(item =>
+    activeFilter === 'all' || (item.type || item.filterKey) === activeFilter
+  )
 
-  const filtered = items.filter(item => {
-    const matchesType = activeFilter === 'all' || (item.type || item.filterKey) === activeFilter
-    return matchesType && matchesSearch(item)
-  })
+  const filtered = searchQuery.trim()
+    ? semanticSearch(searchQuery, typeFiltered)
+    : typeFiltered
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const sorted = useMemo(() => sortItems(filtered, flags, sortMode), [filtered, flags, sortMode])
+  const sorted = useMemo(
+    () => searchQuery.trim() ? filtered : sortItems(filtered, flags, sortMode),
+    [filtered, flags, sortMode, searchQuery]
+  )
   const dominantTag = detectDominantTag(sorted)
 
   const groups = dominantTag
