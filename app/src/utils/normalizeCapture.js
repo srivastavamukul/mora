@@ -175,6 +175,8 @@ export function normalizeItem(formData, existingItem = null) {
     createdAt: isEditing ? existingItem.createdAt : now,
     updatedAt: isEditing ? now : null,
     externalId: formData.externalId ?? null,
+    memoryDate: formData.memoryDate ?? existingItem?.memoryDate ?? null,
+    memoryType: formData.memoryType ?? existingItem?.memoryType ?? null,
     schemaVersion: existingItem?.schemaVersion || 1,
     metadata: {
       ...(existingItem?.metadata || {}),

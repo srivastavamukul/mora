@@ -21,6 +21,8 @@ export function migrateItem(item) {
   if (migrated.mood === undefined) migrated.mood = null
   if (migrated.externalId === undefined) migrated.externalId = null
   if (migrated.body === undefined) migrated.body = ''
+  if (migrated.memoryDate === undefined) migrated.memoryDate = null
+  if (migrated.memoryType === undefined) migrated.memoryType = null
 
   // filterKey → type (if type is missing)
   if (!migrated.type && migrated.filterKey) migrated.type = migrated.filterKey
