@@ -273,7 +273,7 @@ export default function Moodboard() {
   const [sortMode, setSortMode] = useState('default')
   const [urlInput, setUrlInput] = useState('')
   const navigate = useNavigate()
-  const { items, setItems, flags, setSelectedItemId, interestClusters, resurfacedItems } = useApp()
+  const { items, setItems, flags, setSelectedItemId, interestClusters, resurfacedItems, memoryInsights } = useApp()
 
   const handleUrlAdd = () => {
     const raw = urlInput.trim()
@@ -601,6 +601,23 @@ export default function Moodboard() {
                 </article>
               )
             })}
+          </div>
+        </section>
+      )}
+
+      {/* Insights */}
+      {memoryInsights.length > 0 && (
+        <section className="mb-xl">
+          <div className="flex items-center gap-2 mb-md">
+            <span className="material-symbols-outlined text-secondary">psychology</span>
+            <h2 className="font-headline-md text-headline-md text-on-surface">Insights</h2>
+          </div>
+          <div className="flex flex-col gap-2">
+            {memoryInsights.map((insight, i) => (
+              <p key={i} className="font-body-md text-body-md text-on-surface-variant px-4 py-3 rounded-xl bg-surface-container/50 border border-secondary/10">
+                {insight}
+              </p>
+            ))}
           </div>
         </section>
       )}
