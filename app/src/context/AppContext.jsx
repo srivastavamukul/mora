@@ -7,6 +7,7 @@ import { buildInterestClusters } from '../utils/buildInterestClusters'
 import { buildTimelineGroups } from '../utils/buildTimelineGroups'
 import { buildBehaviorSignals } from '../utils/buildBehaviorSignals'
 import { getRecentlyRelevantItems } from '../utils/getRecentlyRelevantItems'
+import { buildResurfacedItems } from '../utils/buildResurfacedItems'
 
 const AppContext = createContext(null)
 
@@ -64,9 +65,10 @@ export function AppProvider({ children }) {
   const timelineGroups = useMemo(() => buildTimelineGroups(items), [items])
   const behaviorSignals = useMemo(() => buildBehaviorSignals(items), [items])
   const recentlyRelevant = useMemo(() => getRecentlyRelevantItems(items), [items])
+  const resurfacedItems = useMemo(() => buildResurfacedItems(items, behaviorSignals), [items, behaviorSignals])
 
   return (
-    <AppContext.Provider value={{ items, setItems, sources, setSources, selectedItemId, setSelectedItemId, toggleSource, flags, setFlags, toggleFlag, updateItem, deleteItem, interestClusters, timelineGroups, behaviorSignals, recentlyRelevant }}>
+    <AppContext.Provider value={{ items, setItems, sources, setSources, selectedItemId, setSelectedItemId, toggleSource, flags, setFlags, toggleFlag, updateItem, deleteItem, interestClusters, timelineGroups, behaviorSignals, recentlyRelevant, resurfacedItems }}>
       {children}
     </AppContext.Provider>
   )
