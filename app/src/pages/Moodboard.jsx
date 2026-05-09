@@ -272,7 +272,7 @@ export default function Moodboard() {
   const [sortMode, setSortMode] = useState('default')
   const [urlInput, setUrlInput] = useState('')
   const navigate = useNavigate()
-  const { items, setItems, flags, setSelectedItemId, interestClusters } = useApp()
+  const { items, setItems, flags, setSelectedItemId, interestClusters, resurfacedItems } = useApp()
 
   const handleUrlAdd = () => {
     const raw = urlInput.trim()
@@ -560,6 +560,42 @@ export default function Moodboard() {
                     <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60">{badge}</p>
                   </div>
                   <span className="material-symbols-outlined text-on-surface-variant ml-auto text-[16px]">chevron_right</span>
+                </article>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Rediscover */}
+      {resurfacedItems.length > 0 && (
+        <section className="mb-xl">
+          <div className="flex items-center gap-2 mb-md">
+            <span className="material-symbols-outlined text-tertiary">replay</span>
+            <h2 className="font-headline-md text-headline-md text-on-surface">Rediscover</h2>
+            <span className="font-label-sm text-label-sm text-on-surface-variant opacity-60 ml-1">from your past</span>
+          </div>
+          <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-4">
+            {resurfacedItems.map(item => {
+              const safe = safeItem(item)
+              const { badge } = mapItemToUI(item)
+              return (
+                <article
+                  key={item.id}
+                  onClick={() => handleSelect(item.id)}
+                  className="cursor-pointer flex items-center gap-3 p-3 rounded-xl bg-surface-container/60 border border-tertiary/10 hover:border-tertiary/30 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden">
+                    {item.thumbnail
+                      ? <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
+                      : <div className="w-full h-full bg-gradient-to-br from-tertiary/20 via-primary/10 to-secondary/20" />
+                    }
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-label-sm text-label-sm text-on-surface truncate">{safe.title}</p>
+                    <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60">{badge}</p>
+                  </div>
+                  <span className="material-symbols-outlined text-tertiary/50 ml-auto text-[16px]">chevron_right</span>
                 </article>
               )
             })}
