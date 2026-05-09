@@ -5,6 +5,7 @@ import { mapItemToUI } from '../utils/mapItemToUI'
 import { logEvent } from '../utils/eventLogger'
 import { getRelatedItems } from '../utils/getRelatedItems'
 import { generateItemSummary } from '../utils/generateItemSummary'
+import { hasPrivateContext } from '../utils/hasPrivateContext'
 
 function FlagButton({ active, icon, label, onClick }) {
   return (
@@ -40,7 +41,7 @@ function RelatedCard({ item, onClick }) {
 
 export default function ItemDetail() {
   const navigate = useNavigate()
-  const { items, selectedItemId, setSelectedItemId, flags, toggleFlag, deleteItem } = useApp()
+  const { items, selectedItemId, setSelectedItemId, flags, toggleFlag, deleteItem, updateItem } = useApp()
   const item = items.find(i => i.id === selectedItemId)
 
   useEffect(() => {
@@ -66,8 +67,10 @@ export default function ItemDetail() {
   }
 
   const [linkError, setLinkError] = useState(false)
+  const [noteText, setNoteText] = useState('')
+  const [isEditingNote, setIsEditingNote] = useState(false)
 
-  useEffect(() => { setLinkError(false) }, [item?.id])
+  useEffect(() => { setLinkError(false); setNoteText(item?.privateNote || ''); setIsEditingNote(false) }, [item?.id])
 
   const handleOpenLink = (url) => {
     if (!url) { setLinkError(true); return }
@@ -207,7 +210,15 @@ export default function ItemDetail() {
         </div>
       </div>
 
-      <h1 className="font-display-xl text-display-xl text-on-surface mb-1">{item.title || 'Untitled'}</h1>
+      <div className="flex items-start gap-3 mb-1">
+        <h1 className="font-display-xl text-display-xl text-on-surface flex-1">{item.title || 'Untitled'}</h1>
+        {hasPrivateContext(item) && (
+          <span className="flex items-center gap-1 mt-2 px-2 py-0.5 rounded-full bg-surface-container-high border border-white/10 font-label-sm text-label-sm text-on-surface-variant/50 flex-shrink-0">
+            <span className="material-symbols-outlined text-[12px]">lock</span>
+            Personal
+          </span>
+        )}
+      </div>
       {item.source && (
         <p className="font-label-sm text-label-sm text-on-surface-variant/60 mb-4 flex items-center gap-1">
           <span className="material-symbols-outlined text-[13px]">link</span>
@@ -249,6 +260,52 @@ export default function ItemDetail() {
           </span>
         ))}
       </div>
+
+      {/* Private note */}
+      <section className="mb-10">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="material-symbols-outlined text-[14px] text-on-surface-variant/50">lock</span>
+          <span className="font-label-sm text-label-sm text-on-surface-variant/50 uppercase tracking-widest">Personal</span>
+          {!isEditingNote && (
+            <button
+              onClick={() => setIsEditingNote(true)}
+              className="ml-auto font-label-sm text-label-sm text-on-surface-variant/40 hover:text-primary transition-colors"
+            >
+              {item.privateNote ? 'Edit' : 'Add note'}
+            </button>
+          )}
+        </div>
+        {isEditingNote ? (
+          <div className="flex flex-col gap-2">
+            <textarea
+              autoFocus
+              value={noteText}
+              onChange={e => setNoteText(e.target.value)}
+              placeholder="Private note — only visible to you"
+              rows={3}
+              className="w-full bg-surface-container-high border border-white/10 rounded-xl px-4 py-3 font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant/30 resize-none focus:outline-none focus:border-primary/50 transition-colors"
+            />
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => { setNoteText(item.privateNote || ''); setIsEditingNote(false) }}
+                className="px-3 py-1.5 rounded-full font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => { updateItem(item.id, { privateNote: noteText.trim() || null }); setIsEditingNote(false) }}
+                className="px-3 py-1.5 rounded-full bg-primary/20 border border-primary/30 font-label-sm text-label-sm text-primary hover:bg-primary/30 transition-colors"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        ) : item.privateNote ? (
+          <p className="font-body-sm text-body-sm text-on-surface-variant/70 whitespace-pre-wrap">{item.privateNote}</p>
+        ) : (
+          <p className="font-body-sm text-body-sm text-on-surface-variant/30 italic">No personal note yet.</p>
+        )}
+      </section>
 
       {/* Related items */}
       {relatedItems.length > 0 && (

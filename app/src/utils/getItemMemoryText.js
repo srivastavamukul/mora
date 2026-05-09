@@ -6,6 +6,7 @@ export function getItemMemoryText(item) {
     Array.isArray(item.tags) ? item.tags.join(' ') : '',
     item.source || '',
     item.type || '',
+    item.privateNote || '',
   ]
   const text = parts.filter(Boolean).join(' ').toLowerCase().trim()
   return text

@@ -41,4 +41,21 @@ describe('getItemMemoryText', () => {
     const result = getItemMemoryText(item)
     expect(result).toBe(result.toLowerCase())
   })
+
+  it('includes privateNote in memory text', () => {
+    const item = { title: 'Test', tags: [], source: 'web', type: 'link', privateNote: 'Met her at the Tokyo meetup' }
+    expect(getItemMemoryText(item)).toContain('met her at the tokyo meetup')
+  })
+
+  it('omits privateNote when null', () => {
+    const item = { title: 'Test', tags: [], source: 'web', type: 'link', privateNote: null }
+    const result = getItemMemoryText(item)
+    expect(result).not.toContain('null')
+  })
+
+  it('omits privateNote when empty string', () => {
+    const item = { title: 'Only Title', tags: [], source: 'web', type: 'link', privateNote: '' }
+    const result = getItemMemoryText(item)
+    expect(result.trim()).toBe('only title web link')
+  })
 })

@@ -177,6 +177,7 @@ export function normalizeItem(formData, existingItem = null) {
     externalId: formData.externalId ?? null,
     memoryDate: formData.memoryDate ?? existingItem?.memoryDate ?? null,
     memoryType: formData.memoryType ?? existingItem?.memoryType ?? null,
+    privateNote: formData.privateNote ?? existingItem?.privateNote ?? null,
     schemaVersion: existingItem?.schemaVersion || 1,
     metadata: {
       ...(existingItem?.metadata || {}),

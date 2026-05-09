@@ -23,6 +23,7 @@ export function migrateItem(item) {
   if (migrated.body === undefined) migrated.body = ''
   if (migrated.memoryDate === undefined) migrated.memoryDate = null
   if (migrated.memoryType === undefined) migrated.memoryType = null
+  if (migrated.privateNote === undefined) migrated.privateNote = null
 
   // filterKey → type (if type is missing)
   if (!migrated.type && migrated.filterKey) migrated.type = migrated.filterKey
