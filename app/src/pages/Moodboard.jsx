@@ -577,7 +577,7 @@ export default function Moodboard() {
             <span className="font-label-sm text-label-sm text-on-surface-variant opacity-60 ml-1">from your past</span>
           </div>
           <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-4">
-            {resurfacedItems.map(item => {
+            {resurfacedItems.slice(0, 4).map(item => {
               const safe = safeItem(item)
               const { badge } = mapItemToUI(item)
               const summary = generateItemSummary(item)
