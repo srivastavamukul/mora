@@ -12,6 +12,7 @@ import { deduplicateCapture } from '../utils/deduplicateCapture'
 import { logEvent } from '../utils/eventLogger'
 import { semanticSearch } from '../utils/scoreSearchMatch'
 import { generateItemSummary } from '../utils/generateItemSummary'
+import { createJournalEntry } from '../utils/createJournalEntry'
 
 function safeItem(item) {
   return {
@@ -56,6 +57,18 @@ function detectDominantTag(items) {
   if (!entries.length) return null
   const [topTag, topCount] = entries[0]
   return (topCount >= 3 && topCount / items.length >= 0.3) ? topTag : null
+}
+
+function relativeTime(ts) {
+  const diff = Date.now() - ts
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(diff / 3600000)
+  if (hrs < 24) return `${hrs}h ago`
+  const days = Math.floor(diff / 86400000)
+  if (days === 1) return 'yesterday'
+  return `${days}d ago`
 }
 
 function SongTile({ item }) {
@@ -141,12 +154,28 @@ function ActivityTile({ item }) {
   )
 }
 
+function JournalTile({ item }) {
+  return (
+    <div className="p-5 h-full flex flex-col">
+      <span className="material-symbols-outlined text-tertiary text-xl mb-3">auto_stories</span>
+      <p className="font-body-md text-body-md text-on-surface opacity-80 flex-1 line-clamp-3">
+        {item.body || item.title}
+      </p>
+      <div className="mt-4 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+        <span className="opacity-60 truncate max-w-[80%]">{item.title}</span>
+        <span className="material-symbols-outlined text-[16px]">auto_stories</span>
+      </div>
+    </div>
+  )
+}
+
 const TILE_BG = {
   song: 'bg-surface-container/80 backdrop-blur-md neon-underglow-primary overflow-hidden',
   insight: 'bg-surface-container-high/60 backdrop-blur-sm neon-underglow-secondary',
   image: 'bg-surface-container/80 backdrop-blur-md overflow-hidden',
   note: 'bg-surface-container-low/90 backdrop-blur-md',
   activity: 'bg-surface-container/50 backdrop-blur-lg',
+  journal: 'bg-surface-container-low/90 backdrop-blur-md',
 }
 
 function renderTileContent(item) {
@@ -171,6 +200,7 @@ function renderTileContent(item) {
         )
       }
       return <ImageTile item={item} />
+    case 'journal':   return <JournalTile item={item} />
     case 'note':     return <NoteTile item={item} />
     case 'activity': return <ActivityTile item={item} />
     case 'video':
@@ -272,8 +302,9 @@ export default function Moodboard() {
   const [searchQuery, setSearchQuery] = useState('')
   const [sortMode, setSortMode] = useState('default')
   const [urlInput, setUrlInput] = useState('')
+  const [journalInput, setJournalInput] = useState('')
   const navigate = useNavigate()
-  const { items, setItems, flags, setSelectedItemId, interestClusters, resurfacedItems, memoryInsights, upcomingMemoryEvents } = useApp()
+  const { items, setItems, flags, setSelectedItemId, interestClusters, resurfacedItems, memoryInsights, upcomingMemoryEvents, recentReflections } = useApp()
 
   const handleUrlAdd = () => {
     const raw = urlInput.trim()
@@ -284,6 +315,14 @@ export default function Moodboard() {
     setItems(prev => [captured, ...prev])
     logEvent(captured.id, 'save')
     setUrlInput('')
+  }
+
+  const handleJournalAdd = () => {
+    const text = journalInput.trim()
+    if (!text) return
+    const entry = createJournalEntry(text)
+    setItems(prev => [entry, ...prev])
+    setJournalInput('')
   }
 
   const typeFiltered = items.filter(item =>
@@ -411,12 +450,82 @@ export default function Moodboard() {
             </div>
           </div>
         </div>
+        {/* Journal Quick-Capture */}
+        <div className="mt-3 flex flex-col sm:flex-row gap-2 items-start sm:items-end">
+          <textarea
+            rows={2}
+            placeholder="Capture a thought..."
+            value={journalInput}
+            onChange={e => setJournalInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleJournalAdd())}
+            className="
+              w-full sm:flex-1
+              px-3 py-2
+              bg-surface-container/20 backdrop-blur-md
+              border border-white/5
+              rounded-xl
+              text-on-surface text-sm
+              placeholder-on-surface-variant/50
+              focus:outline-none focus:border-white/20
+              resize-none
+            "
+          />
+          <button
+            onClick={handleJournalAdd}
+            disabled={!journalInput.trim()}
+            className="
+              flex items-center gap-1.5
+              px-3 py-2
+              rounded-full text-xs whitespace-nowrap
+              bg-surface-container border border-white/10
+              text-on-surface-variant
+              hover:bg-surface-container-high hover:text-on-surface
+              disabled:opacity-40 disabled:cursor-not-allowed
+              transition-all
+            "
+          >
+            <span className="material-symbols-outlined text-[14px]">auto_stories</span>
+            Capture Thought
+          </button>
+        </div>
         <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
           Your curated memories from the past cycle, organized by emotional resonance rather than chronology.
         </p>
       </section>
 
       <div className="pixel-divider mb-xl w-full" />
+
+      {/* Reflections */}
+      {recentReflections.length > 0 && (
+        <section className="mb-xl">
+          <div className="flex items-center gap-2 mb-md">
+            <span className="material-symbols-outlined text-tertiary text-[20px]">auto_stories</span>
+            <h2 className="font-title-sm text-title-sm text-on-surface-variant uppercase tracking-widest">Reflections</h2>
+          </div>
+          <div className="flex flex-col gap-2">
+            {recentReflections.slice(0, 5).map(item => (
+              <article
+                key={item.id}
+                onClick={() => handleSelect(item.id)}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-container/50 border border-tertiary/10 cursor-pointer hover:bg-surface-container hover:border-tertiary/30 transition-colors"
+              >
+                <span className="material-symbols-outlined text-tertiary/60 text-[20px] flex-shrink-0">auto_stories</span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-body-md text-body-md text-on-surface truncate">{item.title}</p>
+                  {item.body && (
+                    <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60 truncate">
+                      {item.body.slice(0, 60)}{item.body.length > 60 ? '…' : ''}
+                    </p>
+                  )}
+                </div>
+                <span className="font-label-sm text-label-sm text-on-surface-variant opacity-40 flex-shrink-0">
+                  {relativeTime(item.createdAt)}
+                </span>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Top Interests */}
       {interestClusters.length > 0 && (

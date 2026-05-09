@@ -4,6 +4,7 @@ const BADGE = {
   image: 'PINNED IMAGE',
   note: 'NOTE',
   activity: 'ACTIVITY',
+  journal: 'JOURNAL',
 }
 
 const BADGE_COLOR = {
@@ -12,6 +13,7 @@ const BADGE_COLOR = {
   image: 'text-tertiary',
   note: 'text-on-surface',
   activity: 'text-primary',
+  journal: 'text-tertiary',
 }
 
 const COL_SPAN = {
@@ -20,6 +22,7 @@ const COL_SPAN = {
   image: 'md:col-span-5',
   note: 'md:col-span-3',
   activity: 'md:col-span-4',
+  journal: 'md:col-span-4',
 }
 
 const TILT = {
