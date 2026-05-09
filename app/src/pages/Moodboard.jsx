@@ -11,6 +11,7 @@ import { captureItem } from '../utils/captureItem'
 import { deduplicateCapture } from '../utils/deduplicateCapture'
 import { logEvent } from '../utils/eventLogger'
 import { semanticSearch } from '../utils/scoreSearchMatch'
+import { generateItemSummary } from '../utils/generateItemSummary'
 
 function safeItem(item) {
   return {
@@ -579,6 +580,7 @@ export default function Moodboard() {
             {resurfacedItems.map(item => {
               const safe = safeItem(item)
               const { badge } = mapItemToUI(item)
+              const summary = generateItemSummary(item)
               return (
                 <article
                   key={item.id}
@@ -593,7 +595,7 @@ export default function Moodboard() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-label-sm text-label-sm text-on-surface truncate">{safe.title}</p>
-                    <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60">{badge}</p>
+                    <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60 truncate">{summary || badge}</p>
                   </div>
                   <span className="material-symbols-outlined text-tertiary/50 ml-auto text-[16px]">chevron_right</span>
                 </article>

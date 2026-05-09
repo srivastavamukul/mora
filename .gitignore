@@ -7,42 +7,35 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-app/dist
-app/node_modules
-node_modules
-dist
-dist-ssr
-*.local
-app/docs
-docs
-app/graphify-out
-graphify-out
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-# dependencies
+# Dependencies
 node_modules/
+app/node_modules/
 
-# build output
+# Build output
 dist/
 build/
+dist-ssr/
+app/dist/
+app/.vite/
+.vite/
 
-# logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+# Graphify / generated output
+graphify-out/
+app/graphify-out/
+.graphify_analysis.json
+.graphify_python
+.graphify_detect.json
 
-# environment variables
+# Docs output
+app/docs/
+docs/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment files
 .env
 .env.*
 !.env.example
@@ -50,27 +43,27 @@ pnpm-debug.log*
 # OS files
 .DS_Store
 Thumbs.db
-
-# editor / IDE
-.vscode/
-.idea/
 *.swp
 *.swo
 
-# cache
+# Editor / IDE
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Cache
 .cache/
 .temp/
 .tmp/
-
-# vite specific
-.vite/
-
-# eslint cache
 .eslintcache
 
-next_instructions.md
-
-# optional: lockfiles (ONLY if you're not standardizing package manager)
+# Optional lockfiles (uncomment if you are not standardizing on one package manager)
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+
+next_instructions.md

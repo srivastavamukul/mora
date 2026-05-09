@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext'
 import { mapItemToUI } from '../utils/mapItemToUI'
 import { logEvent } from '../utils/eventLogger'
 import { getRelatedItems } from '../utils/getRelatedItems'
+import { generateItemSummary } from '../utils/generateItemSummary'
 
 function FlagButton({ active, icon, label, onClick }) {
   return (
@@ -81,6 +82,7 @@ export default function ItemDetail() {
   const itemFlags = flags[item.id] ?? {}
   const itemTags = Array.isArray(item.tags) ? item.tags : []
   const relatedItems = getRelatedItems(item, items)
+  const summary = generateItemSummary(item)
 
   const handleRelatedClick = (relatedItem) => {
     setSelectedItemId(relatedItem.id)
@@ -213,9 +215,12 @@ export default function ItemDetail() {
         </p>
       )}
 
-      {(item.description || '') && (
-        <p className="font-body-md text-body-md text-on-surface-variant mb-6">{item.description}</p>
-      )}
+      {item.description
+        ? <p className="font-body-md text-body-md text-on-surface-variant mb-6">{item.description}</p>
+        : summary && summary !== item.title
+          ? <p className="font-body-sm text-body-sm text-on-surface-variant/50 mb-6 italic">{summary}</p>
+          : null
+      }
 
       {/* Flags */}
       <div className="flex flex-wrap gap-3 mb-6">
