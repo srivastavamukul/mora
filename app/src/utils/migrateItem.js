@@ -10,8 +10,12 @@ export function migrateItem(item) {
 
   const migrated = { ...item }
 
-  if (!migrated.url || typeof migrated.url !== 'string') return null
-  migrated.url = migrated.url.trim()
+  if (!migrated.url || typeof migrated.url !== 'string') {
+    if (migrated.type !== 'journal') return null
+    migrated.url = null
+  } else {
+    migrated.url = migrated.url.trim()
+  }
   if (!migrated.title) migrated.title = 'Untitled'
   if (!migrated.thumbnail) migrated.thumbnail = ''
   if (!migrated.description) migrated.description = ''
