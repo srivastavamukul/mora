@@ -1,4 +1,4 @@
-export const FILTER_KEYS = ['all', 'song', 'image', 'note', 'insight', 'activity']
+export const FILTER_KEYS = ['all', 'song', 'image', 'note', 'insight', 'activity', 'journal']
 
 export const FILTER_LABELS = {
   all: 'All',
@@ -7,6 +7,7 @@ export const FILTER_LABELS = {
   note: 'Notes',
   insight: 'Insights',
   activity: 'Activity',
+  journal: 'Journal',
 }
 
 export const items = [
