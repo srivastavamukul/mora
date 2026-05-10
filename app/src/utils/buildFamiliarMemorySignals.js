@@ -5,6 +5,10 @@ const STOP_WORDS = new Set([
 ])
 
 const DAY_MS = 24 * 60 * 60 * 1000
+const THIRTY_DAYS = 30 * DAY_MS
+const SIXTY_DAYS = 60 * DAY_MS
+const FOURTEEN_DAYS = 14 * DAY_MS
+const MAX_REFLECTION_THEMES = 10
 
 function computeTagSpans(items) {
   const spans = {}
@@ -24,7 +28,7 @@ function computeTagSpans(items) {
 function wordFrequency(items) {
   const counts = {}
   for (const item of items) {
-    const text = (item.body || item.title || '').toLowerCase()
+    const text = (item.body || '').toLowerCase()
     const words = text.split(/\W+/).filter(w => w.length >= 4 && !STOP_WORDS.has(w))
     for (const w of words) counts[w] = (counts[w] || 0) + 1
   }
@@ -43,9 +47,6 @@ export function buildFamiliarMemorySignals(items, behaviorSignals, recentReflect
   }
 
   const signals = behaviorSignals || { topSources: [] }
-  const THIRTY_DAYS = 30 * DAY_MS
-  const SIXTY_DAYS = 60 * DAY_MS
-  const FOURTEEN_DAYS = 14 * DAY_MS
 
   const tagSpans = computeTagSpans(items)
 
@@ -61,7 +62,7 @@ export function buildFamiliarMemorySignals(items, behaviorSignals, recentReflect
 
   const colMap = {}
   for (const item of items) {
-    if (!item.collection) continue
+    if (item.collection == null) continue
     const ts = item.createdAt || 0
     if (!colMap[item.collection]) colMap[item.collection] = { count: 0, first: ts, last: ts }
     colMap[item.collection].count++
@@ -84,7 +85,7 @@ export function buildFamiliarMemorySignals(items, behaviorSignals, recentReflect
   const reflectionThemes = Object.entries(wordCounts)
     .filter(([, c]) => c >= 2)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
+    .slice(0, MAX_REFLECTION_THEMES)
     .map(([word, count]) => ({ word, count }))
 
   return { recurringInterests, recurringCollections, longRunningTopics, familiarSources, reflectionThemes }
