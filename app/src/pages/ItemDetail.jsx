@@ -7,37 +7,104 @@ import { getRelatedItems } from '../utils/getRelatedItems'
 import { generateItemSummary } from '../utils/generateItemSummary'
 import { hasPrivateContext } from '../utils/hasPrivateContext'
 
-function FlagButton({ active, icon, label, onClick }) {
+/* ─── Source chip (reused from Moodboard) ─── */
+
+const SOURCE_COLOR = {
+  spotify: 'moss', pinterest: 'ember', youtube: 'ochre',
+  'mora · journal': 'indigo', manual: 'ink', web: 'ink',
+  mora: 'indigo', nytimes: 'ink', 'are.na': 'ink', google: 'ink',
+}
+
+function SourceChip({ source }) {
+  const c = SOURCE_COLOR[(source || '').toLowerCase()] || 'ink'
   return (
-    <button
-      onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 rounded-full border font-label-sm text-label-sm transition-all duration-200 ${
-        active
-          ? 'bg-primary/20 border-primary text-primary'
-          : 'bg-surface-container-high border-white/10 text-on-surface-variant hover:border-white/30 hover:text-on-surface'
-      }`}
-    >
-      <span className="material-symbols-outlined text-[16px]">{icon}</span>
-      {label}
-    </button>
+    <span className={'m-source m-source-' + c}>
+      <span className="m-source-dot" />
+      {source}
+    </span>
   )
 }
 
-function RelatedCard({ item, onClick }) {
-  const { badge } = mapItemToUI(item)
+/* ─── Helpers ─── */
+
+function relativeTime(ts) {
+  if (!ts) return ''
+  const diff = Date.now() - ts
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(diff / 3600000)
+  if (hrs < 24) return `${hrs}h ago`
+  const days = Math.floor(diff / 86400000)
+  if (days === 1) return 'yesterday'
+  return `${days}d ago`
+}
+
+function platformLabel(source) {
+  const s = (source || '').toLowerCase()
+  if (s === 'youtube') return 'YouTube'
+  if (s === 'instagram') return 'Instagram'
+  if (s === 'pinterest') return 'Pinterest'
+  if (s === 'spotify') return 'Spotify'
+  return null
+}
+
+/* ─── Figure (platform-aware thumb/media) ─── */
+
+function DetailFigure({ item, onOpenLink }) {
+  const hasThumb = !!item.thumbnail
+  const isVideo = item.type === 'video' || item.source === 'youtube'
+  const platform = platformLabel(item.source)
+
+  // Instagram: taller aspect for reels
+  const figureStyle = {}
+  if (item.source === 'instagram' && item.type === 'video') {
+    figureStyle.height = 420
+    figureStyle.maxHeight = '60vh'
+  } else if (item.source === 'instagram') {
+    figureStyle.height = 360
+    figureStyle.maxHeight = '50vh'
+  } else if (item.source === 'pinterest') {
+    figureStyle.height = 320
+  }
+
   return (
-    <article
-      onClick={onClick}
-      className="cursor-pointer flex items-center gap-3 p-3 rounded-xl bg-surface-container-high border border-white/10 hover:border-white/30 transition-colors"
+    <figure
+      className="m-detail-figure"
+      style={figureStyle}
+      onClick={() => onOpenLink(item.url)}
     >
-      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20 flex-shrink-0" />
-      <div className="min-w-0">
-        <p className="font-label-sm text-label-sm text-on-surface truncate">{item.title}</p>
-        <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60">{badge}</p>
-      </div>
-    </article>
+      {hasThumb ? (
+        <img
+          src={item.thumbnail}
+          alt={item.title || ''}
+          onError={(e) => {
+            e.target.style.display = 'none'
+            e.target.nextSibling && (e.target.nextSibling.style.display = 'block')
+          }}
+        />
+      ) : (
+        <div className="m-detail-figure-gradient" />
+      )}
+      {/* Hidden fallback gradient — shown if img errors */}
+      {hasThumb && <div className="m-detail-figure-gradient" style={{ display: 'none', position: 'absolute', inset: 0 }} />}
+      <span className="m-card-grain" />
+      {isVideo && (
+        <div className="m-detail-figure-play">
+          <span className="m-detail-figure-play-btn">
+            <i className="ph ph-play" style={{ fontSize: 22 }} />
+          </span>
+        </div>
+      )}
+      {platform && <span className="m-detail-figure-badge">{platform}</span>}
+      {item.source && !platform && (
+        <figcaption>{item.source} · {relativeTime(item.createdAt)}</figcaption>
+      )}
+    </figure>
   )
 }
+
+/* ─── Main component ─── */
 
 export default function ItemDetail() {
   const navigate = useNavigate()
@@ -51,18 +118,16 @@ export default function ItemDetail() {
 
   if (!item) {
     return (
-      <div className="pt-8 pb-24 px-6 lg:px-12 min-h-screen w-full max-w-7xl mx-auto">
-        <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
-          <span className="material-symbols-outlined text-on-surface-variant text-4xl">error_outline</span>
-          <p className="text-on-surface font-body-md text-body-md">Item not found</p>
-          <Link
-            to="/moodboard"
-            className="px-4 py-2 rounded-full bg-primary text-on-primary font-label-sm text-label-sm hover:shadow-[0_0_15px_#ff479c] transition-all"
-          >
-            Back to Moodboard
+      <article className="m-detail" style={{ paddingTop: 60 }}>
+        <div className="m-empty">
+          <p>Item not found</p>
+        </div>
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <Link to="/moodboard" className="m-btn m-btn-primary">
+            Back to Library
           </Link>
         </div>
-      </div>
+      </article>
     )
   }
 
@@ -94,6 +159,9 @@ export default function ItemDetail() {
   const itemTags = Array.isArray(item.tags) ? item.tags : []
   const relatedItems = getRelatedItems(item, items)
   const summary = generateItemSummary(item)
+  const type = item.type || item.filterKey || 'link'
+  const isNote = type === 'note'
+  const isJournal = type === 'journal'
 
   const handleRelatedClick = (relatedItem) => {
     setSelectedItemId(relatedItem.id)
@@ -108,239 +176,177 @@ export default function ItemDetail() {
   }
 
   return (
-    <div className="pt-8 pb-24 px-6 lg:px-12 min-h-screen relative w-full max-w-7xl mx-auto">
-      {/* Platform-specific banner */}
-      {item.source === 'youtube' ? (
-        <div
-          className="w-full h-64 rounded-xl bg-surface-container-high mb-6 overflow-hidden cursor-pointer group relative"
-          onClick={() => handleOpenLink(item.url)}
-        >
-          {item.thumbnail
-            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 group-hover:opacity-95 transition-transform duration-300" onError={(e) => {
-              e.target.style.display = "none"
-              e.target.parentNode.style.background = "linear-gradient(to bottom right, rgba(255,71,156,0.2), rgba(0,0,0,0.2))"
-            }}/>
-            : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
-          }
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-16 h-16 rounded-full bg-black/60 flex items-center justify-center group-hover:bg-black/80 group-hover:opacity-95 transition-colors">
-              <span className="material-symbols-outlined text-white text-[36px] translate-x-0.5">play_arrow</span>
-            </div>
-          </div>
-          <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/60 text-white font-label-sm text-label-sm tracking-wide pointer-events-none">YouTube</span>
-        </div>
-      ) : item.source === 'instagram' ? (
-        <div
-          className={`w-full rounded-xl bg-surface-container-high mb-6 overflow-hidden cursor-pointer group relative ${item.type === 'video' ? 'aspect-[9/16] max-h-[480px]' : 'aspect-square max-h-[400px]'}`}
-          onClick={() => handleOpenLink(item.url)}
-        >
-          {item.thumbnail
-            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 group-hover:opacity-95transition-transform duration-300" onError={(e) => {
-              e.target.style.display = "none"
-              e.target.parentNode.style.background = "linear-gradient(to bottom right, rgba(255,71,156,0.2), rgba(0,0,0,0.2))"
-            }}/>
-            : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
-          }
-          {item.type === 'video' && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-14 h-14 rounded-full bg-black/60 flex items-center justify-center">
-                <span className="material-symbols-outlined text-white text-[30px] translate-x-0.5">play_arrow</span>
-              </div>
-            </div>
-          )}
-          <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/60 text-white font-label-sm text-label-sm tracking-wide pointer-events-none">Instagram</span>
-        </div>
-      ) : item.source === 'pinterest' ? (
-        <div
-          className="w-full h-80 rounded-xl bg-surface-container-high mb-6 overflow-hidden cursor-pointer group relative"
-          onClick={() => handleOpenLink(item.url)}
-        >
-          {item.thumbnail
-            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 group-hover:opacity-95 transition-transform duration-300" onError={(e) => {
-              e.target.style.display = "none"
-              e.target.parentNode.style.background = "linear-gradient(to bottom right, rgba(255,71,156,0.2), rgba(0,0,0,0.2))"
-            }}/>
-            : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
-          }
-          <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/60 text-white font-label-sm text-label-sm tracking-wide pointer-events-none">Pinterest</span>
-        </div>
-      ) : (
-        <div
-          className="w-full h-64 rounded-xl bg-surface-container-high mb-6 overflow-hidden cursor-pointer group"
-          onClick={() => handleOpenLink(item.url)}
-        >
-          {item.thumbnail
-            ? <img src={item.thumbnail} alt={item.title || ''} className="w-full h-full object-cover group-hover:scale-105 group-hover:opacity-95 transition-transform duration-300" onError={(e) => {
-              e.target.style.display = "none"
-              e.target.parentNode.style.background = "linear-gradient(to bottom right, rgba(255,71,156,0.2), rgba(0,0,0,0.2))"
-            }}/>
-            : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
-          }
-        </div>
+    <article className="m-detail">
+
+      {/* ── Back ── */}
+      <Link to="/moodboard" className="m-back">
+        <i className="ph ph-arrow-left" /> Back to library
+      </Link>
+
+      {/* ── Figure / Media ── */}
+      {(item.thumbnail || item.url) && !(isNote || isJournal) && (
+        <DetailFigure item={item} onOpenLink={handleOpenLink} />
       )}
 
       {linkError && (
-        <p className="font-label-sm text-label-sm text-on-surface-variant/60 text-center mb-4">Link unavailable</p>
+        <p className="m-detail-error">Link unavailable</p>
       )}
 
-      <div className="flex items-center justify-between gap-4 mb-8">
-        <Link
-          to="/moodboard"
-          className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm uppercase tracking-widest"
-        >
-          <span className="material-symbols-outlined">arrow_back</span>
-          Back
-        </Link>
-        <div className="flex gap-3">
-          {item.url && (
-            <button
-              onClick={() => handleOpenLink(item.url)}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container border border-white/10 text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high hover:border-primary transition-all"
-            >
-              <span className="material-symbols-outlined text-[18px]">open_in_new</span>
-              Open
-            </button>
-          )}
-          <button
-            onClick={() => navigate(`/add?id=${item.id}`)}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container border border-white/10 text-on-surface font-label-sm text-label-sm hover:bg-surface-container-high hover:border-primary transition-all"
-          >
-            <span className="material-symbols-outlined text-[18px]">edit</span>
-            Edit
-          </button>
-          <button
-            onClick={handleDelete}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container border border-tertiary-container/30 text-tertiary font-label-sm text-label-sm hover:bg-tertiary-container/10 transition-all"
-          >
-            <span className="material-symbols-outlined text-[18px]">delete</span>
-            Delete
-          </button>
-        </div>
-      </div>
-
-      <div className="flex items-start gap-3 mb-1">
-        <h1 className="font-display-xl text-display-xl text-on-surface flex-1">{item.title || 'Untitled'}</h1>
+      {/* ── Head: source + time ── */}
+      <div className="m-detail-head">
+        <SourceChip source={item.source || 'web'} />
+        <span className="m-detail-time">{relativeTime(item.createdAt)}</span>
         {hasPrivateContext(item) && (
-          <span className="flex items-center gap-1 mt-2 px-2 py-0.5 rounded-full bg-surface-container-high border border-white/10 font-label-sm text-label-sm text-on-surface-variant/50 flex-shrink-0">
-            <span className="material-symbols-outlined text-[12px]">lock</span>
-            Personal
+          <span className="m-detail-private-badge">
+            <i className="ph ph-lock-simple" style={{ fontSize: 10 }} /> Personal
           </span>
         )}
       </div>
-      {item.source && (
-        <p className="font-label-sm text-label-sm text-on-surface-variant/60 mb-4 flex items-center gap-1">
-          <span className="material-symbols-outlined text-[13px]">link</span>
-          {item.source}
-        </p>
+
+      {/* ── Title / Quote ── */}
+      {(isNote || isJournal) ? (
+        <blockquote className="m-detail-quote">
+          {item.title || 'Untitled'}
+        </blockquote>
+      ) : (
+        <h1 className="m-detail-title">{item.title || 'Untitled'}</h1>
       )}
 
-      {item.description
-        ? <p className="font-body-md text-body-md text-on-surface-variant mb-6">{item.description}</p>
-        : summary && summary !== item.title
-          ? <p className="font-body-sm text-body-sm text-on-surface-variant/50 mb-6 italic">{summary}</p>
-          : null
-      }
+      {/* ── Author (if present) ── */}
+      {item.author && <p className="m-detail-author">{item.author}</p>}
 
-      {/* Flags */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        <FlagButton
-          active={!!itemFlags.isTried}
-          icon="check_circle"
-          label={itemFlags.isTried ? 'Tried' : 'Mark as tried'}
-          onClick={() => toggleFlag(item.id, 'isTried')}
-        />
-        <FlagButton
-          active={!!itemFlags.isSaved}
-          icon="bookmark"
-          label={itemFlags.isSaved ? 'Saved' : 'Save'}
+      {/* ── Description / Body / Summary ── */}
+      {item.description ? (
+        <p className="m-detail-body">{item.description}</p>
+      ) : item.body ? (
+        <p className="m-detail-body">{item.body}</p>
+      ) : summary && summary !== item.title ? (
+        <p className="m-detail-summary">{summary}</p>
+      ) : null}
+
+      {/* ── Rule ── */}
+      <div className="m-rule">
+        <span className="m-rule-line" />
+        <span className="m-rule-line" />
+      </div>
+
+      {/* ── Actions ── */}
+      <div className="m-detail-actions">
+        <button
+          className={'m-btn ' + (itemFlags.isSaved ? 'm-btn-primary' : 'm-btn-secondary')}
           onClick={() => toggleFlag(item.id, 'isSaved')}
-        />
+        >
+          <i className={itemFlags.isSaved ? 'ph-fill ph-bookmark-simple' : 'ph ph-bookmark-simple'} />
+          {itemFlags.isSaved ? 'Kept' : 'Keep this'}
+        </button>
+        <button
+          className={'m-btn ' + (itemFlags.isTried ? 'm-btn-primary' : 'm-btn-secondary')}
+          onClick={() => toggleFlag(item.id, 'isTried')}
+        >
+          <i className={itemFlags.isTried ? 'ph-fill ph-check-circle' : 'ph ph-check-circle'} />
+          {itemFlags.isTried ? 'Tried' : 'Mark as tried'}
+        </button>
+        {item.url && (
+          <button className="m-btn m-btn-secondary" onClick={() => handleOpenLink(item.url)}>
+            <i className="ph ph-arrow-up-right" /> Open original
+          </button>
+        )}
+        <button className="m-btn m-btn-ghost" onClick={() => navigate(`/add?id=${item.id}`)}>
+          <i className="ph ph-pencil-simple" /> Edit
+        </button>
+        <button className="m-btn m-btn-ghost" onClick={handleDelete} style={{ color: 'var(--mora-ember)' }}>
+          <i className="ph ph-trash" /> Forget
+        </button>
       </div>
 
-      {/* Tags */}
-      <div className="flex flex-wrap gap-2 mb-10">
-        {itemTags.map(tag => (
-          <span
-            key={tag}
-            className="px-3 py-1 rounded-full bg-surface-container-high border border-white/10 font-label-sm text-label-sm text-on-surface-variant"
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
+      {/* ── Tags ── */}
+      {itemTags.length > 0 && (
+        <section className="m-detail-tags">
+          <span className="m-eyebrow">TAGS</span>
+          <div className="m-detail-tag-row">
+            {itemTags.map(tag => (
+              <span key={tag} className="m-tag">#{tag}</span>
+            ))}
+          </div>
+        </section>
+      )}
 
-      {/* Private note */}
-      <section className="mb-10">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="material-symbols-outlined text-[14px] text-on-surface-variant/50">lock</span>
-          <span className="font-label-sm text-label-sm text-on-surface-variant/50 uppercase tracking-widest">Personal</span>
+      {/* ── Private note ── */}
+      <section className="m-detail-private">
+        <div className="m-detail-private-head">
+          <i className="ph ph-lock-simple" style={{ fontSize: 14, color: 'var(--mora-ink-3)' }} />
+          <span className="m-eyebrow">A NOTE TO YOURSELF</span>
           {!isEditingNote && (
             <button
               onClick={() => setIsEditingNote(true)}
-              className="ml-auto font-label-sm text-label-sm text-on-surface-variant/40 hover:text-primary transition-colors"
+              className="m-btn m-btn-ghost"
+              style={{ marginLeft: 'auto', fontSize: 11, padding: '4px 8px' }}
             >
               {item.privateNote ? 'Edit' : 'Add note'}
             </button>
           )}
         </div>
         {isEditingNote ? (
-          <div className="flex flex-col gap-2">
+          <>
             <textarea
               autoFocus
               value={noteText}
               onChange={e => setNoteText(e.target.value)}
               placeholder="Private note — only visible to you"
               rows={3}
-              className="w-full bg-surface-container-high border border-white/10 rounded-xl px-4 py-3 font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant/30 resize-none focus:outline-none focus:border-primary/50 transition-colors"
             />
-            <div className="flex gap-2 justify-end">
+            <div className="m-detail-private-actions">
               <button
                 onClick={() => { setNoteText(item.privateNote || ''); setIsEditingNote(false) }}
-                className="px-3 py-1.5 rounded-full font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                className="m-btn m-btn-ghost"
+                style={{ fontSize: 12, padding: '6px 12px' }}
               >
                 Cancel
               </button>
               <button
                 onClick={() => { updateItem(item.id, { privateNote: noteText.trim() || null }); setIsEditingNote(false) }}
-                className="px-3 py-1.5 rounded-full bg-primary/20 border border-primary/30 font-label-sm text-label-sm text-primary hover:bg-primary/30 transition-colors"
+                className="m-btn m-btn-primary"
+                style={{ fontSize: 12, padding: '6px 12px' }}
               >
                 Save
               </button>
             </div>
-          </div>
+          </>
         ) : item.privateNote ? (
-          <p className="font-body-sm text-body-sm text-on-surface-variant/70 whitespace-pre-wrap">{item.privateNote}</p>
+          <p style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 15, lineHeight: 1.55, color: 'var(--mora-ink-2)', whiteSpace: 'pre-wrap', margin: 0 }}>
+            {item.privateNote}
+          </p>
         ) : (
-          <p className="font-body-sm text-body-sm text-on-surface-variant/30 italic">No personal note yet.</p>
+          <p className="m-detail-private-empty">
+            You haven't written anything here yet. Press to add a private note — it stays between you and Mora.
+          </p>
         )}
       </section>
 
-      {/* Collection */}
-      <section className="mb-10">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="material-symbols-outlined text-[14px] text-on-surface-variant/50">folder_open</span>
-          <span className="font-label-sm text-label-sm text-on-surface-variant/50 uppercase tracking-widest">Collection</span>
+      {/* ── Collection ── */}
+      <section className="m-detail-collection">
+        <div className="m-detail-collection-head">
+          <i className="ph ph-folder-open" style={{ fontSize: 14, color: 'var(--mora-ochre)' }} />
+          <span className="m-eyebrow">COLLECTION</span>
           {!isEditingCollection && (
             <button
               onClick={() => setIsEditingCollection(true)}
-              className="ml-auto font-label-sm text-label-sm text-on-surface-variant/40 hover:text-primary transition-colors"
+              className="m-btn m-btn-ghost"
+              style={{ marginLeft: 'auto', fontSize: 11, padding: '4px 8px' }}
             >
               {item.collection ? 'Edit' : 'Assign'}
             </button>
           )}
         </div>
         {isEditingCollection ? (
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-wrap gap-2 mb-1">
+          <>
+            <div className="m-detail-collection-presets">
               {['Ideas', 'Personal', 'Design', 'Research', 'Travel'].map(preset => (
                 <button
                   key={preset}
                   onClick={() => setCollectionValue(preset)}
-                  className={`px-3 py-1 rounded-full font-label-sm text-label-sm border transition-all ${
-                    collectionValue === preset
-                      ? 'bg-primary/20 border-primary text-primary'
-                      : 'bg-surface-container-high border-white/10 text-on-surface-variant hover:border-white/30'
-                  }`}
+                  className={'m-pill' + (collectionValue === preset ? ' is-active' : '')}
+                  style={{ fontSize: 12, padding: '4px 12px' }}
                 >
                   {preset}
                 </button>
@@ -351,12 +357,12 @@ export default function ItemDetail() {
               value={collectionValue}
               onChange={e => setCollectionValue(e.target.value)}
               placeholder="Or type a custom collection name"
-              className="w-full bg-surface-container-high border border-white/10 rounded-xl px-4 py-2.5 font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:border-primary/50 transition-colors"
             />
-            <div className="flex gap-2 justify-end">
+            <div className="m-detail-collection-actions">
               <button
                 onClick={() => { setCollectionValue(item.collection || ''); setIsEditingCollection(false) }}
-                className="px-3 py-1.5 rounded-full font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+                className="m-btn m-btn-ghost"
+                style={{ fontSize: 12, padding: '6px 12px' }}
               >
                 Cancel
               </button>
@@ -365,30 +371,45 @@ export default function ItemDetail() {
                   updateItem(item.id, { collection: collectionValue.trim() || null })
                   setIsEditingCollection(false)
                 }}
-                className="px-3 py-1.5 rounded-full bg-primary/20 border border-primary/30 font-label-sm text-label-sm text-primary hover:bg-primary/30 transition-colors"
+                className="m-btn m-btn-primary"
+                style={{ fontSize: 12, padding: '6px 12px' }}
               >
                 Save
               </button>
             </div>
-          </div>
+          </>
         ) : item.collection ? (
-          <p className="font-body-sm text-body-sm text-on-surface-variant/70">{item.collection}</p>
+          <p className="m-detail-collection-value">{item.collection}</p>
         ) : (
-          <p className="font-body-sm text-body-sm text-on-surface-variant/30 italic">No collection assigned.</p>
+          <p className="m-detail-private-empty">No collection assigned.</p>
         )}
       </section>
 
-      {/* Related items */}
+      {/* ── Related items ── */}
       {relatedItems.length > 0 && (
-        <section>
-          <h2 className="font-headline-md text-headline-md text-on-surface mb-4">Related</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {relatedItems.map(rel => (
-              <RelatedCard key={rel.id} item={rel} onClick={() => handleRelatedClick(rel)} />
-            ))}
+        <section className="m-detail-related">
+          <span className="m-eyebrow">
+            <span className="m-eyebrow-dot" style={{ background: 'var(--mora-moss)' }} />
+            NEAR THIS
+          </span>
+          <h2 className="m-related-h">Other memories that share a thread</h2>
+          <div className="m-related-list">
+            {relatedItems.map(rel => {
+              const { badge } = mapItemToUI(rel)
+              return (
+                <div
+                  key={rel.id}
+                  className="m-related-item"
+                  onClick={() => handleRelatedClick(rel)}
+                >
+                  <span className="m-related-title">{rel.title}</span>
+                  <span className="m-related-source">{rel.source || badge}</span>
+                </div>
+              )
+            })}
           </div>
         </section>
       )}
-    </div>
+    </article>
   )
 }

@@ -76,25 +76,29 @@ export default function AddItem() {
   }
 
   return (
-    <div className="pt-8 pb-24 px-6 lg:px-12 min-h-screen w-full max-w-2xl mx-auto">
-      {/* Back Button */}
-      <Link
-        to="/moodboard"
-        className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-label-sm text-label-sm uppercase tracking-widest w-fit mb-8"
-      >
-        <span className="material-symbols-outlined">arrow_back</span>
-        Back
+    <div className="m-compose-page">
+
+      {/* ── Back ── */}
+      <Link to="/moodboard" className="m-back">
+        <i className="ph ph-arrow-left" /> Back to library
       </Link>
 
-      <h1 className="font-display-xl text-display-xl text-on-surface mb-8">
-        {isEditing ? 'Edit Item' : 'Add New Item'}
+      {/* ── Header ── */}
+      <h1 className="m-compose-page-title">
+        {isEditing ? 'Edit this memory' : 'Capture something new'}
       </h1>
+      <p className="m-compose-page-sub">
+        {isEditing
+          ? 'Refine what you kept — change its shape, add context.'
+          : "What's on your mind right now? You don't need a reason to write it down."
+        }
+      </p>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit}>
         {/* URL */}
-        <div>
-          <label htmlFor="url" className="block font-label-lg text-label-lg text-on-surface mb-2">
-            URL (optional)
+        <div className="m-form-group">
+          <label htmlFor="url" className="m-form-label">
+            <i className="ph ph-link-simple" style={{ fontSize: 12 }} /> URL
           </label>
           <input
             id="url"
@@ -102,15 +106,18 @@ export default function AddItem() {
             name="url"
             value={formData.url}
             onChange={handleChange}
-            placeholder="https://..."
-            className="w-full px-4 py-3 rounded-xl bg-surface-container border border-white/10 text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary transition-colors"
+            placeholder="https://…"
+            className="m-form-input"
           />
+          {!formData.url && (
+            <p className="m-form-hint">Optional — leave empty for notes and journals.</p>
+          )}
         </div>
 
         {/* Title */}
-        <div>
-          <label htmlFor="title" className="block font-label-lg text-label-lg text-on-surface mb-2">
-            Title {!formData.url && '*'}
+        <div className="m-form-group">
+          <label htmlFor="title" className="m-form-label">
+            Title {!formData.url && <span style={{ color: 'var(--mora-ember)' }}>*</span>}
           </label>
           <input
             id="title"
@@ -119,20 +126,18 @@ export default function AddItem() {
             value={formData.title}
             onChange={handleChange}
             required={!formData.url}
-            placeholder="Enter item title"
-            className="w-full px-4 py-3 rounded-xl bg-surface-container border border-white/10 text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary transition-colors"
+            placeholder="Give this memory a name…"
+            className="m-form-input"
           />
           {formData.url && !formData.title && (
-            <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
-              Will be derived from URL if left empty
-            </p>
+            <p className="m-form-hint">Will be derived from the URL if left empty.</p>
           )}
         </div>
 
         {/* Source */}
-        <div>
-          <label htmlFor="source" className="block font-label-lg text-label-lg text-on-surface mb-2">
-            Source {!formData.url && '*'}
+        <div className="m-form-group">
+          <label htmlFor="source" className="m-form-label">
+            Source {!formData.url && <span style={{ color: 'var(--mora-ember)' }}>*</span>}
           </label>
           <input
             id="source"
@@ -141,27 +146,25 @@ export default function AddItem() {
             value={formData.source}
             onChange={handleChange}
             required={!formData.url}
-            placeholder="e.g., spotify, pinterest, instagram"
-            className="w-full px-4 py-3 rounded-xl bg-surface-container border border-white/10 text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary transition-colors"
+            placeholder="e.g., Spotify, Pinterest, Instagram"
+            className="m-form-input"
           />
           {formData.url && !formData.source && (
-            <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
-              Will be derived from URL if left empty
-            </p>
+            <p className="m-form-hint">Will be derived from the URL if left empty.</p>
           )}
         </div>
 
         {/* Type (filterKey) */}
-        <div>
-          <label htmlFor="filterKey" className="block font-label-lg text-label-lg text-on-surface mb-2">
-            Type *
+        <div className="m-form-group">
+          <label htmlFor="filterKey" className="m-form-label">
+            Type <span style={{ color: 'var(--mora-ember)' }}>*</span>
           </label>
           <select
             id="filterKey"
             name="filterKey"
             value={formData.filterKey}
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-xl bg-surface-container border border-white/10 text-on-surface focus:outline-none focus:border-primary transition-colors"
+            className="m-form-select"
           >
             {FILTER_KEYS.filter(k => k !== 'all').map(key => (
               <option key={key} value={key}>
@@ -172,9 +175,9 @@ export default function AddItem() {
         </div>
 
         {/* Image URL */}
-        <div>
-          <label htmlFor="imageUrl" className="block font-label-lg text-label-lg text-on-surface mb-2">
-            Image URL
+        <div className="m-form-group">
+          <label htmlFor="imageUrl" className="m-form-label">
+            <i className="ph ph-image" style={{ fontSize: 12 }} /> Image URL
           </label>
           <input
             id="imageUrl"
@@ -182,29 +185,33 @@ export default function AddItem() {
             name="imageUrl"
             value={formData.imageUrl}
             onChange={handleChange}
-            placeholder="https://..."
-            className="w-full px-4 py-3 rounded-xl bg-surface-container border border-white/10 text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary transition-colors"
+            placeholder="https://…"
+            className="m-form-input"
           />
         </div>
 
         {/* Tags */}
-        <div>
-          <label htmlFor="tags" className="block font-label-lg text-label-lg text-on-surface mb-2">
-            Tags (comma-separated)
+        <div className="m-form-group">
+          <label htmlFor="tags" className="m-form-label">
+            <i className="ph ph-hash" style={{ fontSize: 12 }} /> Tags
           </label>
-          <input
-            id="tags"
-            type="text"
-            name="tags"
-            value={formData.tags}
-            onChange={handleChange}
-            placeholder="e.g., synthwave, focus, night"
-            className="w-full px-4 py-3 rounded-xl bg-surface-container border border-white/10 text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary transition-colors"
-          />
+          <div className="m-compose-tags">
+            <i className="ph ph-hash" />
+            <input
+              id="tags"
+              type="text"
+              name="tags"
+              value={formData.tags}
+              onChange={handleChange}
+              placeholder="tag with a thread (synthwave, focus, night…)"
+            />
+          </div>
         </div>
-        <div>
-          <label htmlFor="mood" className="block font-label-lg text-label-lg text-on-surface mb-2">
-            Mood
+
+        {/* Mood */}
+        <div className="m-form-group">
+          <label htmlFor="mood" className="m-form-label">
+            <i className="ph ph-sun-horizon" style={{ fontSize: 12 }} /> Mood
           </label>
           <input
             id="mood"
@@ -213,24 +220,33 @@ export default function AddItem() {
             value={formData.mood}
             onChange={handleChange}
             placeholder="e.g., Reflective Neon"
-            className="w-full px-4 py-3 rounded-xl bg-surface-container border border-white/10 text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary transition-colors"
+            className="m-form-input"
           />
         </div>
 
+        {/* ── Rule ── */}
+        <div className="m-rule" style={{ margin: '24px 0 16px' }}>
+          <span className="m-rule-line" />
+          <span className="m-rule-line" />
+        </div>
+
+        {/* Footer */}
+        <p className="m-compose-meta" style={{ marginBottom: 12 }}>
+          It stays between you and Mora.
+        </p>
+
         {/* Form Actions */}
-        <div className="flex gap-3 pt-4">
-          <button
-            type="submit"
-            className="flex-1 px-6 py-3 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg hover:shadow-[0_0_15px_#ff479c] transition-all"
-          >
-            {isEditing ? 'Update Item' : 'Add Item'}
+        <div className="m-form-actions">
+          <button type="submit" className="m-btn m-btn-primary">
+            <i className="ph ph-bookmark-simple" />
+            {isEditing ? 'Update' : 'Keep'}
           </button>
           <button
             type="button"
             onClick={() => navigate('/moodboard')}
-            className="flex-1 px-6 py-3 rounded-xl bg-surface-container border border-white/10 text-on-surface font-label-lg text-label-lg hover:bg-surface-container-high transition-colors"
+            className="m-btn m-btn-ghost"
           >
-            Cancel
+            Not now
           </button>
         </div>
       </form>
