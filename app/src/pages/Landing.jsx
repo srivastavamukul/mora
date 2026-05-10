@@ -8,7 +8,7 @@ export default function Landing() {
       <header style={{ position: 'relative', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 48px', width: '100%' }}>
         <span style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 24, fontWeight: 500, color: 'var(--mora-ink)', letterSpacing: '-0.02em' }}>Mora<span style={{ color: 'var(--mora-ember)' }}>.</span></span>
         <Link to="/empty" style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--mora-ink-3)', textDecoration: 'none' }}>
-          LOG IN
+          Quietly here.
         </Link>
       </header>
 
@@ -19,15 +19,15 @@ export default function Landing() {
           
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 32 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--mora-moss)' }} />
-            <span style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--mora-ink-3)' }}>Archive active</span>
+            <span style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--mora-ink-3)' }}>Quietly here</span>
           </div>
 
           <h1 style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 56, fontWeight: 400, color: 'var(--mora-ink)', marginBottom: 24, lineHeight: 1.15, letterSpacing: '-0.02em' }}>
-            Your saved world,<br />alive again.
+            Your saved world,<br />within reach again.
           </h1>
           
           <p style={{ fontFamily: 'var(--mora-font-serif)', fontStyle: 'italic', fontSize: 20, color: 'var(--mora-ink-2)', marginBottom: 48, maxWidth: 520, lineHeight: 1.5 }}>
-            Turning digital fragments into a living memory system. Stop hoarding links and start building your personal intelligence constellation.
+            Gather the songs, images, notes, and passing thoughts you want to keep nearby. Mora gives them a warmer place to settle.
           </p>
 
           <div style={{ display: 'flex', gap: 16, width: '100%', justifyContent: 'center' }}>
@@ -36,7 +36,7 @@ export default function Landing() {
               className="m-btn m-btn-primary"
               style={{ padding: '16px 24px', fontSize: 15 }}
             >
-              Connect your sources
+              Connect sources
               <i className="ph ph-arrow-right" style={{ marginLeft: 4 }} />
             </Link>
             <Link
@@ -44,7 +44,7 @@ export default function Landing() {
               className="m-btn m-btn-ghost"
               style={{ padding: '16px 24px', fontSize: 15, border: '1px solid var(--mora-rule-soft)' }}
             >
-              Try manual capture
+              Open your library
             </Link>
           </div>
           

@@ -4,13 +4,13 @@ function StatusBadge({ status }) {
   if (status === 'connected') return (
     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--mora-paper-deep)', padding: '4px 10px', borderRadius: 20, border: '1px solid var(--mora-rule-soft)' }}>
       <i className="ph-fill ph-check-circle" style={{ color: 'var(--mora-moss)', fontSize: 14 }} />
-      <span style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--mora-ink-2)' }}>Connected</span>
+      <span style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--mora-ink-2)' }}>Here</span>
     </div>
   )
   if (status === 'error') return (
     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--mora-paper-deep)', padding: '4px 10px', borderRadius: 20, border: '1px solid var(--mora-rule-soft)' }}>
       <i className="ph-fill ph-warning-circle" style={{ color: 'var(--mora-ember)', fontSize: 14 }} />
-      <span style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--mora-ink-2)' }}>Auth Expired</span>
+      <span style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--mora-ink-2)' }}>Something didn't land</span>
     </div>
   )
   return null
@@ -24,7 +24,7 @@ function ActionButton({ sourceId, status, onToggle }) {
       aria-label={`Disconnect ${sourceId}`}
       style={{ width: '100%', justifyContent: 'center' }}
     >
-      Disconnect
+      Step back
     </button>
   )
   if (status === 'error') return (
@@ -34,7 +34,7 @@ function ActionButton({ sourceId, status, onToggle }) {
       aria-label={`Reconnect ${sourceId}`}
       style={{ width: '100%', justifyContent: 'center', color: 'var(--mora-ember)', borderColor: 'var(--mora-ember)' }}
     >
-      Reconnect
+      Try again
     </button>
   )
   return (
@@ -97,8 +97,8 @@ export default function Sources() {
         {/* Instagram */}
         <div className={`m-source-card ${statuses.instagram === 'connected' ? '' : 'disabled'}`}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ width: 48, height: 48, borderRadius: 12, background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <i className="ph ph-instagram-logo" style={{ color: 'white', fontSize: 24 }} />
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--mora-ember-wash)', border: '1px solid var(--mora-rule-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <i className="ph ph-instagram-logo" style={{ color: 'var(--mora-ember)', fontSize: 24 }} />
             </div>
             <StatusBadge status={statuses.instagram} />
           </div>
@@ -110,7 +110,7 @@ export default function Sources() {
           </div>
           <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid var(--mora-rule-soft)', display: 'flex', flexDirection: 'column', gap: 12 }}>
             <span style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--mora-ink-3)', textAlign: 'center' }}>
-              {statuses.instagram === 'connected' ? 'Last sync: 2h ago' : 'Not connected'}
+              {statuses.instagram === 'connected' ? 'Last sync: 2h ago' : 'Resting'}
             </span>
             <ActionButton sourceId="instagram" status={statuses.instagram} onToggle={toggle} />
           </div>
@@ -119,8 +119,8 @@ export default function Sources() {
         {/* Spotify */}
         <div className={`m-source-card ${statuses.spotify === 'connected' ? '' : 'disabled'}`}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ width: 48, height: 48, borderRadius: 12, background: '#1DB954', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <i className="ph-fill ph-spotify-logo" style={{ color: 'white', fontSize: 28 }} />
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--mora-moss-wash)', border: '1px solid var(--mora-rule-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <i className="ph ph-spotify-logo" style={{ color: 'var(--mora-moss)', fontSize: 28 }} />
             </div>
             <StatusBadge status={statuses.spotify} />
           </div>
@@ -147,8 +147,8 @@ export default function Sources() {
         {/* Pinterest */}
         <div className={`m-source-card ${statuses.pinterest === 'connected' ? '' : 'disabled'}`}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ width: 48, height: 48, borderRadius: 12, background: '#E60023', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center' }}>
-              <i className="ph-fill ph-pinterest-logo" style={{ color: 'white', fontSize: 24 }} />
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--mora-ochre-wash)', border: '1px solid var(--mora-rule-soft)', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center' }}>
+              <i className="ph ph-pinterest-logo" style={{ color: 'var(--mora-ochre)', fontSize: 24 }} />
             </div>
             <StatusBadge status={statuses.pinterest} />
           </div>
@@ -166,8 +166,8 @@ export default function Sources() {
         {/* YouTube */}
         <div className={`m-source-card ${statuses.youtube === 'connected' ? '' : 'disabled'}`}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ width: 48, height: 48, borderRadius: 12, background: '#FF0000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <i className="ph-fill ph-youtube-logo" style={{ color: 'white', fontSize: 24 }} />
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--mora-indigo-wash)', border: '1px solid var(--mora-rule-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <i className="ph ph-youtube-logo" style={{ color: 'var(--mora-indigo)', fontSize: 24 }} />
             </div>
             <StatusBadge status={statuses.youtube} />
           </div>
@@ -176,7 +176,7 @@ export default function Sources() {
             <p style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 14, lineHeight: 1.5, color: 'var(--mora-ink-2)', margin: 0, minHeight: 42 }}>
               {statuses.youtube === 'connected'
                 ? 'Parsing watch history themes and extracting content vibes.'
-                : 'We lost connection. Reconnect to keep parsing watch history themes.'}
+                : "Something didn't land. Reconnect to keep parsing watch history themes."}
             </p>
           </div>
           <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid var(--mora-rule-soft)', display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -194,7 +194,7 @@ export default function Sources() {
             Upload ZIP archives from Notion, Evernote, or Apple Notes.
           </p>
           <span style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--mora-ink-3)' }}>
-            Browse Files
+            Browse files
           </span>
         </div>
 

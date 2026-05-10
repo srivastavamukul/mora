@@ -51,9 +51,9 @@ export default function Settings() {
         setFlags(data.flags)
         setSelectedItemId(null)
 
-        alert('Backup restored successfully!')
-      } catch (error) {
-        alert('Invalid backup file')
+        alert('Backup restored.')
+      } catch {
+        alert("That backup didn't land.")
       }
     }
     reader.readAsText(file)

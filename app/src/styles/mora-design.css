@@ -158,6 +158,7 @@
   width: 280px;
   transition: all 180ms cubic-bezier(.32,.72,.28,1);
 }
+.m-search:hover { border-color: var(--mora-rule); }
 .m-search:focus-within { background: var(--mora-paper); border-color: var(--mora-rule); }
 .m-search i { color: var(--mora-ink-3); }
 .m-search input {
@@ -231,8 +232,9 @@
   cursor: pointer;
   transition: all 200ms cubic-bezier(.32,.72,.28,1);
 }
-.m-btn-primary { background: var(--mora-ember); color: #FCEFE2; }
-.m-btn-primary:hover { background: #A0461F; }
+.m-btn:active { transform: scale(0.98); }
+.m-btn-primary { background: var(--mora-ember); color: var(--mora-paper); }
+.m-btn-primary:hover { background: var(--mora-ember-soft); }
 .m-btn-secondary { background: var(--mora-vellum); color: var(--mora-ink); border: 1px solid var(--mora-rule); }
 .m-btn-secondary:hover { background: var(--mora-vellum-2); }
 .m-btn-ghost { background: transparent; color: var(--mora-ink-2); }
@@ -271,7 +273,7 @@
   cursor: pointer; text-align: left; font: inherit;
   transition: all 200ms cubic-bezier(.32,.72,.28,1);
 }
-.m-resurface-card:hover { transform: translateY(-1px); box-shadow: var(--mora-shadow-1); border-color: var(--mora-rule); }
+.m-resurface-card:hover { background: var(--mora-vellum); border-color: var(--mora-rule); }
 .m-resurface-when {
   font-family: var(--mora-font-serif); font-style: italic; font-size: 12px;
   color: var(--mora-ochre-on);
@@ -314,7 +316,12 @@
   display: flex; flex-direction: column;
   transition: all 200ms cubic-bezier(.32,.72,.28,1);
 }
-.m-card:hover { transform: translateY(-1px); box-shadow: var(--mora-shadow-1); border-color: var(--mora-rule); }
+.m-card:hover { background: var(--mora-vellum-2); border-color: var(--mora-rule); }
+.m-card:hover .m-card-title {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--mora-ink-3) 45%, transparent);
+  text-underline-offset: 0.12em;
+}
 .m-card-thumb {
   height: 140px; position: relative;
   display: flex; align-items: center; justify-content: center;
@@ -331,7 +338,7 @@
   width: 38px; height: 38px; border-radius: 50%;
   background: rgba(245,240,230,0.85); color: var(--mora-ink);
   display: flex; align-items: center; justify-content: center;
-  z-index: 1; backdrop-filter: blur(2px);
+  z-index: 1;
 }
 .m-card-play i { font-size: 16px; }
 .m-card-body {
@@ -384,7 +391,7 @@
 
 .m-empty {
   padding: 80px 20px; text-align: center;
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
   font-family: var(--mora-font-serif); font-style: italic; font-size: 18px;
   color: var(--mora-ink-3); line-height: 1.45;
 }
@@ -463,7 +470,7 @@
   cursor: pointer;
   transition: all 200ms cubic-bezier(.32,.72,.28,1);
 }
-.m-suggest-item:hover { transform: translateY(-1px); box-shadow: var(--mora-shadow-1); border-color: var(--mora-rule); }
+.m-suggest-item:hover { background: var(--mora-vellum); border-color: var(--mora-rule); }
 .m-suggest-thumb {
   width: 40px; height: 40px; border-radius: 8px; flex-shrink: 0;
   overflow: hidden; background: var(--mora-vellum);
@@ -625,153 +632,294 @@
 .m-compose-tags input::placeholder { color: var(--mora-ink-4); font-style: italic; }
 
 /* ============ Memory Wall (Nudge/Resurface) ============ */
-.m-wall { max-width: 760px; margin: 0 auto; }
+.m-wall {
+  max-width: 760px;
+  margin: 0 auto;
+  padding-top: 12px;
+}
 .m-wall-date {
-  display: flex; align-items: baseline; gap: 10px;
-  margin-bottom: 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 18px;
 }
 .m-wall-day {
-  font-family: var(--mora-font-serif); font-size: 24px; font-weight: 500;
+  font-family: var(--mora-font-serif);
+  font-size: 22px;
+  font-weight: 500;
   color: var(--mora-ink);
 }
-.m-wall-date-num {
-  font-family: var(--mora-font-serif); font-size: 48px; font-weight: 500;
-  color: var(--mora-ink); line-height: 1; letter-spacing: -0.02em;
+.m-wall-num {
+  font-family: var(--mora-font-serif);
+  font-size: 64px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--mora-ink);
 }
 .m-wall-month {
-  font-family: var(--mora-font-serif); font-style: italic; font-size: 16px;
+  font-family: var(--mora-font-serif);
+  font-style: italic;
+  font-size: 16px;
   color: var(--mora-ink-3);
 }
-.m-wall-greeting {
-  font-family: var(--mora-font-serif); font-size: 22px; font-weight: 400;
-  color: var(--mora-ink-2); line-height: 1.35;
-  margin: 0 0 32px; max-width: 520px;
+.m-wall-blurb {
+  margin: 0 0 32px;
+  max-width: 580px;
+  font-family: var(--mora-font-serif);
+  font-size: 22px;
+  line-height: 1.4;
+  color: var(--mora-ink-2);
 }
-/* Featured resurface card */
-.m-wall-feature {
-  background: linear-gradient(135deg, var(--mora-vellum) 0%, var(--mora-vellum-2) 100%);
-  border: 1px solid var(--mora-rule-soft); border-radius: 16px;
-  padding: 28px 32px; cursor: pointer;
-  transition: all 200ms cubic-bezier(.32,.72,.28,1);
+.m-wall-empty {
+  margin: 0;
+  font-family: var(--mora-font-serif);
+  font-size: 22px;
+  line-height: 1.4;
+  color: var(--mora-ink-3);
 }
-.m-wall-feature:hover { transform: translateY(-1px); box-shadow: var(--mora-shadow-1); }
-.m-wall-feature blockquote {
-  font-family: var(--mora-font-serif); font-style: italic; font-size: 26px;
-  font-weight: 400; line-height: 1.3; color: var(--mora-ink);
-  margin: 14px 0; padding-left: 14px;
+.m-wall-card,
+.m-wall-secondary,
+.m-wall-rediscover-item {
+  width: 100%;
+  border: 1px solid var(--mora-rule-soft);
+  border-radius: 12px;
+  background: var(--mora-vellum);
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition: background 180ms cubic-bezier(.32,.72,.28,1), border-color 180ms cubic-bezier(.32,.72,.28,1);
+}
+.m-wall-card:hover,
+.m-wall-secondary:hover,
+.m-wall-rediscover-item:hover {
+  background: var(--mora-vellum-2);
+  border-color: var(--mora-rule);
+}
+.m-wall-card:hover .m-wall-card-title,
+.m-wall-secondary:hover .m-wall-secondary-title,
+.m-wall-rediscover-item:hover .m-wall-rediscover-title {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--mora-ink-3) 45%, transparent);
+  text-underline-offset: 0.12em;
+}
+.m-wall-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 36px;
+}
+.m-wall-card-title {
+  margin: 0;
+  padding-left: 16px;
   border-left: 3px solid var(--mora-ochre);
+  font-family: var(--mora-font-serif);
+  font-size: 28px;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--mora-ink);
+  text-wrap: pretty;
 }
-.m-wall-feature p {
-  font-family: var(--mora-font-serif); font-size: 15px; line-height: 1.55;
-  color: var(--mora-ink-2); margin: 0 0 14px;
+.m-wall-card-body {
+  margin: 0;
+  font-family: var(--mora-font-serif);
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--mora-ink-2);
+  text-wrap: pretty;
 }
-.m-wall-feature-foot {
-  display: flex; align-items: center; gap: 12px;
+.m-wall-card-foot,
+.m-wall-secondary-foot,
+.m-wall-rediscover-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 .m-wall-when {
-  font-family: var(--mora-font-serif); font-style: italic; font-size: 12px;
+  font-family: var(--mora-font-serif);
+  font-style: italic;
+  font-size: 13px;
   color: var(--mora-ink-3);
 }
-/* Secondary resurface cards */
-.m-wall-secondaries {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
-  margin-top: 8px;
+.m-wall-rule {
+  margin: 28px 0;
 }
-.m-wall-second {
-  background: var(--mora-paper-deep); border: 1px solid var(--mora-rule-soft);
-  border-radius: 12px; padding: 20px 22px;
-  cursor: pointer; display: flex; flex-direction: column; gap: 8px;
-  transition: all 200ms cubic-bezier(.32,.72,.28,1);
+.m-wall-followups {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
-.m-wall-second:hover { transform: translateY(-1px); box-shadow: var(--mora-shadow-1); border-color: var(--mora-rule); }
-.m-wall-second h3 {
-  font-family: var(--mora-font-serif); font-size: 17px; font-weight: 500;
-  color: var(--mora-ink); margin: 0; line-height: 1.25;
+.m-wall-secondary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px 26px;
 }
-.m-wall-second p {
-  font-family: var(--mora-font-serif); font-size: 13px; line-height: 1.45;
-  color: var(--mora-ink-2); margin: 0;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+.m-wall-secondary-title {
+  margin: 0;
+  font-family: var(--mora-font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.28;
+  color: var(--mora-ink);
 }
-/* Nudge cards */
-.m-nudge-list { display: flex; flex-direction: column; gap: 8px; }
-.m-nudge-card {
-  width: 100%; text-align: left; background: var(--mora-paper-deep);
-  border: 1px solid var(--mora-rule-soft); border-radius: 10px;
-  padding: 16px 20px; cursor: pointer; font: inherit;
-  display: flex; flex-direction: column; gap: 4px;
-  transition: all 200ms cubic-bezier(.32,.72,.28,1);
-}
-.m-nudge-card:hover { background: var(--mora-vellum); border-color: var(--mora-rule); transform: translateY(-1px); box-shadow: var(--mora-shadow-1); }
-.m-nudge-source {
-  font-family: var(--mora-font-sans); font-size: 10px; font-weight: 600;
-  letter-spacing: 0.1em; text-transform: uppercase; color: var(--mora-ink-3);
-}
-.m-nudge-title {
-  font-family: var(--mora-font-serif); font-size: 17px; font-weight: 500;
-  color: var(--mora-ink); line-height: 1.25;
-}
-.m-nudge-reason {
-  font-family: var(--mora-font-serif); font-style: italic; font-size: 13px;
-  color: var(--mora-ember); line-height: 1.35;
-}
-.m-nudge-sub {
-  font-family: var(--mora-font-serif); font-size: 12px;
-  color: var(--mora-ink-3); line-height: 1.35;
-}
-.m-nudge-body {
-  font-family: var(--mora-font-serif); font-size: 13px; line-height: 1.5;
+.m-wall-secondary-body {
+  margin: 0;
+  font-family: var(--mora-font-serif);
+  font-size: 16px;
+  line-height: 1.55;
   color: var(--mora-ink-2);
+}
+.m-wall-rediscover {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 40px;
+}
+.m-wall-rediscover-eyebrow {
+  display: inline-flex;
+}
+.m-wall-rediscover-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.m-wall-rediscover-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px;
+  font: inherit;
+}
+.m-wall-rediscover-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.m-wall-rediscover-title {
+  font-family: var(--mora-font-serif);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--mora-ink);
+}
+.m-wall-rediscover-body {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-family: var(--mora-font-serif);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mora-ink-2);
+}
+.m-wall-rediscover-reason {
+  font-family: var(--mora-font-serif);
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--mora-ink-3);
 }
 
 /* ============ Constellations ============ */
-.m-constellations { max-width: 680px; margin: 0 auto; }
+.m-constellations { max-width: 760px; margin: 0 auto; }
 .m-constellations-intro {
-  font-family: var(--mora-font-serif); font-size: 20px; line-height: 1.45;
-  color: var(--mora-ink-2); font-style: italic;
+  max-width: 580px;
   margin: 0 0 32px;
+  font-family: var(--mora-font-serif);
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--mora-ink-2);
+  font-style: italic;
 }
-.m-constellation { margin-bottom: 48px; }
-.m-constellation-head {
-  display: flex; align-items: baseline; justify-content: space-between;
+.m-constellations-empty {
+  margin: 0;
+  font-family: var(--mora-font-serif);
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--mora-ink-3);
+  font-style: italic;
+}
+.m-constellation {
+  padding: 20px 0 28px;
   border-bottom: 1px solid var(--mora-rule-soft);
-  padding-bottom: 8px; margin-bottom: 16px;
+}
+.m-constellation:last-child { border-bottom: 0; }
+.m-constellation-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
 }
 .m-constellation-name {
-  font-family: var(--mora-font-serif); font-size: 26px; font-weight: 500;
-  color: var(--mora-ink); margin: 0; text-transform: capitalize;
+  margin: 0;
+  font-family: var(--mora-font-serif);
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--mora-ink);
+  text-transform: capitalize;
 }
 .m-constellation-count {
-  font-family: var(--mora-font-sans); font-size: 11px; font-weight: 600;
-  letter-spacing: 0.12em; text-transform: uppercase; color: var(--mora-ink-4);
+  font-family: var(--mora-font-serif);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--mora-ink-3);
+  white-space: nowrap;
 }
 .m-constellation-blurb {
-  font-family: var(--mora-font-serif); font-size: 15px; line-height: 1.5;
-  color: var(--mora-ink-2); margin: 0 0 20px;
+  max-width: 560px;
+  margin: 6px 0 12px;
+  font-family: var(--mora-font-serif);
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--mora-ink-2);
+  font-style: italic;
 }
 .m-constellation-list {
-  list-style: none; padding: 0; margin: 0;
-  display: flex; flex-direction: column; gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 .m-constellation-list li {
-  display: flex; align-items: baseline; gap: 12px;
-  padding: 12px 14px; border-radius: 8px;
-  cursor: pointer; transition: background 150ms;
+  display: grid;
+  grid-template-columns: 130px 1fr 110px;
+  align-items: baseline;
+  gap: 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--mora-rule-soft);
+  cursor: pointer;
+  font-family: var(--mora-font-serif);
 }
-.m-constellation-list li:hover { background: var(--mora-paper-deep); }
+.m-constellation-list li:hover .m-cl-title { color: var(--mora-ember); }
 .m-cl-time {
-  font-family: var(--mora-font-sans); font-size: 11px; font-weight: 500;
-  color: var(--mora-ink-4); width: 64px; flex-shrink: 0;
+  font-family: var(--mora-font-serif);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--mora-ink-3);
 }
 .m-cl-title {
-  font-family: var(--mora-font-serif); font-size: 16px;
-  color: var(--mora-ink); flex: 1;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--mora-font-serif);
+  font-size: 16px;
+  color: var(--mora-ink);
+  transition: color 180ms;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .m-cl-source {
-  font-family: var(--mora-font-sans); font-size: 10px; font-weight: 600;
-  letter-spacing: 0.1em; text-transform: uppercase; color: var(--mora-ink-3);
-  padding: 2px 6px; border: 1px solid var(--mora-rule-soft); border-radius: 4px;
+  font-family: var(--mora-font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mora-ink-3);
+  text-align: right;
 }
 
 .m-detail { max-width: 720px; margin: 0 auto; }
@@ -796,7 +944,7 @@
 .m-detail-figure:hover img { transform: scale(1.015); opacity: 0.95; }
 .m-detail-figure-gradient {
   width: 100%; height: 100%;
-  background: linear-gradient(135deg, var(--mora-vellum) 0%, var(--mora-vellum-2) 100%);
+  background: var(--mora-vellum);
 }
 .m-detail-figure figcaption {
   position: absolute; bottom: 12px; left: 16px;
@@ -810,7 +958,7 @@
 }
 .m-detail-figure-play-btn {
   width: 56px; height: 56px; border-radius: 50%;
-  background: rgba(30,26,20,0.55); backdrop-filter: blur(2px);
+  background: rgba(30,26,20,0.55);
   display: flex; align-items: center; justify-content: center;
   color: var(--mora-paper);
   transition: background 200ms;
@@ -820,7 +968,7 @@
   position: absolute; top: 12px; left: 14px;
   font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
   text-transform: uppercase; color: rgba(245,240,230,0.85);
-  background: rgba(30,26,20,0.5); backdrop-filter: blur(4px);
+  background: rgba(30,26,20,0.5);
   padding: 3px 10px; border-radius: 4px;
   pointer-events: none;
 }
@@ -986,6 +1134,19 @@
   }
   .m-topbar {
     padding: 16px 20px 12px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .m-topbar-left,
+  .m-topbar-right {
+    width: 100%;
+  }
+  .m-search {
+    width: 100%;
+    min-width: 0;
+  }
+  .m-avatar {
+    display: none;
   }
   .m-content {
     padding: 24px 16px 100px;
@@ -1016,12 +1177,27 @@
   .m-detail-actions { gap: 6px; }
   .m-detail-actions .m-btn { font-size: 12px; padding: 8px 12px; }
   /* Wall / Compose responsive */
-  .m-wall-secondaries { grid-template-columns: 1fr; }
-  .m-wall-date-num { font-size: 36px; }
-  .m-wall-greeting { font-size: 18px; }
+  .m-wall-num { font-size: 48px; }
+  .m-wall-day { font-size: 20px; }
+  .m-wall-month { font-size: 15px; }
+  .m-wall-blurb { font-size: 18px; }
   .m-compose-page-title { font-size: 24px; }
-  .m-wall-feature { padding: 20px 22px; }
-  .m-wall-feature blockquote { font-size: 20px; }
+  .m-wall-card { padding: 24px; }
+  .m-wall-card-title { font-size: 22px; }
+  .m-wall-card-body { font-size: 16px; }
+  .m-wall-secondary { padding: 20px; }
+  .m-constellation-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .m-constellation-list li {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 12px 0;
+  }
+  .m-cl-source {
+    text-align: left;
+  }
 }
 @media (min-width: 769px) and (max-width: 1024px) {
   .m-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1034,6 +1210,17 @@
 .mora ::-webkit-scrollbar-track { background: var(--mora-paper-deep); }
 .mora ::-webkit-scrollbar-thumb { background: var(--mora-rule); border-radius: 3px; }
 .mora ::-webkit-scrollbar-thumb:hover { background: var(--mora-ink-4); }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 
 /* ============ Noise overlay ============ */
 .m-grain-overlay {
@@ -1055,8 +1242,7 @@
   transition: all 200ms cubic-bezier(.32,.72,.28,1);
 }
 .m-source-card:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--mora-shadow-1);
+  background: var(--mora-vellum);
   border-color: var(--mora-rule);
 }
 .m-source-card.disabled { opacity: 0.7; }

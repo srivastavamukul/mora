@@ -1,0 +1,253 @@
+.m-detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 720px;
+}
+
+.m-back {
+  margin-bottom: 28px;
+  text-transform: none;
+}
+
+.m-detail-figure {
+  background: var(--mora-vellum);
+  cursor: pointer;
+  margin-bottom: 24px;
+}
+
+.m-detail-figure img {
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  transition: transform 400ms var(--mora-ease), opacity 220ms var(--mora-ease);
+  width: 100%;
+}
+
+.m-detail-figure:hover img {
+  opacity: 0.96;
+  transform: scale(1.012);
+}
+
+.m-detail-figure-gradient {
+  background: var(--mora-vellum);
+  height: 100%;
+  width: 100%;
+}
+
+.m-detail-figure figcaption {
+  background: linear-gradient(180deg, transparent 0%, rgba(30, 26, 20, 0.55) 100%);
+  bottom: 0;
+  color: rgba(245, 240, 230, 0.92);
+  left: 0;
+  padding: 32px 16px 14px;
+  right: 0;
+}
+
+.m-detail-head {
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.m-detail-time {
+  order: 0;
+}
+
+.m-detail-title,
+.m-detail-quote {
+  max-width: 100%;
+}
+
+.m-detail-author {
+  margin-bottom: 18px;
+}
+
+.m-detail-body,
+.m-detail-summary {
+  max-width: none;
+  white-space: pre-wrap;
+}
+
+.m-detail-summary {
+  color: var(--mora-ink-3);
+  font-family: var(--mora-font-serif);
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.55;
+  margin: 0 0 8px;
+}
+
+.m-detail-actions {
+  margin-top: 20px;
+}
+
+.m-detail-actions .m-btn {
+  justify-content: center;
+}
+
+.m-detail-delete {
+  color: var(--mora-ember);
+}
+
+.m-detail-tags,
+.m-detail-private,
+.m-detail-collection,
+.m-detail-event,
+.m-detail-related {
+  margin-top: 28px;
+}
+
+.m-detail-private,
+.m-detail-collection,
+.m-detail-event {
+  background: var(--mora-paper-deep);
+  border: 1px solid var(--mora-rule-soft);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 22px;
+}
+
+.m-detail-private {
+  border-style: dashed;
+  border-color: var(--mora-rule);
+}
+
+.m-detail-private-head,
+.m-detail-collection-head {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.m-detail-inline-action {
+  margin-left: auto;
+  padding: 4px 0;
+}
+
+.m-detail-private textarea,
+.m-detail-collection input {
+  background: var(--mora-paper);
+  border: 1px solid var(--mora-rule-soft);
+  border-radius: 8px;
+  color: var(--mora-ink);
+  font-family: var(--mora-font-serif);
+  font-size: 15px;
+  line-height: 1.5;
+  outline: none;
+  padding: 12px 14px;
+  width: 100%;
+}
+
+.m-detail-private textarea:focus,
+.m-detail-collection input:focus {
+  border-color: var(--mora-indigo);
+  box-shadow: 0 0 0 3px rgba(46, 64, 81, 0.08);
+}
+
+.m-detail-private-actions,
+.m-detail-collection-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.m-detail-private-body {
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+.m-detail-private-empty {
+  color: var(--mora-ink-3);
+  font-family: var(--mora-font-serif);
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.m-detail-collection-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.m-detail-collection-value {
+  color: var(--mora-ink-2);
+  font-family: var(--mora-font-serif);
+  font-size: 15px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.m-detail-event-row {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.m-detail-event-date {
+  color: var(--mora-ink);
+  font-family: var(--mora-font-serif);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.m-detail-event-type {
+  color: var(--mora-ink-3);
+  font-family: var(--mora-font-serif);
+  font-size: 14px;
+  font-style: italic;
+}
+
+.m-related-h {
+  margin-bottom: 10px;
+}
+
+.m-related-item {
+  grid-template-columns: 130px 1fr 110px;
+}
+
+.m-detail-error {
+  align-items: center;
+  background: var(--mora-paper-deep);
+  border: 1px solid var(--mora-rule-soft);
+  border-radius: 12px;
+  color: var(--mora-ink-2);
+  display: flex;
+  font-family: var(--mora-font-serif);
+  font-size: 14px;
+  font-style: italic;
+  gap: 10px;
+  line-height: 1.5;
+  margin-bottom: 24px;
+  padding: 14px 16px;
+}
+
+@media (max-width: 768px) {
+  .m-detail-page {
+    max-width: 100%;
+  }
+
+  .m-detail-actions {
+    flex-direction: column;
+  }
+
+  .m-detail-actions .m-btn {
+    width: 100%;
+  }
+
+  .m-detail-private-actions,
+  .m-detail-collection-actions {
+    flex-direction: column;
+  }
+
+  .m-detail-private-actions .m-btn,
+  .m-detail-collection-actions .m-btn {
+    width: 100%;
+  }
+}

@@ -1,29 +1,30 @@
 import { Link, useLocation } from 'react-router-dom'
 
 const navItems = [
-  { to: '/moodboard',      icon: 'stack',            label: 'Library' },
-  { to: '/nudge',           icon: 'hourglass-medium', label: 'Memory Wall' },
-  { to: '/constellations',  icon: 'graph',            label: 'Constellations' },
-  { to: '/sources',         icon: 'link-simple',      label: 'Sources' },
-  { to: '/settings',        icon: 'gear-six',         label: 'Settings' },
+  { to: '/moodboard', icon: 'stack', label: 'Library' },
+  { to: '/nudge', icon: 'hourglass-medium', label: 'Memory Wall' },
+  { to: '/constellations', icon: 'graph', label: 'Constellations' },
+  { to: '/sources', icon: 'link-simple', label: 'Sources' },
+  { to: '/settings', icon: 'gear-six', label: 'Settings' },
 ]
 
-export default function SideNav() {
+export default function SideNav({ onCapture, captureAck = false }) {
   const location = useLocation()
 
   return (
-    <aside className="m-sidebar">
-      <Link to="/" className="m-brand">
+    <aside className="m-sidebar" aria-label="Primary">
+      <Link to="/moodboard" className="m-brand">
         <span className="m-brand-word">Mora</span>
         <span className="m-brand-dot" />
       </Link>
 
-      <Link to="/add" className="m-capture-cta">
+      <button type="button" className="m-capture-cta" aria-label="Capture a thought" onClick={onCapture}>
         <i className="ph ph-feather" />
         Capture a thought
-      </Link>
+      </button>
+      {captureAck ? <span className="m-capture-ack">Kept.</span> : null}
 
-      <nav className="m-nav">
+      <nav className="m-nav" aria-label="Sections">
         {navItems.map(({ to, icon, label }) => {
           const active = location.pathname === to
           return (
@@ -31,6 +32,7 @@ export default function SideNav() {
               key={to}
               to={to}
               className={'m-nav-item ' + (active ? 'is-active' : '')}
+              aria-current={active ? 'page' : undefined}
             >
               <i className={'ph ph-' + icon} />
               <span>{label}</span>
@@ -43,7 +45,7 @@ export default function SideNav() {
         <div className="m-sidebar-quote">
           "A memory is a place you visit with footnotes."
         </div>
-        <div className="m-sidebar-meta">— from your archive</div>
+        <div className="m-sidebar-meta">from your archive, page 17</div>
       </div>
     </aside>
   )

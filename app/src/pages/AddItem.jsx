@@ -47,13 +47,11 @@ export default function AddItem() {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    // Validation: either title or URL required
     if (!formData.title.trim() && !formData.url) {
-      alert("Title or URL is required")
+      alert('Title or URL is required')
       return
     }
 
-    // Create normalized item using unified capture pipeline
     const itemData = captureItem({
       ...formData,
       type: formData.filterKey,
@@ -66,36 +64,32 @@ export default function AddItem() {
       setItems(prev => {
         const { isDuplicate } = deduplicateCapture(prev, itemData)
         if (isDuplicate) return prev
-      
+
         logEvent(itemData.id, 'save')
         return [...prev, itemData]
       })
     }
-    
+
     navigate('/moodboard')
   }
 
   return (
     <div className="m-compose-page">
-
-      {/* ── Back ── */}
       <Link to="/moodboard" className="m-back">
         <i className="ph ph-arrow-left" /> Back to library
       </Link>
 
-      {/* ── Header ── */}
       <h1 className="m-compose-page-title">
-        {isEditing ? 'Edit this memory' : 'Capture something new'}
+        {isEditing ? 'Return to this memory' : 'Capture a thought'}
       </h1>
       <p className="m-compose-page-sub">
         {isEditing
-          ? 'Refine what you kept — change its shape, add context.'
-          : "What's on your mind right now? You don't need a reason to write it down."
+          ? 'Refine what you kept. Add context, or soften its edges.'
+          : "What's worth remembering?"
         }
       </p>
 
       <form onSubmit={handleSubmit}>
-        {/* URL */}
         <div className="m-form-group">
           <label htmlFor="url" className="m-form-label">
             <i className="ph ph-link-simple" style={{ fontSize: 12 }} /> URL
@@ -114,7 +108,6 @@ export default function AddItem() {
           )}
         </div>
 
-        {/* Title */}
         <div className="m-form-group">
           <label htmlFor="title" className="m-form-label">
             Title {!formData.url && <span style={{ color: 'var(--mora-ember)' }}>*</span>}
@@ -134,7 +127,6 @@ export default function AddItem() {
           )}
         </div>
 
-        {/* Source */}
         <div className="m-form-group">
           <label htmlFor="source" className="m-form-label">
             Source {!formData.url && <span style={{ color: 'var(--mora-ember)' }}>*</span>}
@@ -154,7 +146,6 @@ export default function AddItem() {
           )}
         </div>
 
-        {/* Type (filterKey) */}
         <div className="m-form-group">
           <label htmlFor="filterKey" className="m-form-label">
             Type <span style={{ color: 'var(--mora-ember)' }}>*</span>
@@ -174,7 +165,6 @@ export default function AddItem() {
           </select>
         </div>
 
-        {/* Image URL */}
         <div className="m-form-group">
           <label htmlFor="imageUrl" className="m-form-label">
             <i className="ph ph-image" style={{ fontSize: 12 }} /> Image URL
@@ -190,7 +180,6 @@ export default function AddItem() {
           />
         </div>
 
-        {/* Tags */}
         <div className="m-form-group">
           <label htmlFor="tags" className="m-form-label">
             <i className="ph ph-hash" style={{ fontSize: 12 }} /> Tags
@@ -203,12 +192,11 @@ export default function AddItem() {
               name="tags"
               value={formData.tags}
               onChange={handleChange}
-              placeholder="tag with a thread (synthwave, focus, night…)"
+              placeholder="add tags…"
             />
           </div>
         </div>
 
-        {/* Mood */}
         <div className="m-form-group">
           <label htmlFor="mood" className="m-form-label">
             <i className="ph ph-sun-horizon" style={{ fontSize: 12 }} /> Mood
@@ -219,23 +207,20 @@ export default function AddItem() {
             name="mood"
             value={formData.mood}
             onChange={handleChange}
-            placeholder="e.g., Reflective Neon"
+            placeholder="What kind of feeling does it carry?"
             className="m-form-input"
           />
         </div>
 
-        {/* ── Rule ── */}
         <div className="m-rule" style={{ margin: '24px 0 16px' }}>
           <span className="m-rule-line" />
           <span className="m-rule-line" />
         </div>
 
-        {/* Footer */}
         <p className="m-compose-meta" style={{ marginBottom: 12 }}>
           It stays between you and Mora.
         </p>
 
-        {/* Form Actions */}
         <div className="m-form-actions">
           <button type="submit" className="m-btn m-btn-primary">
             <i className="ph ph-bookmark-simple" />

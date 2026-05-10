@@ -1,0 +1,370 @@
+@import url("../design-kit/tokens.css");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(rgba(30, 26, 20, 0.012) 1px, transparent 1px) 0 0 / 3px 3px,
+    var(--mora-paper);
+  color: var(--mora-ink);
+  font-family: var(--mora-font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--mora-ember-wash);
+  color: var(--mora-ink);
+}
+
+.mora {
+  min-height: 100%;
+  color: var(--mora-ink);
+  font-family: var(--mora-font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.mora a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.mora :focus:not(:focus-visible) {
+  outline: none;
+}
+
+.mora :focus-visible {
+  outline: 2px solid var(--mora-indigo);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.m-shell {
+  background: var(--mora-paper);
+  color: var(--mora-ink);
+}
+
+.m-main {
+  border-left: 1px solid var(--mora-rule-soft);
+}
+
+.m-content {
+  max-width: 1200px;
+  padding: 36px 56px 80px;
+}
+
+.m-sidebar {
+  background: var(--mora-paper-deep);
+  padding: 28px 20px 24px;
+}
+
+.m-brand {
+  color: var(--mora-ink);
+  font-family: var(--mora-font-serif);
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.012em;
+}
+
+.m-brand-dot {
+  background: var(--mora-ember);
+}
+
+.m-capture-cta {
+  background: var(--mora-vellum);
+  border: 1px solid var(--mora-rule);
+  border-radius: 8px;
+  color: var(--mora-ink);
+  font-family: var(--mora-font-serif);
+  font-size: 13px;
+  font-style: italic;
+  transition:
+    background var(--mora-dur) var(--mora-ease),
+    border-color var(--mora-dur-fast) var(--mora-ease);
+}
+
+.m-capture-cta i {
+  color: var(--mora-ember);
+}
+
+.m-capture-cta:hover {
+  background: var(--mora-vellum-2);
+  border-color: var(--mora-rule-soft);
+}
+
+.m-capture-ack {
+  margin-top: 10px;
+  color: var(--mora-ink-3);
+  font-family: var(--mora-font-serif);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.m-nav-item {
+  border-radius: 8px;
+  color: var(--mora-ink-2);
+  transition: all var(--mora-dur-fast) var(--mora-ease);
+}
+
+.m-nav-item i {
+  color: var(--mora-ink-3);
+}
+
+.m-nav-item:hover {
+  background: var(--mora-vellum);
+  color: var(--mora-ink);
+}
+
+.m-nav-item.is-active {
+  background: var(--mora-vellum-2);
+  color: var(--mora-ink);
+}
+
+.m-nav-item.is-active i {
+  color: var(--mora-ember);
+}
+
+.m-sidebar-quote {
+  color: var(--mora-ink-2);
+  font-family: var(--mora-font-serif);
+  font-size: 13px;
+  font-style: italic;
+}
+
+.m-sidebar-meta {
+  color: var(--mora-ink-3);
+  font-family: var(--mora-font-sans);
+  font-size: 11px;
+}
+
+.m-topbar {
+  align-items: flex-end;
+  background: var(--mora-paper);
+  border-bottom: 1px solid var(--mora-rule-soft);
+  gap: 20px;
+  padding: 28px 56px 18px;
+}
+
+.m-page-title {
+  color: var(--mora-ink);
+  font-family: var(--mora-font-serif);
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.008em;
+  line-height: 1.1;
+}
+
+.m-eyebrow {
+  color: var(--mora-ink-3);
+  font-family: var(--mora-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.m-search {
+  background: var(--mora-vellum);
+  border: 1px solid var(--mora-rule-soft);
+  border-radius: 999px;
+  transition: all var(--mora-dur-fast) var(--mora-ease);
+}
+
+.m-search:focus-within {
+  background: var(--mora-paper);
+  border-color: var(--mora-rule);
+}
+
+.m-search i {
+  color: var(--mora-ink-3);
+}
+
+.m-search input {
+  color: var(--mora-ink);
+  font-family: var(--mora-font-sans);
+  font-size: 13px;
+}
+
+.m-search input::placeholder {
+  color: var(--mora-ink-3);
+  font-family: var(--mora-font-serif);
+  font-style: italic;
+}
+
+.m-avatar {
+  background: var(--mora-moss);
+  border: 1px solid var(--mora-rule);
+  display: block;
+  flex-shrink: 0;
+}
+
+.m-compose-modal-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: color-mix(in srgb, var(--mora-paper) 50%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.m-compose-modal {
+  width: min(100%, 560px);
+  border: 1px solid var(--mora-rule);
+  border-radius: 16px;
+  background: var(--mora-paper);
+  box-shadow: var(--mora-shadow-3);
+  padding: 28px;
+}
+
+.m-compose-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.m-compose-modal-close {
+  border: 0;
+  background: transparent;
+  color: var(--mora-ink-3);
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.m-compose-modal-close:hover {
+  color: var(--mora-ink);
+}
+
+.m-compose-modal-textarea {
+  width: 100%;
+  resize: none;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--mora-ink);
+  font-family: var(--mora-font-serif);
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.m-compose-modal-textarea::placeholder,
+.m-compose-modal-tags input::placeholder {
+  color: var(--mora-ink-3);
+  font-family: var(--mora-font-serif);
+  font-style: italic;
+}
+
+.m-compose-modal-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--mora-rule-soft);
+}
+
+.m-compose-modal-tags i {
+  color: var(--mora-ink-3);
+  font-size: 14px;
+}
+
+.m-compose-modal-tags input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--mora-ink);
+  font-family: var(--mora-font-sans);
+  font-size: 13px;
+}
+
+.m-compose-modal-foot {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.m-compose-modal-meta {
+  color: var(--mora-ink-3);
+  font-family: var(--mora-font-serif);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.m-compose-modal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.m-btn[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.m-bottomnav {
+  background: var(--mora-paper-deep);
+  border-top: 1px solid var(--mora-rule-soft);
+}
+
+.m-bottomnav-item {
+  color: var(--mora-ink-3);
+}
+
+.m-bottomnav-item i {
+  font-size: 18px;
+}
+
+.m-bottomnav-item.is-active {
+  color: var(--mora-ember);
+}
+
+@media (max-width: 768px) {
+  .m-topbar {
+    padding: 16px 20px 12px;
+  }
+
+  .m-content {
+    padding: 24px 16px 100px;
+  }
+
+  .m-compose-modal-scrim {
+    padding: 16px;
+    align-items: flex-end;
+  }
+
+  .m-compose-modal {
+    padding: 24px 20px;
+  }
+
+  .m-compose-modal-foot {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .m-compose-modal-actions {
+    justify-content: flex-end;
+  }
+}
