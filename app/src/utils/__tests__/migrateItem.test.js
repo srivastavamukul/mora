@@ -31,4 +31,14 @@ describe('migrateItem', () => {
     expect(result).not.toBeNull()
     expect(result.url).toBe('https://example.com')
   })
+
+  it('defaults collection to null when absent', () => {
+    const result = migrateItem({ type: 'link', url: 'https://example.com', title: 'Test' })
+    expect(result.collection).toBeNull()
+  })
+
+  it('preserves existing collection string', () => {
+    const result = migrateItem({ type: 'link', url: 'https://example.com', title: 'Test', collection: 'Ideas' })
+    expect(result.collection).toBe('Ideas')
+  })
 })

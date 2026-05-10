@@ -69,8 +69,16 @@ export default function ItemDetail() {
   const [linkError, setLinkError] = useState(false)
   const [noteText, setNoteText] = useState('')
   const [isEditingNote, setIsEditingNote] = useState(false)
+  const [collectionValue, setCollectionValue] = useState('')
+  const [isEditingCollection, setIsEditingCollection] = useState(false)
 
-  useEffect(() => { setLinkError(false); setNoteText(item?.privateNote || ''); setIsEditingNote(false) }, [item?.id])
+  useEffect(() => {
+    setLinkError(false)
+    setNoteText(item?.privateNote || '')
+    setIsEditingNote(false)
+    setCollectionValue(item?.collection || '')
+    setIsEditingCollection(false)
+  }, [item?.id])
 
   const handleOpenLink = (url) => {
     if (!url) { setLinkError(true); return }
@@ -304,6 +312,69 @@ export default function ItemDetail() {
           <p className="font-body-sm text-body-sm text-on-surface-variant/70 whitespace-pre-wrap">{item.privateNote}</p>
         ) : (
           <p className="font-body-sm text-body-sm text-on-surface-variant/30 italic">No personal note yet.</p>
+        )}
+      </section>
+
+      {/* Collection */}
+      <section className="mb-10">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="material-symbols-outlined text-[14px] text-on-surface-variant/50">folder_open</span>
+          <span className="font-label-sm text-label-sm text-on-surface-variant/50 uppercase tracking-widest">Collection</span>
+          {!isEditingCollection && (
+            <button
+              onClick={() => setIsEditingCollection(true)}
+              className="ml-auto font-label-sm text-label-sm text-on-surface-variant/40 hover:text-primary transition-colors"
+            >
+              {item.collection ? 'Edit' : 'Assign'}
+            </button>
+          )}
+        </div>
+        {isEditingCollection ? (
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap gap-2 mb-1">
+              {['Ideas', 'Personal', 'Design', 'Research', 'Travel'].map(preset => (
+                <button
+                  key={preset}
+                  onClick={() => setCollectionValue(preset)}
+                  className={`px-3 py-1 rounded-full font-label-sm text-label-sm border transition-all ${
+                    collectionValue === preset
+                      ? 'bg-primary/20 border-primary text-primary'
+                      : 'bg-surface-container-high border-white/10 text-on-surface-variant hover:border-white/30'
+                  }`}
+                >
+                  {preset}
+                </button>
+              ))}
+            </div>
+            <input
+              type="text"
+              value={collectionValue}
+              onChange={e => setCollectionValue(e.target.value)}
+              placeholder="Or type a custom collection name"
+              className="w-full bg-surface-container-high border border-white/10 rounded-xl px-4 py-2.5 font-body-sm text-body-sm text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none focus:border-primary/50 transition-colors"
+            />
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => { setCollectionValue(item.collection || ''); setIsEditingCollection(false) }}
+                className="px-3 py-1.5 rounded-full font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  updateItem(item.id, { collection: collectionValue.trim() || null })
+                  setIsEditingCollection(false)
+                }}
+                className="px-3 py-1.5 rounded-full bg-primary/20 border border-primary/30 font-label-sm text-label-sm text-primary hover:bg-primary/30 transition-colors"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        ) : item.collection ? (
+          <p className="font-body-sm text-body-sm text-on-surface-variant/70">{item.collection}</p>
+        ) : (
+          <p className="font-body-sm text-body-sm text-on-surface-variant/30 italic">No collection assigned.</p>
         )}
       </section>
 

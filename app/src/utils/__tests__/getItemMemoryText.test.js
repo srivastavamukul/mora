@@ -58,4 +58,14 @@ describe('getItemMemoryText', () => {
     const result = getItemMemoryText(item)
     expect(result.trim()).toBe('only title web link')
   })
+
+  it('includes collection in memory text', () => {
+    const item = { title: 'Test', tags: [], source: 'web', type: 'link', collection: 'Research' }
+    expect(getItemMemoryText(item)).toContain('research')
+  })
+
+  it('omits collection when null', () => {
+    const item = { title: 'Test', tags: [], source: 'web', type: 'link', collection: null }
+    expect(getItemMemoryText(item)).not.toContain('null')
+  })
 })

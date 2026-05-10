@@ -13,6 +13,7 @@ import { logEvent } from '../utils/eventLogger'
 import { semanticSearch } from '../utils/scoreSearchMatch'
 import { generateItemSummary } from '../utils/generateItemSummary'
 import { createJournalEntry } from '../utils/createJournalEntry'
+import { buildCollections } from '../utils/buildCollections'
 
 function safeItem(item) {
   return {
@@ -305,6 +306,7 @@ export default function Moodboard() {
   const [journalInput, setJournalInput] = useState('')
   const navigate = useNavigate()
   const { items, setItems, flags, setSelectedItemId, interestClusters, resurfacedItems, memoryInsights, upcomingMemoryEvents, recentReflections } = useApp()
+  const collections = useMemo(() => buildCollections(items), [items])
 
   const handleUrlAdd = () => {
     const raw = urlInput.trim()
@@ -522,6 +524,28 @@ export default function Moodboard() {
                   {relativeTime(item.createdAt)}
                 </span>
               </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Collections */}
+      {collections.length > 0 && (
+        <section className="mb-xl">
+          <div className="flex items-center gap-2 mb-md">
+            <span className="material-symbols-outlined text-secondary-fixed-dim text-[20px]">folder_open</span>
+            <h2 className="font-title-sm text-title-sm text-on-surface-variant uppercase tracking-widest">Collections</h2>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {collections.map(({ name, count }) => (
+              <button
+                key={name}
+                onClick={() => setSearchQuery(name)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-high border border-white/10 hover:border-white/30 transition-colors"
+              >
+                <span className="font-label-sm text-label-sm text-on-surface">{name}</span>
+                <span className="font-label-sm text-label-sm text-on-surface-variant opacity-50">{count}</span>
+              </button>
             ))}
           </div>
         </section>

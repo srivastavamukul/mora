@@ -7,6 +7,7 @@ export function getItemMemoryText(item) {
     item.source || '',
     item.type || '',
     item.privateNote || '',
+    item.collection || '',
   ]
   const text = parts.filter(Boolean).join(' ').toLowerCase().trim()
   return text
