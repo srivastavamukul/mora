@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @layer components {
   .glass-card {
     background: rgba(42, 42, 42, 0.4);

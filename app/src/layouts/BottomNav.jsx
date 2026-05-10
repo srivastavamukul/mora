@@ -1,27 +1,28 @@
 import { Link, useLocation } from 'react-router-dom'
 
 const navItems = [
-  { to: '/moodboard', icon: 'grid_view' },
-  { to: '/constellations', icon: 'grain' },
-  { to: '/nudge', icon: 'auto_stories' },
-  { to: '/sources', icon: 'hub' },
-  { to: '/settings', icon: 'settings' },
+  { to: '/moodboard',     icon: 'stack',            label: 'Library' },
+  { to: '/nudge',          icon: 'hourglass-medium', label: 'Wall' },
+  { to: '/constellations', icon: 'graph',            label: 'Threads' },
+  { to: '/sources',        icon: 'link-simple',      label: 'Sources' },
+  { to: '/settings',       icon: 'gear-six',         label: 'Settings' },
 ]
 
 export default function BottomNav() {
   const location = useLocation()
 
   return (
-    <nav className="md:hidden fixed bottom-0 w-full z-50 bg-slate-950/90 backdrop-blur-xl border-t border-white/10 h-16 flex justify-around items-center px-4">
-      {navItems.map(({ to, icon }) => {
+    <nav className="m-bottomnav">
+      {navItems.map(({ to, icon, label }) => {
         const active = location.pathname === to
         return (
           <Link
             key={to}
             to={to}
-            className={`flex flex-col items-center justify-center w-16 ${active ? 'text-[#FF2E97]' : 'text-slate-500 hover:text-slate-300'}`}
+            className={'m-bottomnav-item ' + (active ? 'is-active' : '')}
           >
-            <span className="material-symbols-outlined">{icon}</span>
+            <i className={'ph ph-' + icon} />
+            <span>{label}</span>
           </Link>
         )
       })}

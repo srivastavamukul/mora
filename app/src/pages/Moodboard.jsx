@@ -15,6 +15,8 @@ import { generateItemSummary } from '../utils/generateItemSummary'
 import { createJournalEntry } from '../utils/createJournalEntry'
 import { buildCollections } from '../utils/buildCollections'
 
+/* ─── Helpers (unchanged logic) ─── */
+
 function safeItem(item) {
   return {
     ...item,
@@ -33,7 +35,6 @@ function sortItems(items, flags, sortMode) {
   if (sortMode === 'relevant') {
     return scoreItems(items, flags, getContext()).map(r => r.item)
   }
-  // default: saved-not-tried → (score + small recency boost) desc → older first
   const scoreMap = new Map(
     scoreItems(items, flags, getContext()).map(r => [r.item.id, r.score + getRecencyScore(r.item.createdAt) * 0.1])
   )
@@ -72,231 +73,120 @@ function relativeTime(ts) {
   return `${days}d ago`
 }
 
-function SongTile({ item }) {
+/* ─── Source chip (maps source string to design-kit color) ─── */
+
+const SOURCE_COLOR = {
+  spotify: 'moss', pinterest: 'ember', youtube: 'ochre',
+  'mora · journal': 'indigo', manual: 'ink', web: 'ink',
+  mora: 'indigo', nytimes: 'ink', 'are.na': 'ink',
+}
+
+function SourceChip({ source }) {
+  const c = SOURCE_COLOR[(source || '').toLowerCase()] || 'ink'
   return (
-    <div className="h-64 relative overflow-hidden bg-surface-container-high rounded-t-xl">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
-      <div className="absolute inset-0 bg-gradient-to-t from-surface-container via-transparent to-transparent" />
-      <div className="absolute bottom-4 left-4 z-20">
-        <h3 className="font-headline-md text-headline-md text-on-surface mb-1">{item.title}</h3>
-        <p className="font-body-md text-body-md text-on-surface-variant flex items-center gap-2">
-          <span className="material-symbols-outlined text-[16px]">headphones</span>
-          {item.body}
-        </p>
-      </div>
-      <button className="absolute inset-0 m-auto w-12 h-12 rounded-full bg-primary text-on-primary-fixed flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:shadow-[0_0_15px_#ff479c]">
-        <span className="material-symbols-outlined">play_arrow</span>
-      </button>
-    </div>
+    <span className={'m-source m-source-' + c}>
+      <span className="m-source-dot" />
+      {source}
+    </span>
   )
 }
 
-function InsightTile({ item }) {
-  const navigate = useNavigate()
-  return (
-    <div className="p-6 flex flex-col justify-between h-full">
-      <div>
-        <span className="material-symbols-outlined text-secondary-fixed-dim text-3xl mb-4 block">lightbulb</span>
-        <h3 className="font-headline-md text-headline-md text-on-surface mb-2">{item.title}</h3>
-        <p className="font-body-md text-body-md text-on-surface-variant">{item.body}</p>
-      </div>
-      <button
-        onClick={() => navigate('/constellations')}
-        className="mt-4 self-start text-secondary-fixed border-b border-secondary-fixed/30 pb-1 font-label-sm text-label-sm hover:border-secondary-fixed transition-colors"
-      >
-        Review Items
-      </button>
-    </div>
-  )
-}
+/* ─── Memory Card (editorial style) ─── */
 
-function ImageTile({ item }) {
-  return (
-    <div className="h-48 relative bg-surface-container-high overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-pink-900/20 to-cyan-900/40 group-hover:scale-105 transition-transform duration-700" />
-      <div className="absolute inset-0 bg-black/20" />
-      <div className="absolute bottom-4 left-4 z-20 bg-surface-container-highest/80 backdrop-blur px-3 py-2 rounded border border-white/5">
-        <p className="font-label-sm text-label-sm text-on-surface">{item.body}</p>
-      </div>
-    </div>
-  )
-}
+function MemoryCard({ item, onSelect, flags }) {
+  const safe = safeItem(item)
+  const type = item.type || item.filterKey || 'link'
+  const isNote = type === 'note'
+  const isJournal = type === 'journal'
+  const isSong = type === 'song'
+  const isVideo = type === 'video'
+  const isImage = type === 'image'
+  const hasThumb = !!(item.thumbnail)
+  const kept = flags?.[item.id]?.isSaved
 
-function NoteTile({ item }) {
-  return (
-    <div className="p-5 h-full flex flex-col">
-      <p className="font-body-md text-body-md text-on-surface italic opacity-80 mt-6 flex-1">{item.title}</p>
-      <div className="mt-4 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
-        <span>{item.body}</span>
-        <span className="material-symbols-outlined text-[16px]">edit_note</span>
-      </div>
-    </div>
-  )
-}
-
-function ActivityTile({ item }) {
-  return (
-    <div className="p-6 relative overflow-hidden h-full">
-      <div className="absolute -right-10 -bottom-10 opacity-10">
-        <span className="material-symbols-outlined text-[120px]">graphic_eq</span>
-      </div>
-      <h3 className="font-headline-md text-headline-md text-on-surface mb-4">{item.title}</h3>
-      <div className="space-y-3">
-        {[['Focus', 'w-3/4', 'bg-primary-container'], ['Drift', 'w-1/2', 'bg-secondary-container']].map(([label, width, color]) => (
-          <div key={label} className="flex items-center gap-3">
-            <div className="w-8 h-1 bg-surface-container-highest rounded-full overflow-hidden">
-              <div className={`${width} h-full ${color}`} />
-            </div>
-            <span className="font-label-sm text-label-sm text-on-surface-variant">{label}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function JournalTile({ item }) {
-  return (
-    <div className="p-5 h-full flex flex-col">
-      <span className="material-symbols-outlined text-tertiary text-xl mb-3">auto_stories</span>
-      <p className="font-body-md text-body-md text-on-surface opacity-80 flex-1 line-clamp-3">
-        {item.body || item.title}
-      </p>
-      <div className="mt-4 flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
-        <span className="opacity-60 truncate max-w-[80%]">{item.title}</span>
-        <span className="material-symbols-outlined text-[16px]">auto_stories</span>
-      </div>
-    </div>
-  )
-}
-
-const TILE_BG = {
-  song: 'bg-surface-container/80 backdrop-blur-md neon-underglow-primary overflow-hidden',
-  insight: 'bg-surface-container-high/60 backdrop-blur-sm neon-underglow-secondary',
-  image: 'bg-surface-container/80 backdrop-blur-md overflow-hidden',
-  note: 'bg-surface-container-low/90 backdrop-blur-md',
-  activity: 'bg-surface-container/50 backdrop-blur-lg',
-  journal: 'bg-surface-container-low/90 backdrop-blur-md',
-}
-
-function renderTileContent(item) {
-  switch (item.type || item.filterKey) {
-    case 'song':     return <SongTile item={item} />
-    case 'insight':  return <InsightTile item={item} />
-    case 'image':
-      if (item.url || item.thumbnail) {
-        return (
-          <>
-            {item.source && <span className="absolute top-2 left-2 z-20 px-1.5 py-0.5 rounded bg-black/60 border border-white/10 text-[10px] text-white/70 capitalize leading-none">{item.source}</span>}
-            <div className="h-40 w-full relative overflow-hidden rounded-t-xl">
-              {(item.thumbnail || '')
-                ? <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
-                : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
-              }
-            </div>
-            <div className="p-4">
-              <h3 className="text-on-surface font-headline-md leading-snug">{item.title}</h3>
-            </div>
-          </>
-        )
-      }
-      return <ImageTile item={item} />
-    case 'journal':   return <JournalTile item={item} />
-    case 'note':     return <NoteTile item={item} />
-    case 'activity': return <ActivityTile item={item} />
-    case 'video':
-      return (
-        <>
-          {item.source && <span className="absolute top-2 left-2 z-20 px-1.5 py-0.5 rounded bg-black/60 border border-white/10 text-[10px] text-white/70 capitalize leading-none">{item.source}</span>}
-          <div className="h-40 w-full relative overflow-hidden rounded-t-xl">
-            {(item.thumbnail || '')
-              ? <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
-              : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
-            }
-            <div className="absolute inset-0 bg-black/30" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-10 h-10 rounded-full bg-black/50 border border-white/20 flex items-center justify-center backdrop-blur-sm">
-                <span className="material-symbols-outlined text-white/90 text-[20px]">play_arrow</span>
-              </div>
-            </div>
-          </div>
-          <div className="p-4">
-            <h3 className="text-on-surface font-headline-md leading-snug">{item.title}</h3>
-            {item.source && (
-              <p className="font-label-sm text-label-sm text-on-surface-variant/60 mt-1 flex items-center gap-1">
-                <span className="material-symbols-outlined text-[12px]">link</span>
-                {item.source}
-              </p>
-            )}
-          </div>
-        </>
-      )
-    default:
-      return (
-        <>
-          {item.source && <span className="absolute top-2 left-2 z-20 px-1.5 py-0.5 rounded bg-black/60 border border-white/10 text-[10px] text-white/70 capitalize leading-none">{item.source}</span>}
-          <div className="h-32 w-full relative overflow-hidden rounded-t-xl">
-            {(item.thumbnail || '')
-              ? <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
-              : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
-            }
-          </div>
-          <div className="p-4">
-            <h3 className="text-on-surface font-headline-md leading-snug">{item.title}</h3>
-            {item.source && (
-              <p className="font-label-sm text-label-sm text-on-surface-variant/60 mt-1 flex items-center gap-1">
-                <span className="material-symbols-outlined text-[12px]">link</span>
-                {item.source}
-              </p>
-            )}
-          </div>
-        </>
-      )
+  // Gradient thumb for items without real thumbnails
+  const gradients = {
+    song: 'linear-gradient(135deg, #4A3F30 0%, #2E4051 100%)',
+    image: 'linear-gradient(135deg, #B6532E 0%, #B89B5E 100%)',
+    video: 'linear-gradient(135deg, #5C6A4D 0%, #1E1A14 100%)',
   }
+  const thumbBg = gradients[type] || 'linear-gradient(135deg, var(--mora-vellum) 0%, var(--mora-vellum-2) 100%)'
+
+  const cardClass = `m-card${isNote ? ' m-card-note' : ''}${isJournal ? ' m-card-journal' : ''}`
+
+  return (
+    <article className={cardClass} onClick={() => onSelect(item.id)}>
+      {/* Thumbnail area for media types */}
+      {(isSong || isImage || isVideo || hasThumb) && (
+        <div
+          className="m-card-thumb"
+          style={{ background: hasThumb ? undefined : thumbBg }}
+        >
+          {hasThumb && (
+            <img
+              src={item.thumbnail}
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }}
+            />
+          )}
+          {isVideo && <span className="m-card-play"><i className="ph ph-play" /></span>}
+          {isSong && <span className="m-card-play"><i className="ph ph-music-notes" /></span>}
+          <span className="m-card-grain" />
+        </div>
+      )}
+
+      <div className="m-card-body">
+        <SourceChip source={safe.source} />
+        <h3 className={'m-card-title' + (isNote || isJournal ? ' is-quote' : '')}>
+          {(isNote || isJournal) ? '\u201C' : ''}{safe.title}{(isNote || isJournal) ? '\u201D' : ''}
+        </h3>
+        {safe.body && !isImage && (
+          <p className="m-card-text">{safe.body}</p>
+        )}
+        <div className="m-card-meta">
+          <span>{item.createdAt ? relativeTime(item.createdAt) : ''}</span>
+          {safe.tags.slice(0, 2).map(t => (
+            <span key={t} className="m-meta-tag">#{t}</span>
+          ))}
+        </div>
+      </div>
+
+      {kept && <i className="ph-fill ph-bookmark-simple m-card-keep" />}
+
+      {item.url && (
+        <button
+          className="m-card-external"
+          onClick={e => { e.stopPropagation(); window.open(item.url, '_blank', 'noopener,noreferrer') }}
+          title="Open source"
+        >
+          <i className="ph ph-arrow-square-out" />
+        </button>
+      )}
+    </article>
+  )
 }
 
-function BentoGrid({ items, onSelect }) {
+/* ─── Editorial Card Grid ─── */
+
+function CardGrid({ items, onSelect, flags }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter">
-      {items.map(item => {
-        const safe = safeItem(item)
-        const { badge, badgeColor, colSpanClass, tiltClass } = mapItemToUI(item)
-        return (
-          <article
-            key={item.id}
-            onClick={() => onSelect(item.id)}
-            className={`
-              ${colSpanClass}
-              ${TILE_BG[item.type || item.filterKey] || 'bg-surface-container'}
-              min-h-[140px]
-              rounded-xl border border-white/10 relative group cursor-pointer
-              transform ${tiltClass} hover:-translate-y-1 transition-transform duration-300
-            `}
-          >
-            <div className={`absolute top-4 right-4 bg-surface-container-highest/90 px-2 py-1 border border-white/10 rounded font-label-sm text-label-sm z-20 ${badgeColor}`}>
-              {badge}
-            </div>
-            {item.url && (
-              <button
-                onClick={e => { e.stopPropagation(); window.open(item.url, '_blank', 'noopener,noreferrer') }}
-                className="absolute bottom-3 right-3 z-30 w-7 h-7 flex items-center justify-center rounded-full bg-surface-container-highest/80 border border-white/10 text-on-surface-variant hover:text-primary hover:border-primary/50 transition-all opacity-0 group-hover:opacity-100"
-              >
-                <span className="material-symbols-outlined text-[14px]">open_in_new</span>
-              </button>
-            )}
-            {renderTileContent(safe)}
-          </article>
-        )
-      })}
+    <div className="m-grid">
+      {items.map(item => (
+        <MemoryCard key={item.id} item={item} onSelect={onSelect} flags={flags} />
+      ))}
     </div>
   )
 }
+
+/* ─── Sort / Filter labels ─── */
 
 const SORT_OPTIONS = [
-  { key: 'default', label: 'Priority' },
-  { key: 'recent', label: 'Recent' },
-  { key: 'relevant', label: 'Relevant' },
+  { key: 'default', label: 'feeling' },
+  { key: 'recent', label: 'most recent' },
+  { key: 'relevant', label: 'relevance' },
 ]
+
+/* ─── Main page ─── */
 
 export default function Moodboard() {
   const [activeFilter, setActiveFilter] = useState('all')
@@ -370,310 +260,247 @@ export default function Moodboard() {
   }
 
   return (
-    <div className="pt-8 pb-24 px-6 md:px-12 relative min-h-screen">
+    <div className="m-library">
 
-      {/* Page header */}
-      <section className="mb-xl relative">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <h1 className="font-headline-lg text-headline-lg text-on-surface">Digital Sentiment</h1>
-            <div className="px-3 py-1 rounded-full bg-surface-container-high border border-white/10 flex items-center gap-2 w-fit">
-              <div className="w-2 h-2 rounded-full bg-secondary-container shadow-[0_0_8px_#00eefc]" />
-              <span className="font-label-sm text-label-sm text-secondary-fixed">Reflective Neon</span>
-            </div>
-          </div>
-          
-          {/* URL Capture Section - Integrated with glass styling */}
-          <div className="
-            flex w-full lg:w-auto
-            flex-col sm:flex-row
-            sm:flex-wrap lg:flex-nowrap
-            gap-2 sm:gap-2
-            items-stretch sm:items-center
-            bg-surface-container/20 backdrop-blur-md
-            border border-white/5
-            rounded-xl sm:rounded-full
-            px-3 py-3 sm:px-2 sm:py-1.5
-            ">
-            <input
-              type="text"
-              placeholder="Paste URL..."
-              value={urlInput}
-              onChange={e => setUrlInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleUrlAdd()}
-              className="
-                w-full sm:flex-1 lg:w-56
-                px-3 py-2 sm:py-1.5
-                bg-transparent
-                text-on-surface
-                placeholder-on-surface-variant/60
-                focus:outline-none
-                text-sm
-              "
-            />
-            <div className="flex w-full sm:w-auto gap-2">
-              <button
-                onClick={handleUrlAdd}
-                className="
-                  w-full sm:w-auto
-                  flex items-center justify-center
-                  px-3 py-2 sm:py-1
-                  rounded-full
-                  text-xs
-                  whitespace-nowrap
-                  bg-surface-container
-                  border border-white/10
-                  text-on-surface-variant
-                  hover:bg-surface-container-high
-                  hover:text-on-surface
-                  transition-all
-                "
-              >
-                Add URL
-              </button>
-    
-              <button
-                onClick={() => navigate('/add')}
-                className="
-                  w-full sm:w-auto
-                  flex items-center justify-center
-                  px-3 py-2 sm:py-1
-                  rounded-full
-                  text-xs
-                  whitespace-nowrap
-                  bg-primary text-on-primary-fixed
-                  hover:shadow-[0_0_15px_rgba(255,176,203,0.4)]
-                  transition-all
-                "
-              >
-                <span className="material-symbols-outlined text-[16px]">add</span>
-                <span>Add Item</span>
-              </button>
-            </div>
-          </div>
-        </div>
-        {/* Journal Quick-Capture */}
-        <div className="mt-3 flex flex-col sm:flex-row gap-2 items-start sm:items-end">
-          <textarea
-            rows={2}
-            placeholder="Capture a thought..."
-            value={journalInput}
-            onChange={e => setJournalInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleJournalAdd())}
-            className="
-              w-full sm:flex-1
-              px-3 py-2
-              bg-surface-container/20 backdrop-blur-md
-              border border-white/5
-              rounded-xl
-              text-on-surface text-sm
-              placeholder-on-surface-variant/50
-              focus:outline-none focus:border-white/20
-              resize-none
-            "
+      {/* ── Capture area ── */}
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', marginBottom: 16 }}>
+        <div className="m-url-capture" style={{ flex: '1 1 280px' }}>
+          <i className="ph ph-link-simple" style={{ color: 'var(--mora-ink-3)', fontSize: 15 }} />
+          <input
+            type="text"
+            placeholder="Paste a URL…"
+            value={urlInput}
+            onChange={e => setUrlInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleUrlAdd()}
           />
-          <button
-            onClick={handleJournalAdd}
-            disabled={!journalInput.trim()}
-            className="
-              flex items-center gap-1.5
-              px-3 py-2
-              rounded-full text-xs whitespace-nowrap
-              bg-surface-container border border-white/10
-              text-on-surface-variant
-              hover:bg-surface-container-high hover:text-on-surface
-              disabled:opacity-40 disabled:cursor-not-allowed
-              transition-all
-            "
-          >
-            <span className="material-symbols-outlined text-[14px]">auto_stories</span>
-            Capture Thought
-          </button>
+          <button className="m-btn m-btn-secondary" style={{ padding: '6px 12px', fontSize: 12, borderRadius: 999 }} onClick={handleUrlAdd}>Add</button>
         </div>
-        <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-          Your curated memories from the past cycle, organized by emotional resonance rather than chronology.
-        </p>
-      </section>
+        <button className="m-btn m-btn-primary" style={{ fontSize: 12, borderRadius: 999, padding: '8px 16px' }} onClick={() => navigate('/add')}>
+          <i className="ph ph-plus" /> Add Item
+        </button>
+      </div>
 
-      <div className="pixel-divider mb-xl w-full" />
+      {/* Journal quick-capture */}
+      <div className="m-journal-capture" style={{ marginBottom: 28 }}>
+        <textarea
+          rows={2}
+          placeholder="Capture a thought…"
+          value={journalInput}
+          onChange={e => setJournalInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleJournalAdd())}
+        />
+        <button
+          className="m-btn m-btn-secondary"
+          style={{ padding: '8px 14px', fontSize: 12, whiteSpace: 'nowrap', borderRadius: 8 }}
+          onClick={handleJournalAdd}
+          disabled={!journalInput.trim()}
+        >
+          <i className="ph ph-feather" /> Capture
+        </button>
+      </div>
 
-      {/* Reflections */}
+      {/* ── Reflections ── */}
       {recentReflections.length > 0 && (
-        <section className="mb-xl">
-          <div className="flex items-center gap-2 mb-md">
-            <span className="material-symbols-outlined text-tertiary text-[20px]">auto_stories</span>
-            <h2 className="font-title-sm text-title-sm text-on-surface-variant uppercase tracking-widest">Reflections</h2>
+        <section className="m-section">
+          <div className="m-section-head">
+            <i className="ph ph-notebook" style={{ color: 'var(--mora-indigo)', fontSize: 16 }} />
+            <span className="m-section-title">Reflections</span>
+            <span className="m-section-sep" />
           </div>
-          <div className="flex flex-col gap-2">
-            {recentReflections.slice(0, 5).map(item => (
-              <article
-                key={item.id}
-                onClick={() => handleSelect(item.id)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-container/50 border border-tertiary/10 cursor-pointer hover:bg-surface-container hover:border-tertiary/30 transition-colors"
-              >
-                <span className="material-symbols-outlined text-tertiary/60 text-[20px] flex-shrink-0">auto_stories</span>
-                <div className="min-w-0 flex-1">
-                  <p className="font-body-md text-body-md text-on-surface truncate">{item.title}</p>
-                  {item.body && (
-                    <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60 truncate">
-                      {item.body.slice(0, 60)}{item.body.length > 60 ? '…' : ''}
-                    </p>
-                  )}
-                </div>
-                <span className="font-label-sm text-label-sm text-on-surface-variant opacity-40 flex-shrink-0">
-                  {relativeTime(item.createdAt)}
-                </span>
-              </article>
-            ))}
-          </div>
+          {recentReflections.slice(0, 5).map(item => (
+            <article
+              key={item.id}
+              onClick={() => handleSelect(item.id)}
+              className="m-reflection-item"
+            >
+              <i className="ph ph-notebook m-reflection-icon" />
+              <div className="m-reflection-body">
+                <p className="m-reflection-title">{item.title}</p>
+                {item.body && (
+                  <p className="m-reflection-text">
+                    {item.body.slice(0, 60)}{item.body.length > 60 ? '…' : ''}
+                  </p>
+                )}
+              </div>
+              <span className="m-reflection-time">
+                {relativeTime(item.createdAt)}
+              </span>
+            </article>
+          ))}
         </section>
       )}
 
-      {/* Collections */}
+      {/* ── Collections ── */}
       {collections.length > 0 && (
-        <section className="mb-xl">
-          <div className="flex items-center gap-2 mb-md">
-            <span className="material-symbols-outlined text-secondary-fixed-dim text-[20px]">folder_open</span>
-            <h2 className="font-title-sm text-title-sm text-on-surface-variant uppercase tracking-widest">Collections</h2>
+        <section className="m-section">
+          <div className="m-section-head">
+            <i className="ph ph-folder-open" style={{ color: 'var(--mora-ochre)', fontSize: 16 }} />
+            <span className="m-section-title">Collections</span>
+            <span className="m-section-sep" />
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {collections.map(({ name, count }) => (
               <button
                 key={name}
                 onClick={() => setSearchQuery(name)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-high border border-white/10 hover:border-white/30 transition-colors"
+                className="m-collection-chip"
               >
-                <span className="font-label-sm text-label-sm text-on-surface">{name}</span>
-                <span className="font-label-sm text-label-sm text-on-surface-variant opacity-50">{count}</span>
+                <span>{name}</span>
+                <span className="m-collection-count">{count}</span>
               </button>
             ))}
           </div>
         </section>
       )}
 
-      {/* Top Interests */}
+      {/* ── Top Interests ── */}
       {interestClusters.length > 0 && (
-        <section className="mb-xl">
-          <div className="flex items-center gap-2 mb-md">
-            <span className="material-symbols-outlined text-tertiary text-[20px]">interests</span>
-            <h2 className="font-title-sm text-title-sm text-on-surface-variant uppercase tracking-widest">Top Interests</h2>
+        <section className="m-section">
+          <div className="m-section-head">
+            <i className="ph ph-star-four" style={{ color: 'var(--mora-ember)', fontSize: 16 }} />
+            <span className="m-section-title">Top Interests</span>
+            <span className="m-section-sep" />
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {interestClusters.map(({ tag, count }) => (
               <button
                 key={tag}
                 onClick={() => setSearchQuery(tag)}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high border border-white/10 hover:border-white/30 transition-colors"
+                className="m-interest-chip"
               >
-                <span className="font-label-sm text-label-sm text-on-surface">#{tag}</span>
-                <span className="font-label-sm text-label-sm text-on-surface-variant opacity-60">{count}</span>
+                <span>#{tag}</span>
+                <span className="m-interest-count">{count}</span>
               </button>
             ))}
           </div>
         </section>
       )}
 
-      {/* Revisit section */}
-      <section className="mb-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-md">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary">psychology</span>
-            <h2 className="font-headline-md text-headline-md text-on-surface">What should I revisit today?</h2>
+      {/* ── Resurface band ── */}
+      {resurfacedItems.length > 0 && (
+        <section className="m-resurface" style={{ marginBottom: 28 }}>
+          <div className="m-resurface-head">
+            <span className="m-eyebrow">
+              <span className="m-eyebrow-dot" style={{ background: 'var(--mora-ochre)' }} />
+              A LITTLE FROM THE PAST
+            </span>
+            <p className="m-resurface-blurb">
+              Memories brought up by something you saved recently.
+            </p>
           </div>
+          <div className="m-resurface-row">
+            {resurfacedItems.slice(0, 3).map(item => {
+              const safe = safeItem(item)
+              return (
+                <button key={item.id} className="m-resurface-card" onClick={() => handleSelect(item.id)}>
+                  <span className="m-resurface-when">{item.createdAt ? relativeTime(item.createdAt) : ''}</span>
+                  <span className="m-resurface-title">{safe.title}</span>
+                  <SourceChip source={safe.source} />
+                </button>
+              )
+            })}
+          </div>
+        </section>
+      )}
 
-          {/* Search input */}
-          <div className="flex items-center gap-2 flex-1 sm:flex-none sm:max-w-xs">
-            <span className="material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
-            <input
-              type="text"
-              placeholder="Search items..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-full bg-surface-container border border-white/10 text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary transition-colors font-body-sm text-body-sm"
-            />
-          </div>
+      {/* ── Rule ornament ── */}
+      <div className="m-rule">
+        <span className="m-rule-line" />
+        <span className="m-rule-orn">˖</span>
+        <span className="m-rule-line" />
+      </div>
+
+      {/* ── Semantic search ── */}
+      <div className="m-search" style={{ marginBottom: 16, width: '100%', borderRadius: 8, maxWidth: 480 }}>
+        <i className="ph ph-magnifying-glass" />
+        <input
+          type="text"
+          placeholder="Search your memories…"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+        />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery('')}
+            style={{ background: 'none', border: 0, cursor: 'pointer', color: 'var(--mora-ink-3)', fontSize: 14, padding: '0 2px' }}
+            aria-label="Clear search"
+          >
+            <i className="ph ph-x" />
+          </button>
+        )}
+      </div>
+
+      {/* ── Filter bar + sort ── */}
+      <div className="m-filterbar">
+        <div className="m-filters">
+          {FILTER_KEYS.map(key => (
+            <button
+              key={key}
+              onClick={() => setActiveFilter(key)}
+              className={'m-pill' + (activeFilter === key ? ' is-active' : '')}
+            >
+              {FILTER_LABELS[key]}
+            </button>
+          ))}
         </div>
-
-        {/* Filter chips + sort toggle */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 mb-md">
-          <div className="flex items-center gap-2 flex-wrap flex-1">
-            {FILTER_KEYS.map(key => (
+        <div className="m-sort">
+          <span className="m-sort-label">arranged by</span>
+          {SORT_OPTIONS.map(({ key, label }, i) => (
+            <span key={key}>
+              {i > 0 && <span className="m-sort-sep"> · </span>}
               <button
-                key={key}
-                onClick={() => setActiveFilter(key)}
-                className={`px-3 py-1 rounded-full font-label-sm text-label-sm border whitespace-nowrap transition-all duration-200 ${
-                  activeFilter === key
-                    ? 'bg-primary/20 border-primary text-primary'
-                    : 'bg-surface-container-high border-white/10 text-on-surface-variant hover:border-white/30 hover:text-on-surface'
-                }`}
-              >
-                {FILTER_LABELS[key]}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-px border border-white/10 rounded-lg overflow-hidden flex-shrink-0">
-            {SORT_OPTIONS.map(({ key, label }) => (
-              <button
-                key={key}
+                className={'m-sort-btn' + (sortMode === key ? ' is-active' : '')}
                 onClick={() => setSortMode(key)}
-                className={`px-3 py-1 font-label-sm text-label-sm text-xs transition-colors ${
-                  sortMode === key
-                    ? 'bg-surface-container-high text-on-surface'
-                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container/50'
-                }`}
               >
                 {label}
               </button>
-            ))}
-          </div>
+            </span>
+          ))}
         </div>
+      </div>
 
-        {/* Grid / empty states */}
-        {items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 border border-white/5 rounded-xl bg-surface-container-lowest gap-4 text-center px-6">
-            <span className="material-symbols-outlined text-on-surface-variant text-4xl">add_box</span>
-            <p className="text-on-surface font-body-md text-body-md">No saved items yet</p>
-            <p className="text-on-surface-variant font-body-sm text-body-sm">Save links, posts, videos, and notes to build your Mora.</p>
-          </div>
-        ) : sorted.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-48 border border-white/5 rounded-xl bg-surface-container-lowest gap-2 text-center px-6">
-            <span className="material-symbols-outlined text-on-surface-variant text-3xl">search_off</span>
-            <p className="text-on-surface font-body-md text-body-md">No matching items</p>
-            <p className="text-on-surface-variant font-body-sm text-body-sm">Try changing filters or search terms.</p>
-          </div>
-        ) : groups ? (
-          <div className="space-y-8">
-            {groups.map((group, i) => (
-              <div key={group.label ?? '__other'}>
-                {group.label && (
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">#{group.label}</span>
-                    <div className="flex-1 h-px bg-white/5" />
-                  </div>
-                )}
-                {!group.label && i > 0 && (
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Other</span>
-                    <div className="flex-1 h-px bg-white/5" />
-                  </div>
-                )}
-                <BentoGrid items={group.items} onSelect={handleSelect} />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <BentoGrid items={sorted} onSelect={handleSelect} />
-        )}
-      </section>
+      {/* ── Main grid / empty states ── */}
+      {items.length === 0 ? (
+        <div className="m-empty">
+          <p>No saved items yet. Save links, posts, videos, and notes to build your Mora.</p>
+        </div>
+      ) : sorted.length === 0 ? (
+        <div className="m-empty">
+          <p>Nothing matches that. Try a softer search, or clear the filter.</p>
+        </div>
+      ) : groups ? (
+        <div>
+          {groups.map((group, i) => (
+            <div key={group.label ?? '__other'} style={{ marginBottom: 32 }}>
+              {group.label && (
+                <div className="m-group-head">
+                  <span className="m-group-label">#{group.label}</span>
+                  <span className="m-group-line" />
+                </div>
+              )}
+              {!group.label && i > 0 && (
+                <div className="m-group-head">
+                  <span className="m-group-label">Other</span>
+                  <span className="m-group-line" />
+                </div>
+              )}
+              <CardGrid items={group.items} onSelect={handleSelect} flags={flags} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <CardGrid items={sorted} onSelect={handleSelect} flags={flags} />
+      )}
 
-      {/* Suggested for you */}
+      {/* ── Suggested for you ── */}
       {suggestions.length > 0 && (
-        <section className="mb-xl">
-          <div className="flex items-center gap-2 mb-md">
-            <span className="material-symbols-outlined text-secondary-fixed-dim">auto_awesome</span>
-            <h2 className="font-headline-md text-headline-md text-on-surface">Suggested for you</h2>
+        <section className="m-section" style={{ marginTop: 40 }}>
+          <div className="m-section-head">
+            <i className="ph ph-sparkle" style={{ color: 'var(--mora-ochre)', fontSize: 16 }} />
+            <span className="m-section-title">Suggested for you</span>
+            <span className="m-section-sep" />
           </div>
-          <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+          <div className="m-suggest-grid">
             {suggestions.map(item => {
               const safe = safeItem(item)
               const { badge } = mapItemToUI(item)
@@ -681,19 +508,19 @@ export default function Moodboard() {
                 <article
                   key={item.id}
                   onClick={() => handleSelect(item.id)}
-                  className="cursor-pointer flex items-center gap-3 p-3 rounded-xl bg-surface-container-high border border-white/10 hover:border-white/30 transition-colors"
+                  className="m-suggest-item"
                 >
-                  <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden">
+                  <div className="m-suggest-thumb">
                     {item.thumbnail
-                      ? <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
-                      : <div className="w-full h-full bg-gradient-to-br from-primary/20 via-tertiary/10 to-secondary/20" />
+                      ? <img src={item.thumbnail} alt="" />
+                      : <i className="ph ph-image" />
                     }
                   </div>
-                  <div className="min-w-0">
-                    <p className="font-label-sm text-label-sm text-on-surface truncate">{safe.title}</p>
-                    <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60">{badge}</p>
+                  <div className="m-suggest-body">
+                    <p className="m-suggest-title">{safe.title}</p>
+                    <p className="m-suggest-badge">{badge}</p>
                   </div>
-                  <span className="material-symbols-outlined text-on-surface-variant ml-auto text-[16px]">chevron_right</span>
+                  <i className="ph ph-caret-right m-suggest-arrow" />
                 </article>
               )
             })}
@@ -701,15 +528,16 @@ export default function Moodboard() {
         </section>
       )}
 
-      {/* Rediscover */}
+      {/* ── Rediscover ── */}
       {resurfacedItems.length > 0 && (
-        <section className="mb-xl">
-          <div className="flex items-center gap-2 mb-md">
-            <span className="material-symbols-outlined text-tertiary">replay</span>
-            <h2 className="font-headline-md text-headline-md text-on-surface">Rediscover</h2>
-            <span className="font-label-sm text-label-sm text-on-surface-variant opacity-60 ml-1">from your past</span>
+        <section className="m-section" style={{ marginTop: 40 }}>
+          <div className="m-section-head">
+            <i className="ph ph-clock-counter-clockwise" style={{ color: 'var(--mora-indigo)', fontSize: 16 }} />
+            <span className="m-section-title">Rediscover</span>
+            <span className="m-section-sep" />
+            <span style={{ fontFamily: 'var(--mora-font-serif)', fontStyle: 'italic', fontSize: 12, color: 'var(--mora-ink-4)' }}>from your past</span>
           </div>
-          <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2 lg:grid-cols-4">
+          <div className="m-rediscover-grid">
             {resurfacedItems.slice(0, 4).map(item => {
               const safe = safeItem(item)
               const { badge } = mapItemToUI(item)
@@ -718,19 +546,19 @@ export default function Moodboard() {
                 <article
                   key={item.id}
                   onClick={() => handleSelect(item.id)}
-                  className="cursor-pointer flex items-center gap-3 p-3 rounded-xl bg-surface-container/60 border border-tertiary/10 hover:border-tertiary/30 transition-colors"
+                  className="m-suggest-item"
                 >
-                  <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden">
+                  <div className="m-suggest-thumb">
                     {item.thumbnail
-                      ? <img src={item.thumbnail} alt="" className="w-full h-full object-cover" />
-                      : <div className="w-full h-full bg-gradient-to-br from-tertiary/20 via-primary/10 to-secondary/20" />
+                      ? <img src={item.thumbnail} alt="" />
+                      : <i className="ph ph-hourglass-medium" />
                     }
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-label-sm text-label-sm text-on-surface truncate">{safe.title}</p>
-                    <p className="font-label-sm text-label-sm text-on-surface-variant opacity-60 truncate">{summary || badge}</p>
+                  <div className="m-suggest-body">
+                    <p className="m-suggest-title">{safe.title}</p>
+                    <p className="m-suggest-badge">{summary || badge}</p>
                   </div>
-                  <span className="material-symbols-outlined text-tertiary/50 ml-auto text-[16px]">chevron_right</span>
+                  <i className="ph ph-caret-right m-suggest-arrow" />
                 </article>
               )
             })}
@@ -738,45 +566,41 @@ export default function Moodboard() {
         </section>
       )}
 
-      {/* Upcoming */}
+      {/* ── Upcoming ── */}
       {upcomingMemoryEvents.length > 0 && (
-        <section className="mb-xl">
-          <div className="flex items-center gap-2 mb-md">
-            <span className="material-symbols-outlined text-primary">event</span>
-            <h2 className="font-headline-md text-headline-md text-on-surface">Upcoming</h2>
+        <section className="m-section" style={{ marginTop: 40 }}>
+          <div className="m-section-head">
+            <i className="ph ph-calendar-blank" style={{ color: 'var(--mora-ember)', fontSize: 16 }} />
+            <span className="m-section-title">Upcoming</span>
+            <span className="m-section-sep" />
           </div>
-          <div className="flex flex-col gap-2">
-            {upcomingMemoryEvents.map(({ item, label }) => (
-              <article
-                key={item.id}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-container/50 border border-primary/10 cursor-pointer hover:bg-surface-container transition-colors"
-                onClick={() => { setSelectedItemId(item.id); navigate('/item/' + item.id) }}
-              >
-                <span className="font-label-sm text-label-sm text-primary min-w-[72px]">{label}</span>
-                <span className="font-body-md text-body-md text-on-surface truncate">{item.title}</span>
-                {item.memoryType && (
-                  <span className="font-label-sm text-label-sm text-on-surface-variant ml-auto capitalize">{item.memoryType}</span>
-                )}
-              </article>
-            ))}
-          </div>
+          {upcomingMemoryEvents.map(({ item, label }) => (
+            <article
+              key={item.id}
+              className="m-upcoming-item"
+              onClick={() => { setSelectedItemId(item.id); navigate('/item/' + item.id) }}
+            >
+              <span className="m-upcoming-label">{label}</span>
+              <span className="m-upcoming-title">{item.title}</span>
+              {item.memoryType && (
+                <span className="m-upcoming-type">{item.memoryType}</span>
+              )}
+            </article>
+          ))}
         </section>
       )}
 
-      {/* Insights */}
+      {/* ── Insights ── */}
       {memoryInsights.length > 0 && (
-        <section className="mb-xl">
-          <div className="flex items-center gap-2 mb-md">
-            <span className="material-symbols-outlined text-secondary">psychology</span>
-            <h2 className="font-headline-md text-headline-md text-on-surface">Insights</h2>
+        <section className="m-section" style={{ marginTop: 40 }}>
+          <div className="m-section-head">
+            <i className="ph ph-brain" style={{ color: 'var(--mora-moss)', fontSize: 16 }} />
+            <span className="m-section-title">Insights</span>
+            <span className="m-section-sep" />
           </div>
-          <div className="flex flex-col gap-2">
-            {memoryInsights.map((insight, i) => (
-              <p key={i} className="font-body-md text-body-md text-on-surface-variant px-4 py-3 rounded-xl bg-surface-container/50 border border-secondary/10">
-                {insight}
-              </p>
-            ))}
-          </div>
+          {memoryInsights.map((insight, i) => (
+            <p key={i} className="m-insight-row">{insight}</p>
+          ))}
         </section>
       )}
     </div>
