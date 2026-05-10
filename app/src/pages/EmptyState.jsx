@@ -2,30 +2,41 @@ import { Link } from 'react-router-dom'
 
 export default function EmptyState() {
   return (
-    <div className="pt-8 pb-24 px-6 min-h-screen flex flex-col items-center justify-center relative">
-      <div className="max-w-3xl w-full flex flex-col items-center text-center space-y-12 relative z-20">
-        <div className="space-y-4">
-          <h1 className="font-display-xl text-display-xl text-transparent bg-clip-text bg-gradient-to-r from-primary via-tertiary to-secondary">
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 24px' }}>
+      <div style={{ maxWidth: 520, width: '100%', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 48 }}>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <h1 style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 40, fontWeight: 500, color: 'var(--mora-ink)', lineHeight: 1.15, margin: 0, letterSpacing: '-0.02em' }}>
             Your creative archive starts here.
           </h1>
-          <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl mx-auto">
+          <p style={{ fontFamily: 'var(--mora-font-serif)', fontStyle: 'italic', fontSize: 18, color: 'var(--mora-ink-2)', lineHeight: 1.45, margin: 0 }}>
             Connect sources or manually add content to begin weaving your digital tapestry.
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-6 mt-8">
+
+        <div className="m-rule" style={{ width: '100%' }}>
+          <span className="m-rule-line" />
+          <span className="m-rule-orn">˖</span>
+          <span className="m-rule-line" />
+        </div>
+
+        <div style={{ display: 'flex', gap: 16, width: '100%' }}>
           <Link
-            to="/moodboard"
-            className="px-8 py-4 bg-primary-container text-on-primary-container font-headline-md text-headline-md rounded-lg shadow-[0_0_20px_rgba(255,71,156,0.2)] hover:shadow-[0_0_30px_rgba(255,71,156,0.4)] hover:-translate-y-1 transition-all duration-300 flex items-center gap-3"
+            to="/add"
+            className="m-btn m-btn-primary"
+            style={{ flex: 1, justifyContent: 'center', padding: '16px 20px', fontSize: 15 }}
           >
-            <span className="material-symbols-outlined">add</span> Add Content
+            <i className="ph ph-plus" /> Add Content
           </Link>
           <Link
             to="/sources"
-            className="px-8 py-4 bg-surface-container border border-white/10 text-on-surface font-headline-md text-headline-md rounded-lg hover:bg-surface-container-high hover:-translate-y-1 transition-all duration-300 flex items-center gap-3"
+            className="m-btn m-btn-ghost"
+            style={{ flex: 1, justifyContent: 'center', padding: '16px 20px', fontSize: 15, border: '1px solid var(--mora-rule-soft)' }}
           >
-            <span className="material-symbols-outlined">hub</span> Connect Sources
+            <i className="ph ph-plugs" /> Connect Sources
           </Link>
         </div>
+        
       </div>
     </div>
   )

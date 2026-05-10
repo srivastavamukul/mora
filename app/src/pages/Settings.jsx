@@ -65,76 +65,82 @@ export default function Settings() {
   }
 
   return (
-    <div className="pt-8 pb-24 px-6 lg:px-12 min-h-screen relative w-full">
-      <h1 className="font-display-xl text-display-xl text-on-surface mb-2">Preferences</h1>
-      <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-8">
+    <div className="m-compose-page">
+      <h1 className="m-compose-page-title" style={{ marginTop: 24 }}>Preferences</h1>
+      <p className="m-compose-page-sub">
         Calibrate your digital sentiment engine.
       </p>
 
       {/* Data Management Section */}
-      <section className="mb-12">
-        <h2 className="font-headline-md text-headline-md text-on-surface mb-6">Data Management</h2>
-        <div className="flex flex-col gap-4 max-w-md">
+      <section style={{ marginBottom: 48 }}>
+        <h2 style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 20, color: 'var(--mora-ink)', marginBottom: 24, fontWeight: 400 }}>
+          Data Management
+        </h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 400 }}>
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg hover:shadow-[0_0_15px_#ff479c] transition-all"
+            className="m-btn m-btn-primary"
+            style={{ justifyContent: 'center', padding: '12px 16px' }}
           >
-            <span className="material-symbols-outlined text-[20px]">download</span>
+            <i className="ph ph-download-simple" />
             Export Backup
           </button>
 
-          <div className="relative">
+          <div style={{ position: 'relative' }}>
             <input
               ref={fileInputRef}
               type="file"
               accept=".json"
               onChange={handleImport}
-              className="hidden"
+              style={{ display: 'none' }}
               aria-label="Import backup file"
             />
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full flex items-center gap-2 px-6 py-3 rounded-xl bg-surface-container border border-white/10 text-on-surface font-label-lg text-label-lg hover:bg-surface-container-high hover:border-white/30 transition-all"
+              className="m-btn m-btn-ghost"
+              style={{ width: '100%', justifyContent: 'center', padding: '12px 16px', border: '1px solid var(--mora-rule-soft)' }}
             >
-              <span className="material-symbols-outlined text-[20px]">upload</span>
+              <i className="ph ph-upload-simple" />
               Import Backup
             </button>
           </div>
         </div>
-        <p className="font-body-sm text-body-sm text-on-surface-variant mt-4">
+        <p className="m-form-hint" style={{ marginTop: 16 }}>
           Export your items, sources, and preferences as a JSON file. Import to restore from backup.
         </p>
       </section>
 
       {/* Memory Signals Section */}
       {behaviorSignals && items.length > 0 && (
-        <section className="mb-12">
-          <h2 className="font-headline-md text-headline-md text-on-surface mb-1">Memory Signals</h2>
-          <p className="font-body-sm text-body-sm text-on-surface-variant mb-6">Derived from your saves. No tracking.</p>
-          <div className="flex flex-col gap-3 max-w-md">
+        <section style={{ marginBottom: 48 }}>
+          <h2 style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 20, color: 'var(--mora-ink)', marginBottom: 8, fontWeight: 400 }}>
+            Memory Signals
+          </h2>
+          <p className="m-form-hint" style={{ marginBottom: 24 }}>Derived from your saves. No tracking.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 400 }}>
             {behaviorSignals.topSources[0] && (
-              <div className="px-4 py-3 rounded-xl bg-surface-container border border-white/10">
-                <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">Most Active Source</span>
-                <p className="font-body-md text-body-md text-on-surface mt-0.5 capitalize">{behaviorSignals.topSources[0].source}</p>
+              <div style={{ background: 'var(--mora-paper-deep)', padding: '16px 20px', borderRadius: 10, border: '1px solid var(--mora-rule-soft)' }}>
+                <span className="m-nudge-source">Most Active Source</span>
+                <p className="m-nudge-title" style={{ marginTop: 4, textTransform: 'capitalize' }}>{behaviorSignals.topSources[0].source}</p>
               </div>
             )}
             {behaviorSignals.topTags[0] && (
-              <div className="px-4 py-3 rounded-xl bg-surface-container border border-white/10">
-                <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">You Save a Lot of</span>
-                <p className="font-body-md text-body-md text-on-surface mt-0.5">
+              <div style={{ background: 'var(--mora-paper-deep)', padding: '16px 20px', borderRadius: 10, border: '1px solid var(--mora-rule-soft)' }}>
+                <span className="m-nudge-source">You Save a Lot of</span>
+                <p className="m-nudge-title" style={{ marginTop: 4 }}>
                   {behaviorSignals.topTags.slice(0, 3).map(t => t.tag).join(', ')}
                 </p>
               </div>
             )}
             {behaviorSignals.dominantType && (
-              <div className="px-4 py-3 rounded-xl bg-surface-container border border-white/10">
-                <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">Dominant Type</span>
-                <p className="font-body-md text-body-md text-on-surface mt-0.5 capitalize">{behaviorSignals.dominantType}</p>
+              <div style={{ background: 'var(--mora-paper-deep)', padding: '16px 20px', borderRadius: 10, border: '1px solid var(--mora-rule-soft)' }}>
+                <span className="m-nudge-source">Dominant Type</span>
+                <p className="m-nudge-title" style={{ marginTop: 4, textTransform: 'capitalize' }}>{behaviorSignals.dominantType}</p>
               </div>
             )}
-            <div className="px-4 py-3 rounded-xl bg-surface-container border border-white/10">
-              <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">Save Frequency</span>
-              <p className="font-body-md text-body-md text-on-surface mt-0.5 capitalize">{behaviorSignals.saveFrequency}</p>
+            <div style={{ background: 'var(--mora-paper-deep)', padding: '16px 20px', borderRadius: 10, border: '1px solid var(--mora-rule-soft)' }}>
+              <span className="m-nudge-source">Save Frequency</span>
+              <p className="m-nudge-title" style={{ marginTop: 4, textTransform: 'capitalize' }}>{behaviorSignals.saveFrequency}</p>
             </div>
           </div>
         </section>

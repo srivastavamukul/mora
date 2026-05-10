@@ -2,15 +2,15 @@ import { useApp } from '../context/AppContext'
 
 function StatusBadge({ status }) {
   if (status === 'connected') return (
-    <div className="flex items-center gap-2 bg-surface-container-lowest px-3 py-1 rounded-full border border-primary/30">
-      <span className="material-symbols-outlined text-primary text-sm">check_circle</span>
-      <span className="font-label-sm text-xs text-primary font-bold">Connected</span>
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--mora-paper-deep)', padding: '4px 10px', borderRadius: 20, border: '1px solid var(--mora-rule-soft)' }}>
+      <i className="ph-fill ph-check-circle" style={{ color: 'var(--mora-moss)', fontSize: 14 }} />
+      <span style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--mora-ink-2)' }}>Connected</span>
     </div>
   )
   if (status === 'error') return (
-    <div className="flex items-center gap-1 bg-surface-container-lowest px-2 py-1 rounded border border-tertiary-container/30">
-      <span className="material-symbols-outlined text-tertiary text-xs">warning</span>
-      <span className="font-label-sm text-[10px] text-tertiary uppercase">Auth Expired</span>
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--mora-paper-deep)', padding: '4px 10px', borderRadius: 20, border: '1px solid var(--mora-rule-soft)' }}>
+      <i className="ph-fill ph-warning-circle" style={{ color: 'var(--mora-ember)', fontSize: 14 }} />
+      <span style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--mora-ink-2)' }}>Auth Expired</span>
     </div>
   )
   return null
@@ -20,7 +20,8 @@ function ActionButton({ sourceId, status, onToggle }) {
   if (status === 'connected') return (
     <button
       onClick={() => onToggle(sourceId)}
-      className="w-full py-2 px-4 rounded border border-outline-variant text-on-surface-variant font-label-sm text-sm hover:bg-surface-container-high hover:text-on-surface transition-all"
+      className="m-btn m-btn-ghost"
+      style={{ width: '100%', justifyContent: 'center' }}
     >
       Disconnect
     </button>
@@ -28,7 +29,8 @@ function ActionButton({ sourceId, status, onToggle }) {
   if (status === 'error') return (
     <button
       onClick={() => onToggle(sourceId)}
-      className="w-full py-2 px-4 rounded bg-tertiary-container/10 border border-tertiary-container text-tertiary font-label-sm text-sm hover:bg-tertiary-container/20 transition-all"
+      className="m-btn m-btn-ghost"
+      style={{ width: '100%', justifyContent: 'center', color: 'var(--mora-ember)', borderColor: 'var(--mora-ember)' }}
     >
       Reconnect
     </button>
@@ -36,7 +38,8 @@ function ActionButton({ sourceId, status, onToggle }) {
   return (
     <button
       onClick={() => onToggle(sourceId)}
-      className="w-full py-2 px-4 rounded border border-outline-variant text-on-surface font-label-sm text-sm hover:bg-surface-container-high hover:border-on-surface transition-all"
+      className="m-btn m-btn-ghost"
+      style={{ width: '100%', justifyContent: 'center', border: '1px solid var(--mora-rule)' }}
     >
       Connect Account
     </button>
@@ -48,32 +51,31 @@ export default function Sources() {
   const statuses = Object.fromEntries(sources.map(s => [s.id, s.status]))
 
   return (
-    <div className="pt-8 pb-24 px-6 md:px-xl max-w-7xl mx-auto relative w-full min-h-screen">
+    <div style={{ maxWidth: 880, margin: '0 auto', paddingTop: 32, paddingBottom: 96, paddingLeft: 24, paddingRight: 24 }}>
 
       {/* Header */}
-      <header className="mb-12 md:mb-16 relative">
-        <div className="absolute -top-10 -left-10 w-40 h-40 bg-primary-container/10 rounded-full blur-3xl pointer-events-none" />
-        <h2 className="font-display-xl text-display-xl text-on-surface mb-4 relative z-10">Connect Sources</h2>
-        <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl relative z-10">
+      <header style={{ marginBottom: 48 }}>
+        <h2 className="m-compose-page-title">Connect Sources</h2>
+        <p className="m-compose-page-sub">
           Weave your digital footprints into Mora. We only extract the vibe, never the private details.
         </p>
 
         {/* Filter chips — live counts */}
-        <div className="mt-8 flex gap-4 overflow-x-auto pb-4">
-          <div className="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full border border-white/5 whitespace-nowrap">
-            <span className="w-2 h-2 rounded-full bg-secondary-fixed shadow-[0_0_8px_rgba(125,244,255,0.8)]" />
-            <span className="font-label-sm text-label-sm text-on-surface">
+        <div style={{ display: 'flex', gap: 12, marginTop: 24, overflowX: 'auto', paddingBottom: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--mora-paper-deep)', padding: '6px 14px', borderRadius: 20, border: '1px solid var(--mora-rule-soft)', whiteSpace: 'nowrap' }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--mora-moss)' }} />
+            <span style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--mora-ink)' }}>
               Active Streams
-              <span className="ml-2 text-secondary-fixed font-bold">
+              <span style={{ marginLeft: 8, color: 'var(--mora-ink-2)' }}>
                 {Object.values(statuses).filter(s => s === 'connected').length}
               </span>
             </span>
           </div>
-          <div className="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full border border-white/5 whitespace-nowrap opacity-60">
-            <span className="w-2 h-2 rounded-full bg-surface-variant" />
-            <span className="font-label-sm text-label-sm text-on-surface">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--mora-paper-deep)', padding: '6px 14px', borderRadius: 20, border: '1px solid var(--mora-rule-soft)', whiteSpace: 'nowrap', opacity: 0.6 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--mora-ink-4)' }} />
+            <span style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--mora-ink)' }}>
               Paused
-              <span className="ml-2">
+              <span style={{ marginLeft: 8, color: 'var(--mora-ink-3)' }}>
                 {Object.values(statuses).filter(s => s !== 'connected').length}
               </span>
             </span>
@@ -81,118 +83,114 @@ export default function Sources() {
         </div>
       </header>
 
-      <div className="pixel-divider mb-12" />
+      <div className="m-rule" style={{ marginBottom: 48 }}>
+        <span className="m-rule-line" />
+        <span className="m-rule-line" />
+      </div>
 
-      {/* Bento grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-gutter">
+      {/* Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
 
         {/* Instagram */}
-        <div className={`glass-card rounded-xl p-6 relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 border-t border-l border-white/20 ${statuses.instagram === 'connected' ? 'hover:shadow-[0_10px_40px_rgba(255,46,151,0.1)]' : 'opacity-70 hover:opacity-100'}`}>
-          <div className="absolute top-0 right-0 p-2 opacity-50 font-label-sm text-xs text-on-surface-variant tracking-widest">IMG_STREAM</div>
-          <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors" />
-          <div className="flex justify-between items-start mb-8 relative z-10">
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-500 flex items-center justify-center shadow-lg">
-              <span className="material-symbols-outlined text-white text-2xl">photo_camera</span>
+        <div className={`m-source-card ${statuses.instagram === 'connected' ? '' : 'disabled'}`}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <i className="ph ph-instagram-logo" style={{ color: 'white', fontSize: 24 }} />
             </div>
             <StatusBadge status={statuses.instagram} />
           </div>
-          <div className="relative z-10">
-            <h3 className="font-headline-md text-headline-md text-on-surface mb-2">Instagram</h3>
-            <p className="font-body-md text-body-md text-on-surface-variant text-sm mb-6">
+          <div>
+            <h3 style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 22, fontWeight: 500, color: 'var(--mora-ink)', margin: '0 0 8px' }}>Instagram</h3>
+            <p style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 14, lineHeight: 1.5, color: 'var(--mora-ink-2)', margin: 0, minHeight: 42 }}>
               Importing saved posts, tagged locations, and visual aesthetics.
             </p>
-            <div className="flex items-center justify-between border-t border-white/10 pt-4">
-              <span className="font-label-sm text-xs text-on-surface-variant">
-                {statuses.instagram === 'connected' ? 'Last sync: 2h ago' : 'Not connected'}
-              </span>
-              <ActionButton sourceId="instagram" status={statuses.instagram} onToggle={toggle} />
-            </div>
+          </div>
+          <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid var(--mora-rule-soft)', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <span style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 11, fontWeight: 500, color: 'var(--mora-ink-3)', textAlign: 'center' }}>
+              {statuses.instagram === 'connected' ? 'Last sync: 2h ago' : 'Not connected'}
+            </span>
+            <ActionButton sourceId="instagram" status={statuses.instagram} onToggle={toggle} />
           </div>
         </div>
 
-        {/* Spotify — 2-col span */}
-        <div className={`glass-card rounded-xl p-6 relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 border-t border-l border-white/20 lg:col-span-2 ${statuses.spotify === 'connected' ? 'hover:shadow-[0_10px_40px_rgba(0,238,252,0.1)]' : 'opacity-70 hover:opacity-100'}`}>
-          <div className="absolute top-0 right-0 p-2 opacity-50 font-label-sm text-xs text-on-surface-variant tracking-widest">AUDIO_NODE</div>
-          <div className="absolute -bottom-20 -left-10 w-48 h-48 bg-secondary/10 rounded-full blur-3xl group-hover:bg-secondary/20 transition-colors" />
-          <div className="flex flex-col md:flex-row gap-6 items-start relative z-10">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 rounded-lg bg-[#1DB954] flex items-center justify-center shadow-lg">
-                <span className="material-symbols-outlined text-black text-2xl">headphones</span>
-              </div>
+        {/* Spotify */}
+        <div className={`m-source-card ${statuses.spotify === 'connected' ? '' : 'disabled'}`}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: '#1DB954', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <i className="ph-fill ph-spotify-logo" style={{ color: 'white', fontSize: 28 }} />
             </div>
-            <div className="flex-1 w-full flex flex-col gap-4">
-              <div className="flex justify-between items-start">
-                <h3 className="font-headline-md text-headline-md text-on-surface">Spotify</h3>
-                <StatusBadge status={statuses.spotify} />
+            <StatusBadge status={statuses.spotify} />
+          </div>
+          <div>
+            <h3 style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 22, fontWeight: 500, color: 'var(--mora-ink)', margin: '0 0 8px' }}>Spotify</h3>
+            <p style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 14, lineHeight: 1.5, color: 'var(--mora-ink-2)', margin: 0, minHeight: 42 }}>
+              Extracting tempo, genre moods, and lyrical sentiment.
+            </p>
+          </div>
+          {statuses.spotify === 'connected' && (
+            <div style={{ background: 'var(--mora-vellum)', borderRadius: 8, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, border: '1px solid var(--mora-rule-soft)' }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--mora-ink-3)', marginBottom: 2 }}>Currently defining vibe:</div>
+                <div style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 14, color: 'var(--mora-ink)' }}>Synthwave & Midnight Drives</div>
               </div>
-              <p className="font-body-md text-body-md text-on-surface-variant text-sm max-w-md">
-                Extracting tempo, genre moods, and lyrical sentiment to build your daily soundscapes.
-              </p>
-              {statuses.spotify === 'connected' && (
-                <div className="bg-surface-container-low rounded-lg p-3 flex items-center gap-4 border border-white/5">
-                  <div className="w-10 h-10 rounded bg-surface-container-highest overflow-hidden flex-shrink-0">
-                    <div className="w-full h-full bg-gradient-to-br from-pink-500/40 to-green-500/40" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-label-sm text-sm text-on-surface">Currently defining vibe:</div>
-                    <div className="font-body-md text-xs text-secondary">Synthwave &amp; Midnight Drives</div>
-                  </div>
-                  <span className="material-symbols-outlined text-secondary opacity-50 animate-pulse">graphic_eq</span>
-                </div>
-              )}
-              <ActionButton sourceId="spotify" status={statuses.spotify} onToggle={toggle} />
+              <i className="ph ph-wave-sawtooth" style={{ color: 'var(--mora-moss)', fontSize: 18 }} />
             </div>
+          )}
+          <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid var(--mora-rule-soft)', display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <ActionButton sourceId="spotify" status={statuses.spotify} onToggle={toggle} />
           </div>
         </div>
 
         {/* Pinterest */}
-        <div className={`glass-card rounded-xl p-6 relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 ${statuses.pinterest === 'connected' ? '' : 'opacity-80 hover:opacity-100 hover:border-primary/50'}`}>
-          <div className="absolute top-0 right-0 p-2 opacity-30 font-label-sm text-xs text-on-surface-variant tracking-widest">BOARD_SYNC</div>
-          <div className="flex justify-between items-start mb-8 relative z-10">
-            <div className={`w-12 h-12 rounded-lg bg-surface-container-highest border border-outline-variant flex items-center justify-center transition-all ${statuses.pinterest !== 'connected' ? 'grayscale group-hover:grayscale-0' : ''}`}>
-              <span className="material-symbols-outlined text-on-surface-variant group-hover:text-[#E60023] text-2xl transition-colors">push_pin</span>
+        <div className={`m-source-card ${statuses.pinterest === 'connected' ? '' : 'disabled'}`}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: '#E60023', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center' }}>
+              <i className="ph-fill ph-pinterest-logo" style={{ color: 'white', fontSize: 24 }} />
             </div>
             <StatusBadge status={statuses.pinterest} />
           </div>
-          <div className="relative z-10">
-            <h3 className="font-headline-md text-headline-md text-on-surface mb-2">Pinterest</h3>
-            <p className="font-body-md text-body-md text-on-surface-variant text-sm mb-6">
+          <div>
+            <h3 style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 22, fontWeight: 500, color: 'var(--mora-ink)', margin: '0 0 8px' }}>Pinterest</h3>
+            <p style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 14, lineHeight: 1.5, color: 'var(--mora-ink-2)', margin: 0, minHeight: 42 }}>
               Connect boards to seed visual inspiration clusters.
             </p>
+          </div>
+          <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid var(--mora-rule-soft)', display: 'flex', flexDirection: 'column', gap: 12 }}>
             <ActionButton sourceId="pinterest" status={statuses.pinterest} onToggle={toggle} />
           </div>
         </div>
 
         {/* YouTube */}
-        <div className="glass-card rounded-xl p-6 relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 border-l-2 border-l-tertiary-container">
-          <div className="absolute top-0 right-0 p-2 opacity-50 font-label-sm text-xs text-on-surface-variant tracking-widest">VID_LOG</div>
-          <div className="flex justify-between items-start mb-8 relative z-10">
-            <div className="w-12 h-12 rounded-lg bg-surface-container-highest border border-outline-variant flex items-center justify-center">
-              <span className="material-symbols-outlined text-[#FF0000] text-2xl">smart_display</span>
+        <div className={`m-source-card ${statuses.youtube === 'connected' ? '' : 'disabled'}`}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: '#FF0000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <i className="ph-fill ph-youtube-logo" style={{ color: 'white', fontSize: 24 }} />
             </div>
             <StatusBadge status={statuses.youtube} />
           </div>
-          <div className="relative z-10">
-            <h3 className="font-headline-md text-headline-md text-on-surface mb-2">YouTube</h3>
-            <p className="font-body-md text-body-md text-on-surface-variant text-sm mb-6">
+          <div>
+            <h3 style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 22, fontWeight: 500, color: 'var(--mora-ink)', margin: '0 0 8px' }}>YouTube</h3>
+            <p style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 14, lineHeight: 1.5, color: 'var(--mora-ink-2)', margin: 0, minHeight: 42 }}>
               {statuses.youtube === 'connected'
                 ? 'Parsing watch history themes and extracting content vibes.'
                 : 'We lost connection. Reconnect to keep parsing watch history themes.'}
             </p>
+          </div>
+          <div style={{ marginTop: 'auto', paddingTop: 16, borderTop: '1px solid var(--mora-rule-soft)', display: 'flex', flexDirection: 'column', gap: 12 }}>
             <ActionButton sourceId="youtube" status={statuses.youtube} onToggle={toggle} />
           </div>
         </div>
 
         {/* Manual Import */}
-        <div className="glass-card rounded-xl p-6 relative overflow-hidden group border border-dashed border-outline-variant hover:border-primary/50 transition-all duration-300 flex flex-col items-center justify-center text-center min-h-[250px]">
-          <div className="w-16 h-16 rounded-full bg-surface-container-high border border-outline/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-            <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary text-3xl">upload_file</span>
+        <div style={{ background: 'var(--mora-paper-deep)', border: '1px dashed var(--mora-rule)', borderRadius: 16, padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minHeight: 240, transition: 'all 200ms cubic-bezier(.32,.72,.28,1)', cursor: 'pointer' }}>
+          <div style={{ width: 48, height: 48, borderRadius: 24, background: 'var(--mora-vellum)', border: '1px solid var(--mora-rule-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+            <i className="ph ph-upload-simple" style={{ color: 'var(--mora-ink-3)', fontSize: 20 }} />
           </div>
-          <h3 className="font-headline-md text-headline-md text-on-surface mb-2 text-lg">Manual Import</h3>
-          <p className="font-body-md text-body-md text-on-surface-variant text-sm mb-6 max-w-[200px]">
+          <h3 style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 20, fontWeight: 500, color: 'var(--mora-ink)', margin: '0 0 8px' }}>Manual Import</h3>
+          <p style={{ fontFamily: 'var(--mora-font-serif)', fontSize: 14, lineHeight: 1.5, color: 'var(--mora-ink-2)', margin: '0 0 16px', maxWidth: 200 }}>
             Upload ZIP archives from Notion, Evernote, or Apple Notes.
           </p>
-          <span className="font-label-sm text-primary text-xs uppercase tracking-widest group-hover:underline cursor-pointer">
+          <span style={{ fontFamily: 'var(--mora-font-sans)', fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--mora-ink-3)' }}>
             Browse Files
           </span>
         </div>
@@ -200,9 +198,9 @@ export default function Sources() {
       </div>
 
       {/* Footer note */}
-      <div className="mt-16 text-center opacity-50">
-        <p className="font-label-sm text-xs text-on-surface-variant flex items-center justify-center gap-2">
-          <span className="material-symbols-outlined text-sm">lock</span>
+      <div style={{ marginTop: 64, textAlign: 'center' }}>
+        <p style={{ fontFamily: 'var(--mora-font-serif)', fontStyle: 'italic', fontSize: 13, color: 'var(--mora-ink-4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          <i className="ph ph-lock-key" />
           All connections are processed locally. No personal identifiers are stored.
         </p>
       </div>
