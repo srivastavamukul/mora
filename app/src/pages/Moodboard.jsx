@@ -115,7 +115,13 @@ function MemoryCard({ item, onSelect, flags }) {
   const cardClass = `m-card${isNote ? ' m-card-note' : ''}${isJournal ? ' m-card-journal' : ''}`
 
   return (
-    <article className={cardClass} onClick={() => onSelect(item.id)}>
+    <article 
+      className={cardClass} 
+      onClick={() => onSelect(item.id)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onSelect(item.id))}
+    >
       {/* Thumbnail area for media types */}
       {(isSong || isImage || isVideo || hasThumb) && (
         <div
@@ -158,6 +164,7 @@ function MemoryCard({ item, onSelect, flags }) {
           className="m-card-external"
           onClick={e => { e.stopPropagation(); window.open(item.url, '_blank', 'noopener,noreferrer') }}
           title="Open source"
+          aria-label="Open source in new tab"
         >
           <i className="ph ph-arrow-square-out" />
         </button>
@@ -269,6 +276,7 @@ export default function Moodboard() {
           <input
             type="text"
             placeholder="Paste a URL…"
+            aria-label="URL to capture"
             value={urlInput}
             onChange={e => setUrlInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleUrlAdd()}
@@ -285,6 +293,7 @@ export default function Moodboard() {
         <textarea
           rows={2}
           placeholder="Capture a thought…"
+          aria-label="Capture a thought"
           value={journalInput}
           onChange={e => setJournalInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleJournalAdd())}
@@ -312,6 +321,9 @@ export default function Moodboard() {
               key={item.id}
               onClick={() => handleSelect(item.id)}
               className="m-reflection-item"
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), handleSelect(item.id))}
             >
               <i className="ph ph-notebook m-reflection-icon" />
               <div className="m-reflection-body">
@@ -416,6 +428,7 @@ export default function Moodboard() {
         <input
           type="text"
           placeholder="Search your memories…"
+          aria-label="Search your memories"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
         />
@@ -462,11 +475,13 @@ export default function Moodboard() {
       {/* ── Main grid / empty states ── */}
       {items.length === 0 ? (
         <div className="m-empty">
-          <p>No saved items yet. Save links, posts, videos, and notes to build your Mora.</p>
+          <i className="ph ph-folder-open" />
+          <p>The library is quiet. Save links, posts, videos, and notes to begin building your Mora.</p>
         </div>
       ) : sorted.length === 0 ? (
         <div className="m-empty">
-          <p>Nothing matches that. Try a softer search, or clear the filter.</p>
+          <i className="ph ph-magnifying-glass" />
+          <p>Nothing matches that. Try a softer search, or clear the filters.</p>
         </div>
       ) : groups ? (
         <div>
@@ -509,6 +524,9 @@ export default function Moodboard() {
                   key={item.id}
                   onClick={() => handleSelect(item.id)}
                   className="m-suggest-item"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), handleSelect(item.id))}
                 >
                   <div className="m-suggest-thumb">
                     {item.thumbnail
@@ -547,6 +565,9 @@ export default function Moodboard() {
                   key={item.id}
                   onClick={() => handleSelect(item.id)}
                   className="m-suggest-item"
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), handleSelect(item.id))}
                 >
                   <div className="m-suggest-thumb">
                     {item.thumbnail
@@ -579,6 +600,9 @@ export default function Moodboard() {
               key={item.id}
               className="m-upcoming-item"
               onClick={() => { setSelectedItemId(item.id); navigate('/item/' + item.id) }}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), setSelectedItemId(item.id), navigate('/item/' + item.id))}
             >
               <span className="m-upcoming-label">{label}</span>
               <span className="m-upcoming-title">{item.title}</span>

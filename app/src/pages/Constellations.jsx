@@ -41,7 +41,8 @@ export default function Constellations() {
 
       {groupEntries.length === 0 ? (
         <div className="m-empty">
-          <p>No clusters yet. Add items with tags to build constellations.</p>
+          <i className="ph ph-sparkle" />
+          <p>The sky is clear. Add items with tags to begin drawing constellations.</p>
         </div>
       ) : (
         groupEntries.map(([tag, groupItems]) => (
@@ -53,7 +54,13 @@ export default function Constellations() {
             
             <ul className="m-constellation-list">
               {groupItems.map(item => (
-                <li key={item.id} onClick={() => handleItemClick(item.id)}>
+                <li 
+                  key={item.id} 
+                  onClick={() => handleItemClick(item.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), handleItemClick(item.id))}
+                >
                   <span className="m-cl-time">{relativeTimeShort(item.createdAt)}</span>
                   <span className="m-cl-title">{item.title || 'Saved Link'}</span>
                   <span className="m-cl-source">{item.source || 'web'}</span>

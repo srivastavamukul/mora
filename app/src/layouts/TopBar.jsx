@@ -42,9 +42,10 @@ export default function TopBar() {
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Find a memory…"
+              aria-label="Search memories"
             />
           </div>
-          <Link to="/settings" className="m-avatar" title="You" />
+          <Link to="/settings" className="m-avatar" title="You" aria-label="User Settings" />
         </div>
       </header>
     </>

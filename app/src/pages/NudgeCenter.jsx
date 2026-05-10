@@ -94,13 +94,20 @@ export default function NudgeCenter() {
 
       {nudges.length === 0 ? (
         <div className="m-empty">
-          <p>No items to revisit right now. Save some memories and they'll surface here when it feels right.</p>
+          <i className="ph ph-wind" />
+          <p>It's quiet here. Save some memories, and they will surface when the time feels right.</p>
         </div>
       ) : (
         <>
           {/* ── Featured card ── */}
           {featured && (
-            <article className="m-wall-feature" onClick={() => handleClick(featured.item.id)}>
+            <article 
+              className="m-wall-feature" 
+              onClick={() => handleClick(featured.item.id)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), handleClick(featured.item.id))}
+            >
               <span className="m-eyebrow">
                 <span className="m-eyebrow-dot" style={{ background: 'var(--mora-ochre)' }} />
                 {featured.reasons?.[0]?.toUpperCase() || 'FROM YOUR ARCHIVE'}
@@ -130,7 +137,14 @@ export default function NudgeCenter() {
           {secondaries.length > 0 && (
             <div className="m-wall-secondaries">
               {secondaries.map(({ item, reasons }) => (
-                <article key={item.id} className="m-wall-second" onClick={() => handleClick(item.id)}>
+                <article 
+                  key={item.id} 
+                  className="m-wall-second" 
+                  onClick={() => handleClick(item.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), handleClick(item.id))}
+                >
                   <span className="m-eyebrow">{(item.source || 'web').toUpperCase()}</span>
                   <h3>{item.title || 'Saved Link'}</h3>
                   {(item.body || item.description) && (

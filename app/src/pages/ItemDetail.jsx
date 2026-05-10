@@ -73,6 +73,10 @@ function DetailFigure({ item, onOpenLink }) {
       className="m-detail-figure"
       style={figureStyle}
       onClick={() => onOpenLink(item.url)}
+      role="button"
+      tabIndex={0}
+      aria-label="Open original link"
+      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), onOpenLink(item.url))}
     >
       {hasThumb ? (
         <img
@@ -89,6 +93,12 @@ function DetailFigure({ item, onOpenLink }) {
       {/* Hidden fallback gradient — shown if img errors */}
       {hasThumb && <div className="m-detail-figure-gradient" style={{ display: 'none', position: 'absolute', inset: 0 }} />}
       <span className="m-card-grain" />
+      {linkError && (
+        <div style={{ padding: '16px 20px', background: 'var(--mora-paper-deep)', color: 'var(--mora-ink-2)', borderRadius: 12, marginBottom: 24, fontSize: 13, border: '1px solid var(--mora-rule-soft)', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <i className="ph ph-warning-circle" style={{ fontSize: 18, color: 'var(--mora-ember)' }} />
+          This link seems to have drifted away. It might be broken or currently unavailable.
+        </div>
+      )}
       {isVideo && (
         <div className="m-detail-figure-play">
           <span className="m-detail-figure-play-btn">
@@ -115,16 +125,16 @@ export default function ItemDetail() {
     if (!item) return
     logEvent(item.id, 'open')
   }, [item?.id])
-
   if (!item) {
     return (
       <article className="m-detail" style={{ paddingTop: 60 }}>
-        <div className="m-empty">
-          <p>Item not found</p>
+        <div className="m-empty" style={{ minHeight: '50vh', justifyContent: 'center' }}>
+          <i className="ph ph-moon" style={{ color: 'var(--mora-ink-4)' }} />
+          <p style={{ color: 'var(--mora-ink-4)' }}>This memory seems to be out of reach.</p>
         </div>
         <div style={{ textAlign: 'center', marginTop: 16 }}>
-          <Link to="/moodboard" className="m-btn m-btn-primary">
-            Back to Library
+          <Link to="/moodboard" className="m-btn m-btn-secondary">
+            Return to Library
           </Link>
         </div>
       </article>
@@ -189,7 +199,10 @@ export default function ItemDetail() {
       )}
 
       {linkError && (
-        <p className="m-detail-error">Link unavailable</p>
+        <div style={{ padding: '16px 20px', background: 'var(--mora-paper-deep)', color: 'var(--mora-ink-2)', borderRadius: 12, marginBottom: 24, fontSize: 13, border: '1px solid var(--mora-rule-soft)', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <i className="ph ph-warning-circle" style={{ fontSize: 18, color: 'var(--mora-ember)' }} />
+          This link seems to have drifted away. It might be broken or currently unavailable.
+        </div>
       )}
 
       {/* ── Head: source + time ── */}
@@ -293,6 +306,7 @@ export default function ItemDetail() {
               value={noteText}
               onChange={e => setNoteText(e.target.value)}
               placeholder="Private note — only visible to you"
+              aria-label="Private note"
               rows={3}
             />
             <div className="m-detail-private-actions">
@@ -317,8 +331,8 @@ export default function ItemDetail() {
             {item.privateNote}
           </p>
         ) : (
-          <p className="m-detail-private-empty">
-            You haven't written anything here yet. Press to add a private note — it stays between you and Mora.
+          <p className="m-detail-private-empty" style={{ fontStyle: 'italic', color: 'var(--mora-ink-4)', fontSize: 13, lineHeight: 1.5 }}>
+            A quiet space waiting for your thoughts. Press the pencil to add a reflection.
           </p>
         )}
       </section>
@@ -357,6 +371,7 @@ export default function ItemDetail() {
               value={collectionValue}
               onChange={e => setCollectionValue(e.target.value)}
               placeholder="Or type a custom collection name"
+              aria-label="Custom collection name"
             />
             <div className="m-detail-collection-actions">
               <button
@@ -381,7 +396,9 @@ export default function ItemDetail() {
         ) : item.collection ? (
           <p className="m-detail-collection-value">{item.collection}</p>
         ) : (
-          <p className="m-detail-private-empty">No collection assigned.</p>
+          <p className="m-detail-private-empty" style={{ fontStyle: 'italic', color: 'var(--mora-ink-4)', fontSize: 13 }}>
+            Unbound memory. Not tied to any collection.
+          </p>
         )}
       </section>
 
@@ -401,6 +418,9 @@ export default function ItemDetail() {
                   key={rel.id}
                   className="m-related-item"
                   onClick={() => handleRelatedClick(rel)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), handleRelatedClick(rel))}
                 >
                   <span className="m-related-title">{rel.title}</span>
                   <span className="m-related-source">{rel.source || badge}</span>

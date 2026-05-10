@@ -21,6 +21,7 @@ function ActionButton({ sourceId, status, onToggle }) {
     <button
       onClick={() => onToggle(sourceId)}
       className="m-btn m-btn-ghost"
+      aria-label={`Disconnect ${sourceId}`}
       style={{ width: '100%', justifyContent: 'center' }}
     >
       Disconnect
@@ -30,6 +31,7 @@ function ActionButton({ sourceId, status, onToggle }) {
     <button
       onClick={() => onToggle(sourceId)}
       className="m-btn m-btn-ghost"
+      aria-label={`Reconnect ${sourceId}`}
       style={{ width: '100%', justifyContent: 'center', color: 'var(--mora-ember)', borderColor: 'var(--mora-ember)' }}
     >
       Reconnect
@@ -39,6 +41,7 @@ function ActionButton({ sourceId, status, onToggle }) {
     <button
       onClick={() => onToggle(sourceId)}
       className="m-btn m-btn-ghost"
+      aria-label={`Connect ${sourceId} account`}
       style={{ width: '100%', justifyContent: 'center', border: '1px solid var(--mora-rule)' }}
     >
       Connect Account
