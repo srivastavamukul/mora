@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mora · App UI Kit</title>
+  <link rel="stylesheet" href="app.css" />
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script src="data.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="Components.jsx"></script>
+  <script type="text/babel" src="Sidebar.jsx"></script>
+  <script type="text/babel" src="Library.jsx"></script>
+  <script type="text/babel" src="ItemDetail.jsx"></script>
+  <script type="text/babel" src="Constellations.jsx"></script>
+  <script type="text/babel" src="MemoryWall.jsx"></script>
+  <script type="text/babel" src="JournalCompose.jsx"></script>
+
+  <script type="text/babel">
+    function App() {
+      const [route, setRoute] = React.useState("library");
+      const [openId, setOpenId] = React.useState(null);
+      const [memories, setMemories] = React.useState(window.MORA_DATA.memories);
+      const [query, setQuery] = React.useState("");
+      const [filter, setFilter] = React.useState("all");
+      const [sort, setSort] = React.useState("feeling");
+      const [composing, setComposing] = React.useState(false);
+
+      const open = (id) => setOpenId(id);
+      const back = () => setOpenId(null);
+      const toggleKeep = () => {
+        setMemories(ms => ms.map(m => m.id === openId ? {...m, kept: !m.kept} : m));
+      };
+      const handleRoute = (r) => {
+        if (r === "compose") { setComposing(true); return; }
+        setRoute(r); setOpenId(null);
+      };
+
+      const opened = memories.find(m => m.id === openId);
+      const related = opened ? memories.filter(m => m.id !== opened.id && (m.tags || []).some(t => (opened.tags || []).includes(t))).slice(0, 3) : [];
+
+      let topbar = null;
+      let body = null;
+
+      if (opened) {
+        topbar = <TopBar eyebrow={null} title="Reading" query={query} onSearch={setQuery} />;
+        body = <ItemDetail memory={opened} onBack={back} onToggleKeep={toggleKeep} related={related} />;
+      } else if (route === "library") {
+        const count = memories.filter(m => m.kept).length;
+        topbar = <TopBar eyebrow="YOUR LIBRARY" title="Things you've kept" count={count} query={query} onSearch={setQuery} />;
+        body = <Library memories={memories} onOpen={open} query={query} filter={filter} setFilter={setFilter} sort={sort} setSort={setSort} />;
+      } else if (route === "memorywall") {
+        topbar = <TopBar eyebrow="TODAY'S WALL" title="A little from before" query={query} onSearch={setQuery} />;
+        body = <MemoryWall memories={memories} onOpen={open} />;
+      } else if (route === "constellations") {
+        topbar = <TopBar eyebrow="THREADS YOU'VE KEPT" title="Constellations" query={query} onSearch={setQuery} />;
+        body = <Constellations memories={memories} onOpen={open} />;
+      } else if (route === "sources") {
+        topbar = <TopBar eyebrow="WHERE YOUR MEMORIES COME FROM" title="Sources" query={query} onSearch={setQuery} />;
+        body = (
+          <div style={{maxWidth: 640, margin: "0 auto", fontFamily: "var(--mora-font-serif)", fontStyle: "italic", color: "var(--mora-ink-3)", fontSize: 17, lineHeight: 1.55}}>
+            <p>Connect Spotify, Pinterest, your reading apps, your notes — Mora gathers what you already love and quietly indexes it. Each source is opt-in; you can pause any of them.</p>
+            <p style={{marginTop: 18, color: "var(--mora-ink-4)", fontSize: 14}}>(Sources page chrome only — full settings omitted from this UI kit.)</p>
+          </div>
+        );
+      } else if (route === "settings") {
+        topbar = <TopBar eyebrow="A QUIET PLACE" title="Settings" query={query} onSearch={setQuery} />;
+        body = (
+          <div style={{maxWidth: 640, margin: "0 auto", fontFamily: "var(--mora-font-serif)", fontStyle: "italic", color: "var(--mora-ink-3)", fontSize: 17, lineHeight: 1.55}}>
+            <p>(Settings omitted from this UI kit. The shape of the page would echo the Sources view above.)</p>
+          </div>
+        );
+      }
+
+      return (
+        <div className="m-shell mora">
+          <Sidebar route={route} setRoute={handleRoute} />
+          <main className="m-main">
+            {topbar}
+            <div className="m-content">{body}</div>
+          </main>
+          {composing && <JournalCompose onClose={() => setComposing(false)} onSave={(text, tags) => {
+            if (text.trim()) {
+              const id = "n" + Date.now();
+              setMemories(ms => [{
+                id, type: "note", source: "Mora · Journal",
+                title: text.split("\n")[0].slice(0, 80),
+                body: text, time: "Just now",
+                tags: tags.split(/[,\s]+/).filter(Boolean),
+                kept: true,
+              }, ...ms]);
+            }
+            setComposing(false);
+          }} />}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
