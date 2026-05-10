@@ -31,7 +31,7 @@ function dominantCategory(topTags) {
   return { category: entries[0][0], total: entries[0][1] }
 }
 
-export function buildMemoryInsights(items, behaviorSignals, interestClusters) {
+export function buildMemoryInsights(items, behaviorSignals, interestClusters, flags = {}) {
   if (!Array.isArray(items) || items.length < 5) return []
 
   const signals = behaviorSignals || { topSources: [], topTags: [], dominantType: null, saveFrequency: 'low' }
@@ -70,5 +70,23 @@ export function buildMemoryInsights(items, behaviorSignals, interestClusters) {
     insights.push("You've been saving a lot lately — you're in an active discovery phase")
   }
 
-  return insights.slice(0, 5)
+  // Journal insight: journals / total >= 10% AND journals >= 3
+  const journalCount = items.filter(i => i.type === 'journal').length
+  if (journalCount >= 3 && journalCount / total >= 0.10) {
+    insights.push("You journal regularly — your archive has real personal depth.")
+  }
+
+  // Collections insight: distinct collections >= 2
+  const collectionCount = new Set(items.map(i => i.collection).filter(Boolean)).size
+  if (collectionCount >= 2) {
+    insights.push(`You've organized your saves into ${collectionCount} collections.`)
+  }
+
+  // Revisit insight: flagged (starred) >= 3 AND ratio >= 15%
+  const flaggedCount = Object.values(flags).filter(f => f?.starred).length
+  if (flaggedCount >= 3 && flaggedCount / total >= 0.15) {
+    insights.push("You revisit a meaningful number of your saves.")
+  }
+
+  return insights.slice(0, 8)
 }

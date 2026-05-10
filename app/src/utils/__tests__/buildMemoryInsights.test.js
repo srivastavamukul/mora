@@ -180,4 +180,108 @@ describe('buildMemoryInsights', () => {
     const result = buildMemoryInsights(items, signals, [])
     expect(result.some(s => s.toLowerCase().includes('lately') || s.toLowerCase().includes('active'))).toBe(false)
   })
+
+  // --- New: journal insight ---
+
+  it('generates journal insight when ratio >= 10% and count >= 3', () => {
+    const items = Array.from({ length: 20 }, (_, i) =>
+      makeItem({ type: i < 3 ? 'journal' : 'link' })
+    )
+    const result = buildMemoryInsights(items, makeSignals(), [], {})
+    expect(result.some(s => s.toLowerCase().includes('journal'))).toBe(true)
+  })
+
+  it('skips journal insight when journal count below 3', () => {
+    const items = [
+      makeItem({ type: 'journal' }),
+      makeItem({ type: 'journal' }),
+      ...Array.from({ length: 8 }, () => makeItem()),
+    ]
+    const result = buildMemoryInsights(items, makeSignals(), [], {})
+    expect(result.some(s => s.toLowerCase().includes('journal'))).toBe(false)
+  })
+
+  it('skips journal insight when ratio below 10%', () => {
+    const items = [
+      makeItem({ type: 'journal' }),
+      makeItem({ type: 'journal' }),
+      makeItem({ type: 'journal' }),
+      ...Array.from({ length: 60 }, () => makeItem()),
+    ]
+    const result = buildMemoryInsights(items, makeSignals(), [], {})
+    expect(result.some(s => s.toLowerCase().includes('journal'))).toBe(false)
+  })
+
+  // --- New: collections insight ---
+
+  it('generates collections insight when distinct collections >= 2', () => {
+    const items = [
+      makeItem({ collection: 'alpha' }),
+      makeItem({ collection: 'beta' }),
+      ...Array.from({ length: 8 }, () => makeItem()),
+    ]
+    const result = buildMemoryInsights(items, makeSignals(), [], {})
+    expect(result.some(s => s.toLowerCase().includes('collection'))).toBe(true)
+  })
+
+  it('collections insight includes the count N', () => {
+    const items = [
+      makeItem({ collection: 'alpha' }),
+      makeItem({ collection: 'beta' }),
+      makeItem({ collection: 'gamma' }),
+      ...Array.from({ length: 7 }, () => makeItem()),
+    ]
+    const result = buildMemoryInsights(items, makeSignals(), [], {})
+    const insight = result.find(s => s.toLowerCase().includes('collection'))
+    expect(insight).toBeDefined()
+    expect(insight).toContain('3')
+  })
+
+  it('skips collections insight when distinct collections below 2', () => {
+    const items = [
+      makeItem({ collection: 'alpha' }),
+      ...Array.from({ length: 9 }, () => makeItem()),
+    ]
+    const result = buildMemoryInsights(items, makeSignals(), [], {})
+    expect(result.some(s => s.toLowerCase().includes('collection'))).toBe(false)
+  })
+
+  // --- New: flagged/revisit insight ---
+
+  it('generates revisit insight when starred count >= 3 and ratio >= 15%', () => {
+    const items = Array.from({ length: 20 }, (_, i) => makeItem({ id: String(i) }))
+    const flags = { '0': { starred: true }, '1': { starred: true }, '2': { starred: true } }
+    const result = buildMemoryInsights(items, makeSignals(), [], flags)
+    expect(result.some(s => s.toLowerCase().includes('revisit'))).toBe(true)
+  })
+
+  it('skips revisit insight when starred count below 3', () => {
+    const items = Array.from({ length: 20 }, (_, i) => makeItem({ id: String(i) }))
+    const flags = { '0': { starred: true }, '1': { starred: true } }
+    const result = buildMemoryInsights(items, makeSignals(), [], flags)
+    expect(result.some(s => s.toLowerCase().includes('revisit'))).toBe(false)
+  })
+
+  it('skips revisit insight when starred ratio below 15%', () => {
+    const items = Array.from({ length: 30 }, (_, i) => makeItem({ id: String(i) }))
+    const flags = { '0': { starred: true }, '1': { starred: true }, '2': { starred: true } }
+    const result = buildMemoryInsights(items, makeSignals(), [], flags)
+    expect(result.some(s => s.toLowerCase().includes('revisit'))).toBe(false)
+  })
+
+  // --- Cap updated to 8 ---
+
+  it('returns at most 8 insights', () => {
+    const items = Array.from({ length: 20 }, (_, i) =>
+      makeItem({ id: String(i), tags: ['design', 'productivity'], source: 'youtube', thumbnail: 'x.jpg', type: i < 4 ? 'journal' : 'link', collection: i < 3 ? `col${i}` : null })
+    )
+    const signals = makeSignals({
+      topTags: [{ tag: 'design', count: 15 }, { tag: 'productivity', count: 10 }],
+      topSources: [{ source: 'youtube', count: 15 }],
+      saveFrequency: 'high',
+    })
+    const flags = Object.fromEntries(Array.from({ length: 4 }, (_, i) => [String(i), { starred: true }]))
+    const result = buildMemoryInsights(items, signals, [], flags)
+    expect(result.length).toBeLessThanOrEqual(8)
+  })
 })
