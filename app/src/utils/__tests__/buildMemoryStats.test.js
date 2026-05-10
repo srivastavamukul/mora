@@ -36,6 +36,7 @@ describe('buildMemoryStats', () => {
     expect(result.collections).toBe(0)
     expect(result.topSource).toBeNull()
     expect(result.topTag).toBeNull()
+    expect(result.weeklyGrowth).toHaveLength(12)
   })
 
   it('counts total correctly', () => {

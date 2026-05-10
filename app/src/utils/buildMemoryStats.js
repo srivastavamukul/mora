@@ -21,12 +21,12 @@ function computeWeeklyGrowth(items) {
       }
     }
   }
+  // Items outside the 12-week window match no bucket and are implicitly excluded.
   return buckets.map(({ label, count }) => ({ label, count }))
 }
 
 export function buildMemoryStats(items) {
-  const empty = { total: 0, journals: 0, collections: 0, topSource: null, topTag: null, weeklyGrowth: [] }
-  if (!Array.isArray(items)) return empty
+  if (!Array.isArray(items)) return { total: 0, journals: 0, collections: 0, topSource: null, topTag: null, weeklyGrowth: [] }
 
   const total = items.length
   const journals = items.filter(i => i.type === 'journal').length
