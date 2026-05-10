@@ -23,7 +23,7 @@ function sortMemories(memories, sort) {
 export default function Moodboard() {
   const navigate = useNavigate()
   const { query } = useOutletContext()
-  const { items, flags, resurfacedItems, setSelectedItemId } = useApp()
+  const { items, flags, resurfacedItems, setSelectedItemId, personalRecallMoments } = useApp()
   const [filter, setFilter] = useState('all')
   const [sort, setSort] = useState('feeling')
 
@@ -71,6 +71,17 @@ export default function Moodboard() {
           </div>
         </section>
       ) : null}
+
+      {personalRecallMoments && personalRecallMoments.length > 0 && (
+        <section className="m-familiar">
+          <Eyebrow color="var(--mora-ochre)">FAMILIAR THEMES</Eyebrow>
+          <div className="m-familiar-moments">
+            {personalRecallMoments.map((moment, i) => (
+              <p key={i} className="m-familiar-moment">{moment}</p>
+            ))}
+          </div>
+        </section>
+      )}
 
       <Rule ornament />
 
