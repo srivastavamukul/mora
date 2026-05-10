@@ -2,7 +2,6 @@ const STOP_WORDS = new Set([
   'this', 'that', 'with', 'have', 'from', 'they', 'will', 'been', 'were',
   'what', 'when', 'where', 'which', 'your', 'just', 'like', 'more', 'some',
   'then', 'than', 'also', 'into', 'over', 'very', 'would', 'could', 'should',
-  'about', 'again', 'here', 'today', 'needed', 'deep',
 ])
 
 const DAY_MS = 24 * 60 * 60 * 1000
