@@ -8,11 +8,11 @@ Mora is a local persistent memory operating system for personal content curation
 
 ## 🎨 Design Philosophy
 
-The system utilizes a **Neon Scrapbook** and **Pixel Memory Wall** aesthetic:
-* 🌑 **Surfaces**: Deep charcoal (#131313)
-* 💖 **Accents**: Luminous pink (#FF2E97) and electric cyan (#00E5FF)
-* 🪟 **Visuals**: Glassmorphism layers and pixel motifs
-* 🧩 **Layout**: Artistic collage composition
+Mora is a calm, premium archival memory companion — closer to Apple Journal, Readwise Reader, and Are.na than to a productivity dashboard. The design features:
+* 📄 **Surfaces**: Warm paper background (#F5F0E6)
+* 🔥 **Accents**: Single ember accent color
+* ✒️ **Typography**: Editorial serif type with ink-like text
+* 🌌 **Layout**: Generous whitespace and considered composition
 
 ## 📈 System Implementation Status
 
@@ -23,11 +23,15 @@ The system utilizes a **Neon Scrapbook** and **Pixel Memory Wall** aesthetic:
 * 🌌 **Phase 4: Intelligence Layer** - Integration of search, type filtering, and semantic grouping through Constellations.
 * 📂 **Phase 5: Portability** - Development of JSON based backup, validation, and restoration systems.
 * 🛠️ **Phase 6: Normalization** - Establishment of a canonical item schema and automated normalization logic.
+* 📓 **Phase 7: Journal Integration** - Addition of lightweight thought-capture journal entries as first-class items.
+* 🧠 **Phase 8: Memory Superpowers** - Implementation of advanced memory utilities, familiar memory signals, and resurfacing algorithms.
 
 ### ✨ Current Features
-* 🖼️ **Moodboard**: Central hub for daily content interaction.
-* 🕸️ **Constellations**: Semantic map for tag based content grouping.
-* 🔔 **Nudge Center**: Rule based resurfacing of saved content.
+* 🖼️ **Moodboard**: Central hub for daily content interaction with resurfaced memories.
+* 🕸️ **Constellations**: Semantic map for tag-based content grouping.
+* 🔔 **Nudge Center**: Rule-based resurfacing of saved content.
+* 📓 **Journal**: Lightweight thought-capture for personal reflections.
+* 🧠 **Memory Insights**: Advanced algorithms for familiar memory signals and content clustering.
 * 🔍 **Capture Engine**: Logic for source and type inference from URLs.
 * 🔒 **Local Persistence**: Data remains entirely on the client side.
 
@@ -46,7 +50,7 @@ The system utilizes a **Neon Scrapbook** and **Pixel Memory Wall** aesthetic:
 ## ⚙️ Technical Architecture
 
 ### 💻 Tech Stack
-* **Framework**: React 18+ via Vite
+* **Framework**: React 19 via Vite
 * **Routing**: React Router
 * **Styling**: Tailwind CSS
 * **Typography**: Space Grotesk and Inter
@@ -70,7 +74,7 @@ All content items are normalized to the following structure:
 
 The project is structured as a monorepo containing the main web application and a browser extension:
 
-*   `/app`: The main React application (Vite, React 18+, Tailwind CSS).
+*   `/app`: The main React application (Vite, React 19, Tailwind CSS).
 *   `/mora-extension`: The Chrome extension for capturing and sending data to the main app.
 *   `package.json`: The root workspace configuration managing the scripts and dependencies.
 
