@@ -71,42 +71,61 @@ body {
 }
 
 .m-sidebar {
-  background: var(--mora-paper-deep);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   padding: 28px 20px 24px;
+  background: var(--mora-paper-deep);
 }
 
 .m-brand {
-  color: var(--mora-ink);
   font-family: var(--mora-font-serif);
   font-size: 28px;
   font-weight: 500;
   letter-spacing: -0.012em;
+  color: var(--mora-ink);
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 4px;
+  padding-left: 4px;
+  margin-bottom: 28px;
 }
 
 .m-brand-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
   background: var(--mora-ember);
+  margin-top: 12px;
 }
 
 .m-capture-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   background: var(--mora-vellum);
-  border: 1px solid var(--mora-rule);
-  border-radius: 8px;
   color: var(--mora-ink);
-  font-family: var(--mora-font-serif);
+  border: 1px solid var(--mora-rule);
+  padding: 11px 14px;
+  border-radius: 8px;
   font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--mora-font-serif);
   font-style: italic;
-  transition:
-    background var(--mora-dur) var(--mora-ease),
-    border-color var(--mora-dur-fast) var(--mora-ease);
+  transition: background 200ms cubic-bezier(.32, .72, .28, 1);
 }
 
 .m-capture-cta i {
   color: var(--mora-ember);
+  font-style: normal;
+  font-size: 16px;
 }
 
 .m-capture-cta:hover {
   background: var(--mora-vellum-2);
-  border-color: var(--mora-rule-soft);
 }
 
 .m-capture-ack {
@@ -117,13 +136,31 @@ body {
   font-style: italic;
 }
 
+.m-nav {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .m-nav-item {
-  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: 0;
+  padding: 9px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--mora-ink-2);
-  transition: all var(--mora-dur-fast) var(--mora-ease);
+  cursor: pointer;
+  text-align: left;
+  transition: all 180ms cubic-bezier(.32, .72, .28, 1);
 }
 
 .m-nav-item i {
+  font-size: 16px;
   color: var(--mora-ink-3);
 }
 
@@ -141,17 +178,24 @@ body {
   color: var(--mora-ember);
 }
 
+.m-sidebar-foot {
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid var(--mora-rule-soft);
+}
+
 .m-sidebar-quote {
-  color: var(--mora-ink-2);
   font-family: var(--mora-font-serif);
-  font-size: 13px;
   font-style: italic;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--mora-ink-2);
 }
 
 .m-sidebar-meta {
-  color: var(--mora-ink-3);
-  font-family: var(--mora-font-sans);
   font-size: 11px;
+  color: var(--mora-ink-3);
+  margin-top: 6px;
 }
 
 .m-topbar {
