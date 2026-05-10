@@ -719,6 +719,55 @@
   color: var(--mora-ink-2);
 }
 
+/* ============ Constellations ============ */
+.m-constellations { max-width: 680px; margin: 0 auto; }
+.m-constellations-intro {
+  font-family: var(--mora-font-serif); font-size: 20px; line-height: 1.45;
+  color: var(--mora-ink-2); font-style: italic;
+  margin: 0 0 32px;
+}
+.m-constellation { margin-bottom: 48px; }
+.m-constellation-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  border-bottom: 1px solid var(--mora-rule-soft);
+  padding-bottom: 8px; margin-bottom: 16px;
+}
+.m-constellation-name {
+  font-family: var(--mora-font-serif); font-size: 26px; font-weight: 500;
+  color: var(--mora-ink); margin: 0; text-transform: capitalize;
+}
+.m-constellation-count {
+  font-family: var(--mora-font-sans); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--mora-ink-4);
+}
+.m-constellation-blurb {
+  font-family: var(--mora-font-serif); font-size: 15px; line-height: 1.5;
+  color: var(--mora-ink-2); margin: 0 0 20px;
+}
+.m-constellation-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.m-constellation-list li {
+  display: flex; align-items: baseline; gap: 12px;
+  padding: 12px 14px; border-radius: 8px;
+  cursor: pointer; transition: background 150ms;
+}
+.m-constellation-list li:hover { background: var(--mora-paper-deep); }
+.m-cl-time {
+  font-family: var(--mora-font-sans); font-size: 11px; font-weight: 500;
+  color: var(--mora-ink-4); width: 64px; flex-shrink: 0;
+}
+.m-cl-title {
+  font-family: var(--mora-font-serif); font-size: 16px;
+  color: var(--mora-ink); flex: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.m-cl-source {
+  font-family: var(--mora-font-sans); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--mora-ink-3);
+  padding: 2px 6px; border: 1px solid var(--mora-rule-soft); border-radius: 4px;
+}
 
 .m-detail { max-width: 720px; margin: 0 auto; }
 .m-back {

@@ -1,13 +1,25 @@
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
-import { mapItemToUI } from '../utils/mapItemToUI'
 import { groupItemsByTags } from '../utils/groupItems'
+
+function relativeTimeShort(ts) {
+  if (!ts) return ''
+  const diff = Date.now() - ts
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'now'
+  if (mins < 60) return `${mins}m`
+  const hrs = Math.floor(diff / 3600000)
+  if (hrs < 24) return `${hrs}h`
+  const days = Math.floor(diff / 86400000)
+  return `${days}d`
+}
 
 export default function Constellations() {
   const { items, flags, setSelectedItemId } = useApp()
   const navigate = useNavigate()
 
   const groups = groupItemsByTags(items, flags)
+  const groupEntries = Object.entries(groups).sort((a, b) => b[1].length - a[1].length)
 
   const handleItemClick = (id) => {
     setSelectedItemId(id)
@@ -15,59 +27,41 @@ export default function Constellations() {
   }
 
   return (
-    <div className="pt-8 pb-24 px-6 lg:px-12 min-h-screen relative w-full">
-      <div className="mb-12">
-        <h1 className="font-display-xl text-display-xl text-on-background mb-2">Semantic Constellations</h1>
-        <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-          An intelligent map of your clustered interests.
-        </p>
+    <div className="m-constellations">
+      <p className="m-constellations-intro">
+        Threads that have run through your saving — tags that show up enough to feel like a chapter.
+        Quiet collections, not algorithms.
+      </p>
+
+      <div className="m-rule" style={{ marginBottom: 40 }}>
+        <span className="m-rule-line" />
+        <span className="m-rule-orn">˖</span>
+        <span className="m-rule-line" />
       </div>
 
-      {Object.keys(groups).length === 0 ? (
-        <p className="text-on-surface-variant font-body-md text-body-md mt-8">
-          No clusters yet. Add items with tags to build constellations.
-        </p>
-      ) : (
-        <div className="flex flex-col gap-10">
-          {Object.entries(groups).map(([tag, groupItems]) => (
-            <section key={tag}>
-              <h2 className="font-display-sm text-display-sm text-on-surface mb-4 capitalize border-b border-white/5 pb-2">
-                #{tag}
-              </h2>
-              <div className="flex flex-col gap-3">
-                {groupItems.map(item => {
-                  const { badge } = mapItemToUI(item)
-                  const tags = Array.isArray(item.tags) ? item.tags : []
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => handleItemClick(item.id)}
-                      className="w-full text-left bg-surface-container rounded-xl px-5 py-4 hover:bg-surface-container-high transition-colors"
-                    >
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <span className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide">
-                            {badge}
-                          </span>
-                          <p className="font-body-lg text-body-lg text-on-surface mt-1">{item.title || 'Saved Link'}</p>
-                        </div>
-                        {tags.length > 0 && (
-                          <div className="flex gap-2 flex-wrap justify-end shrink-0">
-                            {tags.map(t => (
-                              <span key={t} className="font-label-sm text-label-sm text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded-full">
-                                {t}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  )
-                })}
-              </div>
-            </section>
-          ))}
+      {groupEntries.length === 0 ? (
+        <div className="m-empty">
+          <p>No clusters yet. Add items with tags to build constellations.</p>
         </div>
+      ) : (
+        groupEntries.map(([tag, groupItems]) => (
+          <section key={tag} className="m-constellation">
+            <header className="m-constellation-head">
+              <h2 className="m-constellation-name">#{tag}</h2>
+              <span className="m-constellation-count">{groupItems.length} memories</span>
+            </header>
+            
+            <ul className="m-constellation-list">
+              {groupItems.map(item => (
+                <li key={item.id} onClick={() => handleItemClick(item.id)}>
+                  <span className="m-cl-time">{relativeTimeShort(item.createdAt)}</span>
+                  <span className="m-cl-title">{item.title || 'Saved Link'}</span>
+                  <span className="m-cl-source">{item.source || 'web'}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))
       )}
     </div>
   )
