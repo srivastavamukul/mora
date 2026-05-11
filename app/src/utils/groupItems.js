@@ -1,6 +1,4 @@
-function normalizeTag(tag) {
-  return tag.trim().toLowerCase()
-}
+import { normalizeTag } from './filterItems'
 
 function sortGroupItems(items, flags) {
   return [...items].sort((a, b) => {
