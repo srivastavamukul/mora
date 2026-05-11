@@ -27,6 +27,8 @@ export default function Settings() {
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+    setImportStatus(null)
+    setImportError(null)
 
     const reader = new FileReader()
     reader.onload = (event) => {
@@ -45,6 +47,10 @@ export default function Settings() {
         setImportPreview(result.data)
         setImportStatus('previewing')
       }
+    }
+    reader.onerror = () => {
+      setImportStatus('error')
+      setImportError('Could not read file.')
     }
     reader.readAsText(file)
 
