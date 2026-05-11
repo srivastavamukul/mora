@@ -73,19 +73,19 @@ export function buildMemoryInsights(items, behaviorSignals, interestClusters, fl
   // Journal insight: journals / total >= 10% AND journals >= 3
   const journalCount = items.filter(i => i.type === 'journal').length
   if (journalCount >= 3 && journalCount / total >= 0.10) {
-    insights.push("You journal regularly — your archive has real personal depth.")
+    insights.push("You journal regularly — your archive has real personal depth")
   }
 
   // Collections insight: distinct collections >= 2
   const collectionCount = new Set(items.map(i => i.collection).filter(Boolean)).size
   if (collectionCount >= 2) {
-    insights.push(`You've organized your saves into ${collectionCount} collections.`)
+    insights.push(`You've organized your saves into ${collectionCount} collections`)
   }
 
   // Revisit insight: flagged (starred) >= 3 AND ratio >= 15%
-  const flaggedCount = Object.values(flags).filter(f => f?.starred).length
+  const flaggedCount = items.filter(i => (flags || {})[i.id]?.starred).length
   if (flaggedCount >= 3 && flaggedCount / total >= 0.15) {
-    insights.push("You revisit a meaningful number of your saves.")
+    insights.push("You revisit a meaningful number of your saves")
   }
 
   return insights.slice(0, 8)

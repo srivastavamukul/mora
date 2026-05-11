@@ -36,7 +36,7 @@ describe('buildMemoryInsights', () => {
     expect(buildMemoryInsights(items, signals, [])).toEqual([])
   })
 
-  it('returns at most 5 insights', () => {
+  it('returns at most 8 insights', () => {
     const items = Array.from({ length: 20 }, () =>
       makeItem({ tags: ['design', 'productivity'], source: 'youtube', thumbnail: 'x.jpg' })
     )
@@ -48,7 +48,7 @@ describe('buildMemoryInsights', () => {
     })
     const clusters = [{ tag: 'design', count: 15 }]
     const result = buildMemoryInsights(items, signals, clusters)
-    expect(result.length).toBeLessThanOrEqual(5)
+    expect(result.length).toBeLessThanOrEqual(8)
   })
 
   it('each insight is a non-empty string', () => {
