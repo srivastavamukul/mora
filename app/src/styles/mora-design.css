@@ -2343,3 +2343,45 @@
   box-shadow: none;
   border-color: var(--mora-rule-soft);
 }
+
+/* ============ Archive page ============ */
+.m-archive {
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+  max-width: 680px;
+}
+
+.m-archive-stat {
+  font-family: var(--mora-font-serif);
+  font-size: 15px;
+  color: var(--mora-ink-2);
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+.m-archive-activity {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.m-archive-sparkline {
+  width: 100%;
+  max-width: 280px;
+  height: 28px;
+  display: block;
+}
+
+.m-archive-insights {
+  display: flex;
+  flex-direction: column;
+}
+
+.m-archive-insight {
+  font-family: var(--mora-font-serif);
+  font-size: 15px;
+  color: var(--mora-ink-2);
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
