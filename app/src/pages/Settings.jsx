@@ -1,19 +1,18 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useApp } from '../context/AppContext'
-import { migrateItem } from '../utils/migrateItem'
+import { exportMoraData } from '../utils/exportMoraData'
+import { importMoraData } from '../utils/importMoraData'
 
 export default function Settings() {
   const fileInputRef = useRef(null)
   const { items, sources, flags, setItems, setSources, setFlags, setSelectedItemId, behaviorSignals } = useApp()
-  const handleExport = () => {
-    const backup = {
-      schemaVersion: 1,
-      items,
-      sources,
-      flags,
-    }
 
-    const json = JSON.stringify(backup, null, 2)
+  const [importStatus, setImportStatus] = useState(null)
+  const [importPreview, setImportPreview] = useState(null)
+  const [importError, setImportError] = useState(null)
+
+  const handleExport = () => {
+    const json = exportMoraData({ items, sources, flags })
     const blob = new Blob([json], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -25,43 +24,49 @@ export default function Settings() {
     URL.revokeObjectURL(url)
   }
 
-  const handleImport = (e) => {
+  const handleFileSelect = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     const reader = new FileReader()
     reader.onload = (event) => {
-      try {
-        const content = event.target?.result
-        if (typeof content !== 'string') throw new Error('Invalid file')
+      const content = event.target?.result
+      if (typeof content !== 'string') {
+        setImportStatus('error')
+        setImportError('Could not read file.')
+        return
+      }
 
-        const data = JSON.parse(content)
-
-        // Validation
-        if (!Array.isArray(data.items)) throw new Error('items must be an array')
-        if (!Array.isArray(data.sources)) throw new Error('sources must be an array')
-        if (typeof data.flags !== 'object' || data.flags === null) throw new Error('flags must be an object')
-
-        // Migrate items to ensure compatibility
-        const migratedItems = data.items.map(migrateItem).filter(Boolean)
-
-        // Update state (triggers localStorage via useEffect)
-        setItems(migratedItems)
-        setSources(data.sources)
-        setFlags(data.flags)
-        setSelectedItemId(null)
-
-        alert('Backup restored.')
-      } catch {
-        alert("That backup didn't land.")
+      const result = importMoraData(content)
+      if (!result.ok) {
+        setImportStatus('error')
+        setImportError(result.error)
+      } else {
+        setImportPreview(result.data)
+        setImportStatus('previewing')
       }
     }
     reader.readAsText(file)
 
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
+  }
+
+  const handleConfirmImport = () => {
+    if (!importPreview) return
+    setItems(importPreview.items)
+    setSources(importPreview.sources)
+    setFlags(importPreview.flags)
+    setSelectedItemId(null)
+    setImportPreview(null)
+    setImportStatus('success')
+  }
+
+  const handleCancelImport = () => {
+    setImportPreview(null)
+    setImportStatus(null)
+    setImportError(null)
   }
 
   return (
@@ -83,7 +88,7 @@ export default function Settings() {
             style={{ justifyContent: 'center', padding: '12px 16px' }}
           >
             <i className="ph ph-download-simple" />
-            Export Backup
+            Export Archive
           </button>
 
           <div style={{ position: 'relative' }}>
@@ -91,7 +96,7 @@ export default function Settings() {
               ref={fileInputRef}
               type="file"
               accept=".json"
-              onChange={handleImport}
+              onChange={handleFileSelect}
               style={{ display: 'none' }}
               aria-label="Import backup file"
             />
@@ -101,12 +106,67 @@ export default function Settings() {
               style={{ width: '100%', justifyContent: 'center', padding: '12px 16px', border: '1px solid var(--mora-rule-soft)' }}
             >
               <i className="ph ph-upload-simple" />
-              Import Backup
+              Import Archive
             </button>
           </div>
+
+          {/* Import preview / confirm */}
+          {importStatus === 'previewing' && importPreview && (
+            <div style={{
+              background: 'var(--mora-paper-deep)',
+              border: '1px solid var(--mora-rule-soft)',
+              borderRadius: 10,
+              padding: '16px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+            }}>
+              <div>
+                <span className="m-nudge-source">Archive contains</span>
+                <p className="m-nudge-title" style={{ marginTop: 4 }}>
+                  {importPreview.items.length} {importPreview.items.length === 1 ? 'item' : 'items'}
+                  {importPreview.sources.length > 0 && `, ${importPreview.sources.length} sources`}
+                </p>
+              </div>
+              <p className="m-form-hint" style={{ margin: 0, color: 'var(--mora-ink-muted)' }}>
+                This will replace your current archive. Cannot be undone.
+              </p>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  onClick={handleConfirmImport}
+                  className="m-btn m-btn-primary"
+                  style={{ flex: 1, justifyContent: 'center', padding: '10px 12px', fontSize: 14 }}
+                >
+                  Replace archive
+                </button>
+                <button
+                  onClick={handleCancelImport}
+                  className="m-btn m-btn-ghost"
+                  style={{ flex: 1, justifyContent: 'center', padding: '10px 12px', fontSize: 14, border: '1px solid var(--mora-rule-soft)' }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Success message */}
+          {importStatus === 'success' && (
+            <p className="m-form-hint" style={{ margin: 0, color: 'var(--mora-accent, #5a7a5a)' }}>
+              Archive restored.
+            </p>
+          )}
+
+          {/* Error message */}
+          {importStatus === 'error' && (
+            <p className="m-form-hint" style={{ margin: 0, color: 'var(--mora-error, #a05050)' }}>
+              {importError || 'That backup did not land.'}
+            </p>
+          )}
         </div>
+
         <p className="m-form-hint" style={{ marginTop: 16 }}>
-          Export your items, sources, and preferences as a JSON file. Import to restore from backup.
+          Export your items, sources, and notes as a JSON file. Import to restore from backup.
         </p>
       </section>
 
