@@ -4,6 +4,7 @@ const navItems = [
   { to: '/moodboard', icon: 'stack', label: 'Library' },
   { to: '/nudge', icon: 'hourglass-medium', label: 'Memory Wall' },
   { to: '/constellations', icon: 'graph', label: 'Constellations' },
+  { to: '/archive', icon: 'archive', label: 'Archive' },
   { to: '/sources', icon: 'link-simple', label: 'Sources' },
   { to: '/settings', icon: 'gear-six', label: 'Settings' },
 ]

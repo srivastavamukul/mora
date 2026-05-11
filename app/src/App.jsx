@@ -4,6 +4,7 @@ import AppLayout from './layouts/AppLayout'
 import Landing from './pages/Landing'
 import Moodboard from './pages/Moodboard'
 import Constellations from './pages/Constellations'
+import Archive from './pages/Archive'
 import Sources from './pages/Sources'
 import NudgeCenter from './pages/NudgeCenter'
 import ItemDetail from './pages/ItemDetail'
@@ -20,6 +21,7 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route path="/moodboard" element={<Moodboard />} />
           <Route path="/constellations" element={<Constellations />} />
+          <Route path="/archive" element={<Archive />} />
           <Route path="/sources" element={<Sources />} />
           <Route path="/nudge" element={<NudgeCenter />} />
           <Route path="/item" element={<ItemDetail />} />
