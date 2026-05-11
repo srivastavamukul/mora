@@ -629,6 +629,83 @@
   color: var(--mora-ink-4);
 }
 
+/* Tag filter row */
+.m-tag-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.m-tag-pill {
+  font-family: var(--mora-font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  background: transparent;
+  border: 1px solid var(--mora-rule-soft);
+  color: var(--mora-ink-3);
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 180ms cubic-bezier(.32, .72, .28, 1);
+}
+
+.m-tag-pill:hover {
+  background: var(--mora-vellum);
+  color: var(--mora-ink-2);
+}
+
+.m-tag-pill.is-active {
+  background: var(--mora-vellum);
+  border-color: var(--mora-ink-3);
+  color: var(--mora-ink);
+}
+
+/* Active filter chips */
+.m-active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.m-active-filters-label {
+  font-family: var(--mora-font-serif);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--mora-ink-3);
+  margin-right: 2px;
+}
+
+.m-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mora-font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--mora-ink-2);
+  background: var(--mora-vellum);
+  border: 1px solid var(--mora-rule);
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 120ms cubic-bezier(.32, .72, .28, 1);
+}
+
+.m-filter-chip:hover {
+  border-color: var(--mora-ink-3);
+  color: var(--mora-ink);
+}
+
+.m-filter-chip-x {
+  font-size: 12px;
+  color: var(--mora-ink-3);
+  line-height: 1;
+}
+
 /* Card grid */
 .m-grid {
   display: grid;
