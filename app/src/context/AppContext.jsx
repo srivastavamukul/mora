@@ -13,6 +13,7 @@ import { getUpcomingMemoryEvents } from '../utils/getUpcomingMemoryEvents'
 import { getRecentReflections } from '../utils/getRecentReflections'
 import { buildFamiliarMemorySignals } from '../utils/buildFamiliarMemorySignals'
 import { buildPersonalRecallMoments } from '../utils/buildPersonalRecallMoments'
+import { buildMemoryStats } from '../utils/buildMemoryStats'
 
 const AppContext = createContext(null)
 
@@ -71,7 +72,11 @@ export function AppProvider({ children }) {
   const behaviorSignals = useMemo(() => buildBehaviorSignals(items), [items])
   const recentlyRelevant = useMemo(() => getRecentlyRelevantItems(items), [items])
   const resurfacedItems = useMemo(() => buildResurfacedItems(items, behaviorSignals), [items, behaviorSignals])
-  const memoryInsights = useMemo(() => buildMemoryInsights(items, behaviorSignals, interestClusters), [items, behaviorSignals, interestClusters])
+  const memoryStats = useMemo(() => buildMemoryStats(items), [items])
+  const memoryInsights = useMemo(
+    () => buildMemoryInsights(items, behaviorSignals, interestClusters, flags),
+    [items, behaviorSignals, interestClusters, flags]
+  )
   const upcomingMemoryEvents = useMemo(() => getUpcomingMemoryEvents(items), [items])
   const recentReflections = useMemo(() => getRecentReflections(items), [items])
   const familiarMemorySignals = useMemo(
@@ -84,7 +89,7 @@ export function AppProvider({ children }) {
   )
 
   return (
-    <AppContext.Provider value={{ items, setItems, sources, setSources, selectedItemId, setSelectedItemId, toggleSource, flags, setFlags, toggleFlag, updateItem, deleteItem, interestClusters, timelineGroups, behaviorSignals, recentlyRelevant, resurfacedItems, memoryInsights, upcomingMemoryEvents, recentReflections, familiarMemorySignals, personalRecallMoments }}>
+    <AppContext.Provider value={{ items, setItems, sources, setSources, selectedItemId, setSelectedItemId, toggleSource, flags, setFlags, toggleFlag, updateItem, deleteItem, interestClusters, timelineGroups, behaviorSignals, recentlyRelevant, resurfacedItems, memoryStats, memoryInsights, upcomingMemoryEvents, recentReflections, familiarMemorySignals, personalRecallMoments }}>
       {children}
     </AppContext.Provider>
   )
