@@ -2,16 +2,18 @@ import { useMemo, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import {
+  ActiveFilters,
   Eyebrow,
   FILTER_DEFINITIONS,
   MemoryCard,
   Pill,
   Rule,
   SourceChip,
+  TagFilterBar,
   mapItemToMemory,
-  matchesLibraryFilter,
   searchMemories,
 } from '../components/MoraUI'
+import { filterItemsAdvanced, getTopTags } from '../utils/filterItems'
 
 function sortMemories(memories, sort) {
   if (sort === 'recent') {
@@ -26,6 +28,8 @@ export default function Moodboard() {
   const { items, flags, resurfacedItems, setSelectedItemId, personalRecallMoments } = useApp()
   const [filter, setFilter] = useState('all')
   const [sort, setSort] = useState('feeling')
+  const [activeTags, setActiveTags] = useState([])
+  const [activeSource, setActiveSource] = useState(null)
 
   const memories = useMemo(
     () => items.map(item => mapItemToMemory(item, flags)),
@@ -40,14 +44,22 @@ export default function Moodboard() {
     [resurfacedItems, flags]
   )
 
+  const topTags = useMemo(() => getTopTags(items, 8), [items])
+
   const filteredMemories = useMemo(() => {
-    const base = memories.filter(memory => matchesLibraryFilter(memory, filter))
+    const base = filterItemsAdvanced(memories, { type: filter, tags: activeTags, source: activeSource })
     return sortMemories(searchMemories(base, query), sort)
-  }, [memories, filter, query, sort])
+  }, [memories, filter, activeTags, activeSource, query, sort])
 
   const openItem = (id) => {
     setSelectedItemId(id)
     navigate('/item')
+  }
+
+  const toggleTag = (tag) => {
+    setActiveTags(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    )
   }
 
   return (
@@ -96,6 +108,7 @@ export default function Moodboard() {
               {definition.label}
             </Pill>
           ))}
+          <TagFilterBar topTags={topTags} activeTags={activeTags} onToggle={toggleTag} />
         </div>
         <div className="m-sort">
           <span className="m-sort-label">arranged by</span>
@@ -116,6 +129,13 @@ export default function Moodboard() {
           </button>
         </div>
       </div>
+
+      <ActiveFilters
+        activeTags={activeTags}
+        activeSource={activeSource}
+        onRemoveTag={tag => setActiveTags(prev => prev.filter(t => t !== tag))}
+        onRemoveSource={() => setActiveSource(null)}
+      />
 
       {memories.length === 0 ? (
         <div className="m-empty">
