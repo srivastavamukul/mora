@@ -133,7 +133,7 @@ export function extractTags(text) {
 export function normalizeTags(tagsInput) {
   if (Array.isArray(tagsInput)) {
     return tagsInput
-      .map(t => String(t).trim())
+      .map(t => String(t).trim().toLowerCase())
       .filter(Boolean)
       .filter((t, i, a) => a.indexOf(t) === i)
   }
@@ -141,7 +141,7 @@ export function normalizeTags(tagsInput) {
 
   return tagsInput
     .split(',')
-    .map(tag => tag.trim())
+    .map(tag => tag.trim().toLowerCase())
     .filter(tag => tag.length > 0)
     .filter((tag, index, arr) => arr.indexOf(tag) === index)
 }
