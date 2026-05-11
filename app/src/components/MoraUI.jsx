@@ -211,3 +211,40 @@ export function useLibraryMemories(items, flags) {
 }
 
 export { FILTER_DEFINITIONS }
+
+export function TagFilterBar({ topTags, activeTags, onToggle }) {
+  if (!topTags || topTags.length === 0) return null
+  return (
+    <div className="m-tag-filters">
+      {topTags.map(({ tag }) => (
+        <button
+          key={tag}
+          type="button"
+          className={`m-tag-pill${activeTags.includes(tag) ? ' is-active' : ''}`}
+          onClick={() => onToggle(tag)}
+        >
+          #{tag}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+export function ActiveFilters({ activeTags, activeSource, onRemoveTag, onRemoveSource }) {
+  if (activeTags.length === 0 && !activeSource) return null
+  return (
+    <div className="m-active-filters">
+      <span className="m-active-filters-label">filtering by</span>
+      {activeTags.map(tag => (
+        <button key={tag} type="button" className="m-filter-chip" onClick={() => onRemoveTag(tag)}>
+          #{tag} <span className="m-filter-chip-x">×</span>
+        </button>
+      ))}
+      {activeSource ? (
+        <button type="button" className="m-filter-chip" onClick={onRemoveSource}>
+          {activeSource} <span className="m-filter-chip-x">×</span>
+        </button>
+      ) : null}
+    </div>
+  )
+}
