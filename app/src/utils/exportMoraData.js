@@ -1,4 +1,5 @@
-export function exportMoraData({ items, sources, flags } = {}) {
+export function exportMoraData(input = {}) {
+  const { items, sources, flags } = input ?? {}
   const backup = {
     schemaVersion: 2,
     exportedAt: new Date().toISOString(),

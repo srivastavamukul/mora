@@ -57,11 +57,11 @@ describe('exportMoraData', () => {
     expect(typeof parsed.flags).toBe('object')
   })
 
-  it('output is deterministic for same input', () => {
+  it('data fields are stable for same input', () => {
     const input = { items: [ITEM], sources: [SOURCE], flags: FLAGS }
     const a = exportMoraData(input)
     const b = exportMoraData(input)
-    // Both valid JSON; item/source/flag content must match
+    // exportedAt differs per call by design; only data fields must be stable
     const pa = JSON.parse(a)
     const pb = JSON.parse(b)
     expect(pa.items).toEqual(pb.items)
