@@ -1,5 +1,4 @@
 chrome.runtime.onMessage.addListener((message) => {
-  console.log("BG RECEIVED:", message.payload);
   if (message.type !== "PAGE_DATA") return;
 
   const { url, title, description, thumbnail, source, type, selectedText } = message.payload;
@@ -23,6 +22,7 @@ chrome.runtime.onMessage.addListener((message) => {
     queue.push(item);
 
     chrome.storage.local.set({ mora_capture_queue: queue }, () => {
+      if (chrome.runtime.lastError) return;
       chrome.tabs.query({ url: "http://localhost:5173/*" }, (tabs) => {
         for (const tab of tabs) {
           chrome.tabs.sendMessage(tab.id, { type: "MORA_CAPTURE", items: [item] })
@@ -30,6 +30,5 @@ chrome.runtime.onMessage.addListener((message) => {
         }
       });
     });
-    console.log("QUEUE AFTER PUSH:", queue.length);
   });
 });

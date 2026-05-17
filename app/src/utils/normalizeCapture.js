@@ -2,6 +2,7 @@
  * URL Capture and Normalization System
  * Reusable utilities for normalizing captured items from any source
  */
+import { normalizeTag } from './filterItems'
 
 export function safeParseUrl(url) {
   if (!url || typeof url !== 'string') return null
@@ -133,7 +134,7 @@ export function extractTags(text) {
 export function normalizeTags(tagsInput) {
   if (Array.isArray(tagsInput)) {
     return tagsInput
-      .map(t => String(t).trim().toLowerCase())
+      .map(normalizeTag)
       .filter(Boolean)
       .filter((t, i, a) => a.indexOf(t) === i)
   }
@@ -141,7 +142,7 @@ export function normalizeTags(tagsInput) {
 
   return tagsInput
     .split(',')
-    .map(tag => tag.trim().toLowerCase())
+    .map(normalizeTag)
     .filter(tag => tag.length > 0)
     .filter((tag, index, arr) => arr.indexOf(tag) === index)
 }

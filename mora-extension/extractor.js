@@ -11,16 +11,14 @@
     return ''
   }
 
-  
-  // Discard if user navigated away during async extraction
   function send(payload) {
     if (window.location.href !== url) return
     chrome.runtime.sendMessage({ type: 'PAGE_DATA', payload })
   }
-  
+
   let source = 'web'
   let type = 'link'
-  
+
   if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
     source = 'youtube'
     type = 'video'
@@ -31,20 +29,12 @@
     source = 'instagram'
     type = 'post'
   }
-  
+
   const selectedText = window.getSelection()?.toString() || ''
-  
+
   // Instagram: og: meta tags are NOT updated on SPA navigation.
   // Read live DOM. sendMessage fires inside callback only.
   if (source === 'instagram') {
-    function isValidInstagramMedia(src) {
-      return src && (
-        src.includes('cdninstagram') ||
-        src.includes('fbcdn') ||
-        src.includes('scontent')
-      )
-    }
-    
     function isInstagramCDN(src) {
       return src && (
         src.includes('cdninstagram') ||
@@ -53,7 +43,7 @@
       )
     }
 
-    function getInstagramThumbnail(attemppts) {
+    function getInstagramThumbnail(attempts) {
       // Reels: video poster attribute is the thumbnail, not an img element
       const videoPoster = [...document.querySelectorAll('video[poster]')]
         .map(v => v.poster || '')
@@ -91,7 +81,7 @@
     function extractInstagram(attempts) {
       const thumbnail = getInstagramThumbnail(attempts)
       const title = getInstagramTitle()
-      const validThumbnail = isValidInstagramMedia(thumbnail)
+      const validThumbnail = isInstagramCDN(thumbnail)
 
       if (validThumbnail || attempts >= 6) {
         const article = document.querySelector('article')
@@ -128,11 +118,15 @@
   }
 
   // YouTube, Pinterest, generic web — og: meta is reliable here
+  // Adaptive delay: already-loaded pages need almost no wait
+  const delay = document.readyState === 'complete' ? 100 : 500
+
   setTimeout(() => {
     const titleTag = document.title || ''
     const rawTitle =
       getMeta(['meta[property="og:title"]']) ||
       titleTag ||
+      document.querySelector('h1')?.textContent?.trim() ||
       url.split('/').pop().replace(/[-_]/g, ' ') ||
       ''
 
@@ -178,6 +172,16 @@
       if (img) thumbnail = img
     }
 
+    // Fallback: scan for a large content image if meta yielded nothing
+    if (!thumbnail) {
+      const img = [...document.querySelectorAll('img')].find(i =>
+        (i.naturalWidth || i.width || 0) > 200 &&
+        !i.src.includes('icon') &&
+        !i.src.includes('logo')
+      )
+      thumbnail = img?.currentSrc || img?.src || ''
+    }
+
     if (thumbnail && thumbnail.startsWith('/')) {
       thumbnail = location.origin + thumbnail
     }
@@ -191,5 +195,5 @@
       type,
       selectedText
     })
-  }, 1200)
+  }, delay)
 })()

@@ -22,23 +22,39 @@
       border-radius: 6px;
       font-size: 14px;
       cursor: pointer;
+      transition: opacity 0.15s;
     }
     button:disabled {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: default;
     }
     #status {
       margin-top: 10px;
       font-size: 12px;
       text-align: center;
-      color: #a0a0a0;
       min-height: 16px;
+    }
+    #status.success { color: #86efac; }
+    #status.error   { color: #fca5a5; }
+    #status.muted   { color: #a0a0a0; }
+    #preview {
+      margin-top: 8px;
+      display: none;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    #preview img {
+      width: 100%;
+      display: block;
+      max-height: 90px;
+      object-fit: cover;
     }
   </style>
 </head>
 <body>
   <button id="saveBtn">Save to Mora</button>
-  <div id="status"></div>
+  <div id="status" class="muted"></div>
+  <div id="preview"><img id="previewImg" alt="" /></div>
   <script src="popup.js"></script>
 </body>
 </html>
