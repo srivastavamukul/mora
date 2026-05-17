@@ -6,6 +6,7 @@ import { scoreItems } from '../utils/scoreItems'
 import { selectNudges } from '../utils/selectNudges'
 import { Eyebrow, Rule, SourceChip, formatRelativeTime, mapItemToMemory } from '../components/MoraUI'
 import { buildDisplayMemory } from '../utils/buildDisplayMemory'
+import { OnboardingHint } from '../components/OnboardingHint'
 
 function todayParts() {
   const date = new Date()
@@ -62,8 +63,16 @@ export default function NudgeCenter() {
 
       {featured ? (
         <p className="m-wall-blurb">{greetingLine()}</p>
+      ) : items.length === 0 ? (
+        <p className="m-wall-empty">Add something to your archive and Mora will begin surfacing memories in its own time.</p>
       ) : (
         <p className="m-wall-empty">Quiet day. Nothing to bring up — yet.</p>
+      )}
+
+      {items.length > 0 && (
+        <OnboardingHint hintKey="journal">
+          You can write directly in Mora. Use the compose button to capture a thought before it fades.
+        </OnboardingHint>
       )}
 
       {featured ? (

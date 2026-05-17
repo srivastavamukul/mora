@@ -1,4 +1,5 @@
 import { useApp } from '../context/AppContext'
+import { OnboardingHint } from '../components/OnboardingHint'
 
 function sparklineSentence(weeklyGrowth) {
   if (weeklyGrowth.length < 8) return null
@@ -24,8 +25,23 @@ export default function Archive() {
 
   const sentence = sparklineSentence(weeklyGrowth)
 
+  if (total === 0) {
+    return (
+      <div className="m-archive">
+        <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 16 }}>Your Memory</span>
+        <p className="m-archive-stat" style={{ fontStyle: 'italic', color: 'var(--mora-ink-3)' }}>
+          Nothing to reflect on yet. Save things that interest you, and Mora will begin to see patterns.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="m-archive">
+      <OnboardingHint hintKey="archive">
+        Your archive grows richer over time. The patterns Mora notices here are personal to you.
+      </OnboardingHint>
+
       <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 16 }}>Your Memory</span>
 
       <p className="m-archive-stat">

@@ -80,7 +80,7 @@ export default function Constellations() {
       </p>
 
       {groupEntries.length === 0 ? (
-        <p className="m-constellations-empty">No threads yet. They'll appear as you keep more.</p>
+        <p className="m-constellations-empty">Threads form as you keep saving. Mora will notice the patterns on its own — you don&apos;t have to tend them.</p>
       ) : (
         groupEntries.map(([tag, groupedItems]) => (
           <section key={tag} className="m-constellation">

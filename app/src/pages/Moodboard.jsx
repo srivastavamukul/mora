@@ -15,6 +15,7 @@ import {
 } from '../components/MoraUI'
 import { filterItemsAdvanced, getTopTags } from '../utils/filterItems'
 import { buildDisplayMemory } from '../utils/buildDisplayMemory'
+import { OnboardingHint } from '../components/OnboardingHint'
 
 function sortMemories(memories, sort) {
   if (sort === 'recent') {
@@ -138,13 +139,19 @@ export default function Moodboard() {
         onRemoveSource={() => setActiveSource(null)}
       />
 
+      {memories.length >= 5 && (
+        <OnboardingHint hintKey="search">
+          Mora understands meaning. Try searching a mood, a theme, or a feeling — not just a word.
+        </OnboardingHint>
+      )}
+
       {memories.length === 0 ? (
         <div className="m-empty">
-          <p>Nothing here yet. When you save something — a song, a quote, a half-formed idea — it&apos;ll find a home in this room.</p>
+          <p>Start with something worth remembering. A song, a quote, an article you want to return to.</p>
         </div>
       ) : filteredMemories.length === 0 ? (
         <div className="m-empty">
-          <p>Nothing matches that. Try a softer search, or clear the filter.</p>
+          <p>Nothing matches. Try a different word, or clear the filter.</p>
         </div>
       ) : (
         <div className="m-grid">

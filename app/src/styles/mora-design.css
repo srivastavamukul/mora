@@ -899,6 +899,42 @@
   font-style: normal;
 }
 
+.m-hint {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 14px;
+  background: var(--mora-paper-deep);
+  border: 1px solid var(--mora-rule-soft);
+  border-radius: var(--mora-radius-3);
+  margin-bottom: 20px;
+}
+
+.m-hint-text {
+  font-family: var(--mora-font-serif);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--mora-ink-3);
+  line-height: 1.5;
+}
+
+.m-hint-dismiss {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--mora-ink-4);
+  padding: 0;
+  transition: color var(--mora-dur) var(--mora-ease);
+}
+
+.m-hint-dismiss:hover {
+  color: var(--mora-ink-2);
+}
+
 /* Section headings (for reflections, collections, etc.) */
 .m-section {
   margin-bottom: 36px;
