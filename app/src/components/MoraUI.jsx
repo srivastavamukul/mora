@@ -87,12 +87,18 @@ export function formatRelativeTime(timestamp) {
   return 'earlier on'
 }
 
+function safeThumbnailUrl(thumbnail) {
+  if (!thumbnail || typeof thumbnail !== 'string') return ''
+  // Strip characters that would break CSS url() quoting
+  return thumbnail.replace(/["'\\]/g, '')
+}
+
 export function mapItemToMemory(item, flags = {}) {
   const source = item.source || item.metadata?.source || 'web'
   const rawType = item.type || item.filterKey || item.metadata?.type || 'note'
   const type = normalizeMemoryType(rawType, source)
   const body = item.body || item.description || ''
-  const thumbnail = item.thumbnail || item.metadata?.thumbnail || ''
+  const thumbnail = safeThumbnailUrl(item.thumbnail || item.metadata?.thumbnail || '')
   const kept = Boolean(flags[item.id]?.isSaved)
 
   return {

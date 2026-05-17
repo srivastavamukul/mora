@@ -41,4 +41,48 @@ describe('migrateItem', () => {
     const result = migrateItem({ type: 'link', url: 'https://example.com', title: 'Test', collection: 'Ideas' })
     expect(result.collection).toBe('Ideas')
   })
+
+  // Malformed data guards
+  it('replaces NaN createdAt with current timestamp', () => {
+    const before = Date.now()
+    const result = migrateItem({ type: 'journal', title: 'x', createdAt: NaN })
+    expect(result.createdAt).toBeGreaterThanOrEqual(before)
+    expect(isFinite(result.createdAt)).toBe(true)
+  })
+
+  it('replaces Infinity createdAt with current timestamp', () => {
+    const result = migrateItem({ type: 'journal', title: 'x', createdAt: Infinity })
+    expect(isFinite(result.createdAt)).toBe(true)
+  })
+
+  it('replaces NaN updatedAt with null', () => {
+    const result = migrateItem({ type: 'journal', title: 'x', updatedAt: NaN })
+    expect(result.updatedAt).toBeNull()
+  })
+
+  it('filters non-string values out of tags array', () => {
+    const result = migrateItem({ type: 'journal', title: 'x', tags: ['valid', 42, null, undefined, 'also-valid'] })
+    expect(result.tags).toEqual(['valid', 'also-valid'])
+  })
+
+  it('coerces non-array tags to empty array', () => {
+    const result = migrateItem({ type: 'journal', title: 'x', tags: 'notanarray' })
+    expect(result.tags).toEqual([])
+  })
+
+  it('filters empty string tags', () => {
+    const result = migrateItem({ type: 'journal', title: 'x', tags: ['good', '', '  '] })
+    expect(result.tags).not.toContain('')
+  })
+
+  it('defaults metadata to empty object when malformed', () => {
+    const result = migrateItem({ type: 'journal', title: 'x', metadata: 'bad' })
+    expect(result.metadata).toBeDefined()
+    expect(typeof result.metadata).toBe('object')
+  })
+
+  it('returns null for non-object primitive input', () => {
+    expect(migrateItem('string')).toBeNull()
+    expect(migrateItem(42)).toBeNull()
+  })
 })

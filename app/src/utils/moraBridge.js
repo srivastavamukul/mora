@@ -1,6 +1,8 @@
 import { captureItem } from './captureItem'
 import { deduplicateCapture } from './deduplicateCapture'
 
+const MAX_BRIDGE_PAYLOAD = 50
+
 export function initBridge(setItems) {
   function handleMessage(event) {
     if (event.origin !== window.location.origin) return
@@ -8,33 +10,26 @@ export function initBridge(setItems) {
 
     const payload = event.data.payload
     if (!Array.isArray(payload) || payload.length === 0) return
-    if (!payload.every(p => typeof p === 'object')) return
-
-    console.log("BRIDGE RECEIVED:", payload)
+    if (payload.length > MAX_BRIDGE_PAYLOAD) return
+    if (!payload.every(p => p !== null && typeof p === 'object')) return
 
     const batchOutcomes = []
 
     setItems(current => {
-      console.log("CURRENT ITEMS:", current)
       let next = [...current]
       let changed = false
       for (const raw of payload) {
         try {
-          console.log("RAW ITEM:", raw)
           if (!raw || typeof raw !== 'object') { batchOutcomes.push('invalid'); continue }
           const candidate = captureItem({ ...raw, origin: 'extension' })
-          console.log("CANDIDATE:", candidate)
           if (!candidate || !candidate.url) { batchOutcomes.push('invalid'); continue }
           const { isDuplicate } = deduplicateCapture(next, candidate)
-          console.log("DEDUP RESULT:", isDuplicate)
           if (isDuplicate) {
             batchOutcomes.push('duplicate')
-            console.log("SKIPPED DUPLICATE")
           } else {
             batchOutcomes.push(candidate.thumbnail ? 'added' : 'partial')
             next.push(candidate)
             changed = true
-            console.log("ITEM ADDED:", candidate)
           }
         } catch {
           batchOutcomes.push('invalid')

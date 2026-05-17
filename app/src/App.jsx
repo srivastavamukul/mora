@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AppProvider } from './context/AppContext'
+import ErrorBoundary from './components/ErrorBoundary'
 import AppLayout from './layouts/AppLayout'
 import Landing from './pages/Landing'
 import Moodboard from './pages/Moodboard'
@@ -14,23 +15,25 @@ import EmptyState from './pages/EmptyState'
 
 export default function App() {
   return (
+    <ErrorBoundary>
     <AppProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route element={<AppLayout />}>
-          <Route path="/moodboard" element={<Moodboard />} />
-          <Route path="/constellations" element={<Constellations />} />
-          <Route path="/archive" element={<Archive />} />
-          <Route path="/sources" element={<Sources />} />
-          <Route path="/nudge" element={<NudgeCenter />} />
-          <Route path="/item" element={<ItemDetail />} />
-          <Route path="/add" element={<AddItem />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/empty" element={<EmptyState />} />
+          <Route path="/moodboard" element={<ErrorBoundary><Moodboard /></ErrorBoundary>} />
+          <Route path="/constellations" element={<ErrorBoundary><Constellations /></ErrorBoundary>} />
+          <Route path="/archive" element={<ErrorBoundary><Archive /></ErrorBoundary>} />
+          <Route path="/sources" element={<ErrorBoundary><Sources /></ErrorBoundary>} />
+          <Route path="/nudge" element={<ErrorBoundary><NudgeCenter /></ErrorBoundary>} />
+          <Route path="/item" element={<ErrorBoundary><ItemDetail /></ErrorBoundary>} />
+          <Route path="/add" element={<ErrorBoundary><AddItem /></ErrorBoundary>} />
+          <Route path="/settings" element={<ErrorBoundary><Settings /></ErrorBoundary>} />
+          <Route path="/empty" element={<ErrorBoundary><EmptyState /></ErrorBoundary>} />
         </Route>
       </Routes>
     </BrowserRouter>
     </AppProvider>
+    </ErrorBoundary>
   )
 }

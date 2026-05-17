@@ -2,7 +2,7 @@ const SITE_SUFFIX = /\s*[-|–—]\s*(YouTube|Pinterest|Instagram|Spotify|Twitte
 
 function cleanTitle(raw) {
   if (!raw) return ''
-  let t = raw.trim()
+  let t = String(raw).trim()
   let prev
   do {
     prev = t
@@ -37,7 +37,7 @@ export function buildDisplayMemory(item) {
   }
   if (!displayTitle) displayTitle = 'Saved Memory'
 
-  let displayDescription = rawDesc.trim().replace(/\s{2,}/g, ' ')
+  let displayDescription = String(rawDesc).trim().replace(/\s{2,}/g, ' ')
   if (displayTitle.length >= 10) {
     const fragment = displayTitle.slice(0, Math.min(25, displayTitle.length)).toLowerCase()
     if (displayDescription.toLowerCase().startsWith(fragment)) {

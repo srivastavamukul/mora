@@ -20,27 +20,43 @@ const AppContext = createContext(null)
 function load(key, fallback) {
   try {
     const raw = localStorage.getItem(key)
-    return raw ? JSON.parse(raw) : fallback
+    if (raw === null) return fallback
+    const parsed = JSON.parse(raw)
+    return parsed ?? fallback
   } catch {
     return fallback
   }
 }
 
+function save(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // QuotaExceededError or SecurityError — data survives in memory for the session
+  }
+}
+
 export function AppProvider({ children }) {
-  const [items, setItems] = useState(() =>
-    load('mora_items', initialItems)
-    .map(migrateItem)
-    .filter(Boolean)
-  )
-  const [sources, setSources] = useState(() => load('mora_sources', initialSources))
+  const [items, setItems] = useState(() => {
+    const loaded = load('mora_items', initialItems)
+    const arr = Array.isArray(loaded) ? loaded : initialItems
+    return arr.map(migrateItem).filter(Boolean)
+  })
+  const [sources, setSources] = useState(() => {
+    const loaded = load('mora_sources', initialSources)
+    return Array.isArray(loaded) ? loaded : initialSources
+  })
   const [selectedItemId, setSelectedItemId] = useState(() => load('mora_selectedItemId', null))
-  const [flags, setFlags] = useState(() => load('mora_flags', {}))
+  const [flags, setFlags] = useState(() => {
+    const loaded = load('mora_flags', {})
+    return loaded && typeof loaded === 'object' && !Array.isArray(loaded) ? loaded : {}
+  })
 
   useEffect(() => initBridge(setItems), [])
-  useEffect(() => { localStorage.setItem('mora_items', JSON.stringify(items)) }, [items])
-  useEffect(() => { localStorage.setItem('mora_sources', JSON.stringify(sources)) }, [sources])
-  useEffect(() => { localStorage.setItem('mora_selectedItemId', JSON.stringify(selectedItemId)) }, [selectedItemId])
-  useEffect(() => { localStorage.setItem('mora_flags', JSON.stringify(flags)) }, [flags])
+  useEffect(() => { save('mora_items', items) }, [items])
+  useEffect(() => { save('mora_sources', sources) }, [sources])
+  useEffect(() => { save('mora_selectedItemId', selectedItemId) }, [selectedItemId])
+  useEffect(() => { save('mora_flags', flags) }, [flags])
 
   const toggleSource = (id) => {
     setSources(prev => prev.map(s =>

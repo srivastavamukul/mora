@@ -22,6 +22,7 @@ export function migrateItem(item) {
   if (!migrated.metadata || typeof migrated.metadata !== 'object') migrated.metadata = {}
   if (!migrated.raw || typeof migrated.raw !== 'object') migrated.raw = {}
   if (!Array.isArray(migrated.tags)) migrated.tags = []
+  else migrated.tags = migrated.tags.filter(t => typeof t === 'string' && t.length > 0)
   if (migrated.mood === undefined) migrated.mood = null
   if (migrated.externalId === undefined) migrated.externalId = null
   if (migrated.body === undefined) migrated.body = ''
@@ -48,10 +49,10 @@ export function migrateItem(item) {
     capturedAt: oldMetadata?.capturedAt || migrated.createdAt,
   }
 
-  if (!migrated.createdAt || typeof migrated.createdAt !== 'number') {
+  if (!migrated.createdAt || typeof migrated.createdAt !== 'number' || !isFinite(migrated.createdAt)) {
     migrated.createdAt = Date.now()
   }
-  if (migrated.updatedAt === undefined || (typeof migrated.updatedAt !== 'number' && migrated.updatedAt !== null)) {
+  if (migrated.updatedAt === undefined || (typeof migrated.updatedAt !== 'number' && migrated.updatedAt !== null) || (typeof migrated.updatedAt === 'number' && !isFinite(migrated.updatedAt))) {
     migrated.updatedAt = null
   }
 
