@@ -5,6 +5,7 @@ import { getContext } from '../utils/getContext'
 import { scoreItems } from '../utils/scoreItems'
 import { selectNudges } from '../utils/selectNudges'
 import { Eyebrow, Rule, SourceChip, formatRelativeTime, mapItemToMemory } from '../components/MoraUI'
+import { buildDisplayMemory } from '../utils/buildDisplayMemory'
 
 function todayParts() {
   const date = new Date()
@@ -67,54 +68,62 @@ export default function NudgeCenter() {
 
       {featured ? (
         <>
-          <article
-            className="m-wall-card"
-            onClick={() => openItem(featured.id)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={event => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault()
-                openItem(featured.id)
-              }
-            }}
-          >
-            <Eyebrow color="var(--mora-ember)">{featuredLabel(featured.reasons)}</Eyebrow>
-            <h2 className="m-wall-card-title">“{featured.title}”</h2>
-            {featured.body ? <p className="m-wall-card-body">{featured.body}</p> : null}
-            <div className="m-wall-card-foot">
-              <SourceChip source={featured.source} />
-              <span className="m-wall-when">{featured.time || formatRelativeTime(featured.raw.createdAt)}</span>
-            </div>
-          </article>
+          {(() => {
+            const { displayTitle: ft, displayDescription: fd } = buildDisplayMemory(featured.raw)
+            return (
+              <article
+                className=”m-wall-card”
+                onClick={() => openItem(featured.id)}
+                role=”button”
+                tabIndex={0}
+                onKeyDown={event => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    openItem(featured.id)
+                  }
+                }}
+              >
+                <Eyebrow color=”var(--mora-ember)”>{featuredLabel(featured.reasons)}</Eyebrow>
+                <h2 className=”m-wall-card-title”>”{ft}”</h2>
+                {fd ? <p className=”m-wall-card-body”>{fd}</p> : null}
+                <div className=”m-wall-card-foot”>
+                  <SourceChip source={featured.source} />
+                  <span className=”m-wall-when”>{featured.time || formatRelativeTime(featured.raw.createdAt)}</span>
+                </div>
+              </article>
+            )
+          })()}
 
-          {secondary.length > 0 ? <Rule ornament className="m-wall-rule" /> : null}
+          {secondary.length > 0 ? <Rule ornament className=”m-wall-rule” /> : null}
 
           {secondary.length > 0 ? (
-            <div className="m-wall-followups">
-              {secondary.map(memory => (
-                <article
-                  key={memory.id}
-                  className="m-wall-secondary"
-                  onClick={() => openItem(memory.id)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={event => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault()
-                      openItem(memory.id)
-                    }
-                  }}
-                >
-                  <Eyebrow dot={false}>{featuredLabel(memory.reasons)}</Eyebrow>
-                  <h3 className="m-wall-secondary-title">{memory.title}</h3>
-                  {memory.body ? <p className="m-wall-secondary-body">{memory.body}</p> : null}
-                  <div className="m-wall-secondary-foot">
-                    <SourceChip source={memory.source} />
-                    <span className="m-wall-when">{memory.time || formatRelativeTime(memory.raw.createdAt)}</span>
-                  </div>
-                </article>
-              ))}
+            <div className=”m-wall-followups”>
+              {secondary.map(memory => {
+                const { displayTitle: mt, displayDescription: md } = buildDisplayMemory(memory.raw)
+                return (
+                  <article
+                    key={memory.id}
+                    className=”m-wall-secondary”
+                    onClick={() => openItem(memory.id)}
+                    role=”button”
+                    tabIndex={0}
+                    onKeyDown={event => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault()
+                        openItem(memory.id)
+                      }
+                    }}
+                  >
+                    <Eyebrow dot={false}>{featuredLabel(memory.reasons)}</Eyebrow>
+                    <h3 className=”m-wall-secondary-title”>{mt}</h3>
+                    {md ? <p className=”m-wall-secondary-body”>{md}</p> : null}
+                    <div className=”m-wall-secondary-foot”>
+                      <SourceChip source={memory.source} />
+                      <span className=”m-wall-when”>{memory.time || formatRelativeTime(memory.raw.createdAt)}</span>
+                    </div>
+                  </article>
+                )
+              })}
             </div>
           ) : null}
         </>

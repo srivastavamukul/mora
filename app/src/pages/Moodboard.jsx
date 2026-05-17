@@ -14,6 +14,7 @@ import {
   searchMemories,
 } from '../components/MoraUI'
 import { filterItemsAdvanced, getTopTags } from '../utils/filterItems'
+import { buildDisplayMemory } from '../utils/buildDisplayMemory'
 
 function sortMemories(memories, sort) {
   if (sort === 'recent') {
@@ -76,7 +77,7 @@ export default function Moodboard() {
             {resurfaced.map(memory => (
               <button key={memory.id} type="button" className="m-resurface-card" onClick={() => openItem(memory.id)}>
                 <span className="m-resurface-when">{memory.time}</span>
-                <span className="m-resurface-title">{memory.title}</span>
+                <span className="m-resurface-title">{buildDisplayMemory(memory.raw).displayTitle}</span>
                 <SourceChip source={memory.source} />
               </button>
             ))}

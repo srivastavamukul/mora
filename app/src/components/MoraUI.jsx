@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useMemo } from 'react'
+import { buildDisplayMemory } from '../utils/buildDisplayMemory'
 
 const SOURCE_COLOR = {
   spotify: 'moss',
@@ -157,12 +158,13 @@ export function MemoryCard({ memory, onOpen }) {
   const isImage = memory.type === 'image' || memory.type === 'video'
   const isNote = memory.type === 'note'
   const isSong = memory.type === 'song'
+  const { displayTitle, displayDescription } = buildDisplayMemory(memory.raw)
 
   return (
     <article
       className={`m-card m-card-${memory.type}`}
       onClick={() => onOpen(memory.id)}
-      role="button"
+      role=”button”
       tabIndex={0}
       onKeyDown={event => {
         if (event.key === 'Enter' || event.key === ' ') {
@@ -172,36 +174,36 @@ export function MemoryCard({ memory, onOpen }) {
       }}
     >
       {memory.thumb ? (
-        <div className="m-card-thumb" style={{ background: memory.thumb }}>
+        <div className=”m-card-thumb” style={{ background: memory.thumb }}>
           {memory.type === 'video' ? (
-            <span className="m-card-play">
-              <i className="ph ph-play" />
+            <span className=”m-card-play”>
+              <i className=”ph ph-play” />
             </span>
           ) : null}
           {isSong ? (
-            <span className="m-card-play">
-              <i className="ph ph-music-notes" />
+            <span className=”m-card-play”>
+              <i className=”ph ph-music-notes” />
             </span>
           ) : null}
-          <span className="m-card-grain" />
+          <span className=”m-card-grain” />
         </div>
       ) : null}
-      <div className="m-card-body">
+      <div className=”m-card-body”>
         <SourceChip source={memory.source} />
         <h3 className={`m-card-title${isNote ? ' is-quote' : ''}`}>
-          {isNote ? '“' : ''}
-          {memory.title}
+          {isNote ? '”' : ''}
+          {displayTitle}
           {isNote ? '”' : ''}
         </h3>
-        {memory.body && !isImage ? <p className="m-card-text">{memory.body}</p> : null}
-        <div className="m-card-meta">
+        {displayDescription && !isImage ? <p className=”m-card-text”>{displayDescription}</p> : null}
+        <div className=”m-card-meta”>
           <span>{memory.time}</span>
           {memory.tags.slice(0, 2).map(tag => (
-            <span key={tag} className="m-meta-tag">#{tag}</span>
+            <span key={tag} className=”m-meta-tag”>#{tag}</span>
           ))}
         </div>
       </div>
-      {memory.kept ? <i className="ph-fill ph-bookmark-simple m-card-keep" /> : null}
+      {memory.kept ? <i className=”ph-fill ph-bookmark-simple m-card-keep” /> : null}
     </article>
   )
 }

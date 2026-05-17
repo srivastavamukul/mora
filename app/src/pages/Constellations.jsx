@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { groupItemsByTags } from '../utils/groupItems'
+import { buildDisplayMemory } from '../utils/buildDisplayMemory'
 
 function relativeTimeLabel(ts) {
   if (!ts) return ''
@@ -100,7 +101,7 @@ export default function Constellations() {
                   onKeyDown={e => openWithKey(e, () => handleItemClick(item.id))}
                 >
                   <span className="m-cl-time">{relativeTimeLabel(item.createdAt)}</span>
-                  <span className="m-cl-title">{item.title || 'Saved Link'}</span>
+                  <span className="m-cl-title">{buildDisplayMemory(item).displayTitle}</span>
                   <span className="m-cl-source">{item.source || 'web'}</span>
                 </li>
               ))}

@@ -5,6 +5,7 @@ import { logEvent } from '../utils/eventLogger'
 import { getRelatedItems } from '../utils/getRelatedItems'
 import { generateItemSummary } from '../utils/generateItemSummary'
 import { hasPrivateContext } from '../utils/hasPrivateContext'
+import { buildDisplayMemory } from '../utils/buildDisplayMemory'
 
 const SOURCE_COLOR = {
   spotify: 'moss',
@@ -170,7 +171,7 @@ export default function ItemDetail() {
   const type = item.type || item.filterKey || 'link'
   const isNote = type === 'note'
   const isJournal = type === 'journal'
-  const displayTitle = item.title || 'Untitled'
+  const { displayTitle } = buildDisplayMemory(item)
   const bodyText = item.description || item.body || ''
   const authorLine = item.author ? `— ${item.author}` : ''
   const showFigure = !thumbFailed && (item.thumbnail || item.url) && !(isNote || isJournal)
@@ -401,7 +402,7 @@ export default function ItemDetail() {
                 onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), handleRelatedClick(rel))}
               >
                 <span className="m-related-time">{relativeTime(rel.createdAt)}</span>
-                <span className="m-related-title">{rel.title || 'Untitled'}</span>
+                <span className="m-related-title">{buildDisplayMemory(rel).displayTitle}</span>
                 <span className="m-related-source">{rel.source || 'Saved'}</span>
               </div>
             ))}
