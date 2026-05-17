@@ -825,6 +825,13 @@
   color: var(--mora-ink-4);
 }
 
+.m-card-type {
+  font-size: 9px;
+  color: var(--mora-ink-4);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
 .m-card-keep {
   position: absolute;
   top: 12px;

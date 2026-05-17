@@ -1,6 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useMemo } from 'react'
-import { buildDisplayMemory } from '../utils/buildDisplayMemory'
+import { enrichMemoryMetadata } from '../utils/enrichMemoryMetadata'
+
+const CAPTURE_LABEL = { video: 'Video', audio: 'Audio', article: 'Article', image: 'Image', note: 'Note' }
 
 const SOURCE_COLOR = {
   spotify: 'moss',
@@ -164,7 +166,8 @@ export function MemoryCard({ memory, onOpen }) {
   const isImage = memory.type === 'image' || memory.type === 'video'
   const isNote = memory.type === 'note'
   const isSong = memory.type === 'song'
-  const { displayTitle, displayDescription } = buildDisplayMemory(memory.raw)
+  const { displayTitle, displayDescription, sourceLabel, estimatedReadTime, captureType } = enrichMemoryMetadata(memory.raw)
+  const captureLabel = CAPTURE_LABEL[captureType] || null
 
   return (
     <article
@@ -195,7 +198,7 @@ export function MemoryCard({ memory, onOpen }) {
         </div>
       ) : null}
       <div className="m-card-body">
-        <SourceChip source={memory.source} />
+        <SourceChip source={sourceLabel} />
         <h3 className={`m-card-title${isNote ? ' is-quote' : ''}`}>
           {isNote ? '"' : ''}
           {displayTitle}
@@ -204,6 +207,8 @@ export function MemoryCard({ memory, onOpen }) {
         {displayDescription && !isImage ? <p className="m-card-text">{displayDescription}</p> : null}
         <div className="m-card-meta">
           <span>{memory.time}</span>
+          {captureLabel ? <span className="m-card-type">{captureLabel}</span> : null}
+          {estimatedReadTime ? <span>{estimatedReadTime} min read</span> : null}
           {memory.tags.slice(0, 2).map(tag => (
             <span key={tag} className="m-meta-tag">#{tag}</span>
           ))}

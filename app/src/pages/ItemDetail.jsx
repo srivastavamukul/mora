@@ -5,7 +5,9 @@ import { logEvent } from '../utils/eventLogger'
 import { getRelatedItems } from '../utils/getRelatedItems'
 import { generateItemSummary } from '../utils/generateItemSummary'
 import { hasPrivateContext } from '../utils/hasPrivateContext'
-import { buildDisplayMemory } from '../utils/buildDisplayMemory'
+import { enrichMemoryMetadata } from '../utils/enrichMemoryMetadata'
+
+const CAPTURE_LABEL = { video: 'Video', audio: 'Audio', article: 'Article', image: 'Image', note: 'Note' }
 
 const SOURCE_COLOR = {
   spotify: 'moss',
@@ -171,8 +173,8 @@ export default function ItemDetail() {
   const type = item.type || item.filterKey || 'link'
   const isNote = type === 'note'
   const isJournal = type === 'journal'
-  const { displayTitle } = buildDisplayMemory(item)
-  const bodyText = item.description || item.body || ''
+  const { displayTitle, displayDescription, sourceLabel, estimatedReadTime, captureType } = enrichMemoryMetadata(item)
+  const bodyText = displayDescription || item.description || item.body || ''
   const authorLine = item.author ? `— ${item.author}` : ''
   const showFigure = !thumbFailed && (item.thumbnail || item.url) && !(isNote || isJournal)
 
@@ -223,7 +225,9 @@ export default function ItemDetail() {
 
       <div className="m-detail-head">
         <span className="m-detail-time">{relativeTime(item.createdAt)}</span>
-        <SourceChip source={item.source || 'web'} />
+        {CAPTURE_LABEL[captureType] ? <span className="m-detail-time">{CAPTURE_LABEL[captureType]}</span> : null}
+        {estimatedReadTime ? <span className="m-detail-time">{estimatedReadTime} min read</span> : null}
+        <SourceChip source={sourceLabel} />
         {hasPrivateContext(item) && (
           <span className="m-detail-private-badge">
             <i className="ph ph-lock-simple" style={{ fontSize: 10 }} /> Personal
@@ -392,20 +396,23 @@ export default function ItemDetail() {
           <span className="m-eyebrow">RELATED</span>
           <h2 className="m-related-h">Other memories that share a thread</h2>
           <div className="m-related-list">
-            {relatedItems.map(rel => (
-              <div
-                key={rel.id}
-                className="m-related-item"
-                onClick={() => handleRelatedClick(rel)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), handleRelatedClick(rel))}
-              >
-                <span className="m-related-time">{relativeTime(rel.createdAt)}</span>
-                <span className="m-related-title">{buildDisplayMemory(rel).displayTitle}</span>
-                <span className="m-related-source">{rel.source || 'Saved'}</span>
-              </div>
-            ))}
+            {relatedItems.map(rel => {
+              const relMeta = enrichMemoryMetadata(rel)
+              return (
+                <div
+                  key={rel.id}
+                  className="m-related-item"
+                  onClick={() => handleRelatedClick(rel)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), handleRelatedClick(rel))}
+                >
+                  <span className="m-related-time">{relativeTime(rel.createdAt)}</span>
+                  <span className="m-related-title">{relMeta.displayTitle}</span>
+                  <span className="m-related-source">{relMeta.sourceLabel}</span>
+                </div>
+              )
+            })}
           </div>
         </section>
       )}
