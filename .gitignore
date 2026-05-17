@@ -25,7 +25,7 @@ app/graphify-out/
 .graphify_analysis.json
 .graphify_python
 .graphify_detect.json
-
+S
 # Docs output
 app/docs/
 docs/
