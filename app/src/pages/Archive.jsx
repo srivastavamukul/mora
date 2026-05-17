@@ -1,5 +1,7 @@
+import { useMemo } from 'react'
 import { useApp } from '../context/AppContext'
 import { OnboardingHint } from '../components/OnboardingHint'
+import { buildArchiveEvolution } from '../utils/buildArchiveEvolution'
 
 function sparklineSentence(weeklyGrowth) {
   if (weeklyGrowth.length < 8) return null
@@ -11,8 +13,9 @@ function sparklineSentence(weeklyGrowth) {
 }
 
 export default function Archive() {
-  const { memoryStats, memoryInsights } = useApp()
+  const { items, memoryStats, memoryInsights } = useApp()
   const { total, journals, collections, topSource, topTag, weeklyGrowth } = memoryStats
+  const archiveEvolution = useMemo(() => buildArchiveEvolution(items), [items])
 
   const counts = weeklyGrowth.map(w => w.count)
   const maxCount = Math.max(...counts, 1)
@@ -80,6 +83,22 @@ export default function Archive() {
           <p key={i} className="m-archive-insight">{insight}</p>
         ))}
       </div>
+
+      {archiveEvolution.shifts.length > 0 && (
+        <>
+          <div className="m-rule">
+            <span className="m-rule-line" />
+            <span className="m-rule-orn">✦</span>
+            <span className="m-rule-line" />
+          </div>
+          <div className="m-archive-insights">
+            <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>Archive Evolution</span>
+            {archiveEvolution.shifts.map((shift, i) => (
+              <p key={i} className="m-archive-insight">{shift}</p>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }
