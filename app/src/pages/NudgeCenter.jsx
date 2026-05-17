@@ -72,9 +72,9 @@ export default function NudgeCenter() {
             const { displayTitle: ft, displayDescription: fd } = buildDisplayMemory(featured.raw)
             return (
               <article
-                className=”m-wall-card”
+                className="m-wall-card"
                 onClick={() => openItem(featured.id)}
-                role=”button”
+                role="button"
                 tabIndex={0}
                 onKeyDown={event => {
                   if (event.key === 'Enter' || event.key === ' ') {
@@ -83,29 +83,29 @@ export default function NudgeCenter() {
                   }
                 }}
               >
-                <Eyebrow color=”var(--mora-ember)”>{featuredLabel(featured.reasons)}</Eyebrow>
-                <h2 className=”m-wall-card-title”>”{ft}”</h2>
-                {fd ? <p className=”m-wall-card-body”>{fd}</p> : null}
-                <div className=”m-wall-card-foot”>
+                <Eyebrow color="var(--mora-ember)">{featuredLabel(featured.reasons)}</Eyebrow>
+                <h2 className="m-wall-card-title">”{ft}”</h2>
+                {fd ? <p className="m-wall-card-body">{fd}</p> : null}
+                <div className="m-wall-card-foot">
                   <SourceChip source={featured.source} />
-                  <span className=”m-wall-when”>{featured.time || formatRelativeTime(featured.raw.createdAt)}</span>
+                  <span className="m-wall-when">{featured.time || formatRelativeTime(featured.raw.createdAt)}</span>
                 </div>
               </article>
             )
           })()}
 
-          {secondary.length > 0 ? <Rule ornament className=”m-wall-rule” /> : null}
+          {secondary.length > 0 ? <Rule ornament className="m-wall-rule" /> : null}
 
           {secondary.length > 0 ? (
-            <div className=”m-wall-followups”>
+            <div className="m-wall-followups">
               {secondary.map(memory => {
                 const { displayTitle: mt, displayDescription: md } = buildDisplayMemory(memory.raw)
                 return (
                   <article
                     key={memory.id}
-                    className=”m-wall-secondary”
+                    className="m-wall-secondary"
                     onClick={() => openItem(memory.id)}
-                    role=”button”
+                    role="button"
                     tabIndex={0}
                     onKeyDown={event => {
                       if (event.key === 'Enter' || event.key === ' ') {
@@ -115,11 +115,11 @@ export default function NudgeCenter() {
                     }}
                   >
                     <Eyebrow dot={false}>{featuredLabel(memory.reasons)}</Eyebrow>
-                    <h3 className=”m-wall-secondary-title”>{mt}</h3>
-                    {md ? <p className=”m-wall-secondary-body”>{md}</p> : null}
-                    <div className=”m-wall-secondary-foot”>
+                    <h3 className="m-wall-secondary-title">{mt}</h3>
+                    {md ? <p className="m-wall-secondary-body">{md}</p> : null}
+                    <div className="m-wall-secondary-foot">
                       <SourceChip source={memory.source} />
-                      <span className=”m-wall-when”>{memory.time || formatRelativeTime(memory.raw.createdAt)}</span>
+                      <span className="m-wall-when">{memory.time || formatRelativeTime(memory.raw.createdAt)}</span>
                     </div>
                   </article>
                 )
