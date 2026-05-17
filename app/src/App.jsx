@@ -12,6 +12,7 @@ import ItemDetail from './pages/ItemDetail'
 import AddItem from './pages/AddItem'
 import Settings from './pages/Settings'
 import EmptyState from './pages/EmptyState'
+import Timeline from './pages/Timeline'
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/moodboard" element={<ErrorBoundary><Moodboard /></ErrorBoundary>} />
           <Route path="/constellations" element={<ErrorBoundary><Constellations /></ErrorBoundary>} />
           <Route path="/archive" element={<ErrorBoundary><Archive /></ErrorBoundary>} />
+          <Route path="/timeline" element={<ErrorBoundary><Timeline /></ErrorBoundary>} />
           <Route path="/sources" element={<ErrorBoundary><Sources /></ErrorBoundary>} />
           <Route path="/nudge" element={<ErrorBoundary><NudgeCenter /></ErrorBoundary>} />
           <Route path="/item" element={<ErrorBoundary><ItemDetail /></ErrorBoundary>} />

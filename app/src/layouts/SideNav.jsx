@@ -5,6 +5,7 @@ const navItems = [
   { to: '/nudge', icon: 'hourglass-medium', label: 'Memory Wall' },
   { to: '/constellations', icon: 'graph', label: 'Constellations' },
   { to: '/archive', icon: 'archive', label: 'Archive' },
+  { to: '/timeline', icon: 'calendar-blank', label: 'Timeline' },
   { to: '/sources', icon: 'link-simple', label: 'Sources' },
   { to: '/settings', icon: 'gear-six', label: 'Settings' },
 ]
