@@ -25,6 +25,7 @@ export default function Archive() {
   const [queryInput, setQueryInput] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const debounceTimer = useRef(null)
+  const { resolveQuery, commitQuery, isReference } = useCompanionSession()
 
   function handleQueryChange(e) {
     const val = e.target.value
@@ -42,9 +43,10 @@ export default function Archive() {
     () => buildMemoryCompanionResponse(companionContext).reflections,
     [companionContext]
   )
+  const resolvedQuery = useMemo(() => resolveQuery(debouncedQuery), [debouncedQuery, resolveQuery])
   const queryContext = useMemo(
-    () => debouncedQuery ? buildMemoryContext(debouncedQuery, items) : null,
-    [debouncedQuery, items]
+    () => resolvedQuery ? buildMemoryContext(resolvedQuery, items) : null,
+    [resolvedQuery, items]
   )
   const queryResponse = useMemo(
     () => queryContext ? buildMemoryCompanionResponse(queryContext) : null,
@@ -54,6 +56,12 @@ export default function Archive() {
     () => queryContext ? queryContext.relevantMemories.slice(0, 5).map(item => mapItemToMemory(item)) : [],
     [queryContext]
   )
+
+  useEffect(() => {
+    if (debouncedQuery && queryContext && !isReference(debouncedQuery)) {
+      commitQuery(debouncedQuery, queryContext)
+    }
+  }, [debouncedQuery, queryContext, isReference, commitQuery])
 
   const counts = weeklyGrowth.map(w => w.count)
   const maxCount = Math.max(...counts, 1)
@@ -80,7 +88,7 @@ export default function Archive() {
   return (
     <div className="m-archive">
       <OnboardingHint hintKey="archive">
-        Your archive grows richer over time. The patterns Mora notices here are personal to you.
+        Your reflections grow richer over time. The patterns Mora notices here are personal to you.
       </OnboardingHint>
 
       <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 16 }}>Your Memory</span>
@@ -133,7 +141,7 @@ export default function Archive() {
             <span className="m-rule-line" />
           </div>
           <div className="m-archive-insights">
-            <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>Your Archive Is Noticing</span>
+            <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>Your Reflections Are Noticing</span>
             {companionReflections.map((r, i) => (
               <p key={i} className="m-archive-insight">{r}</p>
             ))}
@@ -143,7 +151,7 @@ export default function Archive() {
                 type="text"
                 value={queryInput}
                 onChange={handleQueryChange}
-                placeholder="Ask your archive..."
+                placeholder="Ask your reflections..."
               />
             </div>
             {debouncedQuery && queryResponse && (
@@ -171,7 +179,7 @@ export default function Archive() {
       </div>
 
       <div className="m-archive-insights">
-        <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>What Your Archive Says</span>
+        <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>What Your Reflections Say</span>
         {memoryInsights.map((insight, i) => (
           <p key={i} className="m-archive-insight">{insight}</p>
         ))}
@@ -185,7 +193,7 @@ export default function Archive() {
             <span className="m-rule-line" />
           </div>
           <div className="m-archive-insights">
-            <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>Archive Evolution</span>
+            <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>Reflections Evolution</span>
             {archiveEvolution.shifts.map((shift, i) => (
               <p key={i} className="m-archive-insight">{shift}</p>
             ))}
