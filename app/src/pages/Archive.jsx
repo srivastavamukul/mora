@@ -1,6 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { OnboardingHint } from '../components/OnboardingHint'
+import { MemoryCard, mapItemToMemory } from '../components/MoraUI'
 import { buildArchiveEvolution } from '../utils/buildArchiveEvolution'
 import { buildMemoryReview } from '../utils/buildMemoryReview'
 import { buildMemoryContext } from '../utils/buildMemoryContext'
@@ -18,12 +20,38 @@ function sparklineSentence(weeklyGrowth) {
 export default function Archive() {
   const { items, memoryStats, memoryInsights } = useApp()
   const { total, journals, collections, topSource, topTag, weeklyGrowth } = memoryStats
+  const navigate = useNavigate()
+  const [queryInput, setQueryInput] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
+  const debounceTimer = useRef(null)
+
+  function handleQueryChange(e) {
+    const val = e.target.value
+    setQueryInput(val)
+    clearTimeout(debounceTimer.current)
+    debounceTimer.current = setTimeout(() => setDebouncedQuery(val.trim()), 250)
+  }
+
+  function openItem(id) { navigate(`/item/${id}`) }
+
   const archiveEvolution = useMemo(() => buildArchiveEvolution(items), [items])
   const memoryReview = useMemo(() => buildMemoryReview(items), [items])
   const companionContext = useMemo(() => buildMemoryContext('', items), [items])
   const companionReflections = useMemo(
     () => buildMemoryCompanionResponse(companionContext).reflections,
     [companionContext]
+  )
+  const queryContext = useMemo(
+    () => debouncedQuery ? buildMemoryContext(debouncedQuery, items) : null,
+    [debouncedQuery, items]
+  )
+  const queryResponse = useMemo(
+    () => queryContext ? buildMemoryCompanionResponse(queryContext) : null,
+    [queryContext]
+  )
+  const queryMemories = useMemo(
+    () => queryContext ? queryContext.relevantMemories.slice(0, 5).map(item => mapItemToMemory(item)) : [],
+    [queryContext]
   )
 
   const counts = weeklyGrowth.map(w => w.count)
