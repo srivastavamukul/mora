@@ -1,5 +1,6 @@
 import { semanticSearch } from './scoreSearchMatch'
 import { enrichSemanticMetadata, FILLER_WORDS } from './enrichSemanticMetadata'
+import { parseMemoryQuery } from './parseMemoryQuery'
 
 function tagFreq(items) {
   const freq = {}
@@ -29,17 +30,45 @@ export function buildMemoryContext(query = '', items, signals = {}) {
   if (!Array.isArray(items) || items.length === 0) return EMPTY
 
   const q = typeof query === 'string' ? query.trim() : ''
+  const parsed = q ? parseMemoryQuery(q) : null
 
   const byRecency = [...items].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
 
-  const relevantMemories = q
-    ? semanticSearch(q, items).slice(0, 5)
-    : byRecency.slice(0, 5)
+  // Source filter
+  let pool = items
+  if (parsed?.sourceFilters?.length > 0) {
+    const sf = parsed.sourceFilters.map(s => s.toLowerCase())
+    const sourceFiltered = items.filter(item => {
+      const src = (item.source || item.metadata?.source || '').toLowerCase()
+      return sf.some(s => src.includes(s))
+    })
+    if (sourceFiltered.length > 0) pool = sourceFiltered
+  }
 
-  const journals = items.filter(i => i.type === 'journal')
-  const relatedJournals = q
-    ? semanticSearch(q, journals).slice(0, 3)
-    : journals.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 3)
+  // Time filter
+  if (parsed?.timeFilters) {
+    const now = Date.now()
+    const MS = { today: 86400000, yesterday: 172800000, week: 604800000, recent: 604800000, month: 2592000000, year: 31536000000 }
+    const cutoff = now - (MS[parsed.timeFilters.period] || 604800000)
+    const timeFiltered = pool.filter(item => (item.createdAt || 0) >= cutoff)
+    if (timeFiltered.length > 0) pool = timeFiltered
+  }
+
+  const poolByRecency = [...pool].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+  const poolJournals = pool.filter(i => i.type === 'journal')
+
+  let relevantMemories, relatedJournals
+
+  if (parsed?.intent === 'trend') {
+    relevantMemories = poolByRecency.slice(0, 5)
+    relatedJournals = [...poolJournals].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 3)
+  } else if (q) {
+    relevantMemories = semanticSearch(q, pool).slice(0, 5)
+    relatedJournals = semanticSearch(q, poolJournals).slice(0, 3)
+  } else {
+    relevantMemories = poolByRecency.slice(0, 5)
+    relatedJournals = [...poolJournals].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 3)
+  }
 
   const themes = Object.entries(tagFreq(relevantMemories))
     .filter(([tag]) => !FILLER_WORDS.has(tag.toLowerCase()))

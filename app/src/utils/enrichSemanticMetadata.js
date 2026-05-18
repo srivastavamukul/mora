@@ -240,7 +240,7 @@ function extractEntities(text) {
   return entities.slice(0, 3)
 }
 
-function liftThemes(words) {
+export function liftThemes(words) {
   const themes = new Set()
   for (const word of words) {
     const val = TOPIC_LIFT[word.toLowerCase()]
