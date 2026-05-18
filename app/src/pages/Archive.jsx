@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useApp } from '../context/AppContext'
 import { OnboardingHint } from '../components/OnboardingHint'
 import { buildArchiveEvolution } from '../utils/buildArchiveEvolution'
+import { buildMemoryReview } from '../utils/buildMemoryReview'
 
 function sparklineSentence(weeklyGrowth) {
   if (weeklyGrowth.length < 8) return null
@@ -16,6 +17,7 @@ export default function Archive() {
   const { items, memoryStats, memoryInsights } = useApp()
   const { total, journals, collections, topSource, topTag, weeklyGrowth } = memoryStats
   const archiveEvolution = useMemo(() => buildArchiveEvolution(items), [items])
+  const memoryReview = useMemo(() => buildMemoryReview(items), [items])
 
   const counts = weeklyGrowth.map(w => w.count)
   const maxCount = Math.max(...counts, 1)
@@ -70,6 +72,22 @@ export default function Archive() {
         )}
         {sentence && <p className="m-archive-stat" style={{ marginTop: 8 }}>{sentence}</p>}
       </div>
+
+      {memoryReview.observations.length > 0 && (
+        <>
+          <div className="m-rule">
+            <span className="m-rule-line" />
+            <span className="m-rule-orn">✦</span>
+            <span className="m-rule-line" />
+          </div>
+          <div className="m-archive-insights">
+            <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>This Week in Your Mind</span>
+            {memoryReview.observations.map((obs, i) => (
+              <p key={i} className="m-archive-insight">{obs}</p>
+            ))}
+          </div>
+        </>
+      )}
 
       <div className="m-rule">
         <span className="m-rule-line" />
