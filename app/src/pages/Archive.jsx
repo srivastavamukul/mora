@@ -3,6 +3,8 @@ import { useApp } from '../context/AppContext'
 import { OnboardingHint } from '../components/OnboardingHint'
 import { buildArchiveEvolution } from '../utils/buildArchiveEvolution'
 import { buildMemoryReview } from '../utils/buildMemoryReview'
+import { buildMemoryContext } from '../utils/buildMemoryContext'
+import { buildMemoryCompanionResponse } from '../utils/buildMemoryCompanionResponse'
 
 function sparklineSentence(weeklyGrowth) {
   if (weeklyGrowth.length < 8) return null
@@ -18,6 +20,11 @@ export default function Archive() {
   const { total, journals, collections, topSource, topTag, weeklyGrowth } = memoryStats
   const archiveEvolution = useMemo(() => buildArchiveEvolution(items), [items])
   const memoryReview = useMemo(() => buildMemoryReview(items), [items])
+  const companionContext = useMemo(() => buildMemoryContext('', items), [items])
+  const companionReflections = useMemo(
+    () => buildMemoryCompanionResponse(companionContext).reflections,
+    [companionContext]
+  )
 
   const counts = weeklyGrowth.map(w => w.count)
   const maxCount = Math.max(...counts, 1)
@@ -84,6 +91,22 @@ export default function Archive() {
             <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>This Week in Your Mind</span>
             {memoryReview.observations.map((obs, i) => (
               <p key={i} className="m-archive-insight">{obs}</p>
+            ))}
+          </div>
+        </>
+      )}
+
+      {companionReflections.length > 0 && (
+        <>
+          <div className="m-rule">
+            <span className="m-rule-line" />
+            <span className="m-rule-orn">✦</span>
+            <span className="m-rule-line" />
+          </div>
+          <div className="m-archive-insights">
+            <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>Your Archive Is Noticing</span>
+            {companionReflections.map((r, i) => (
+              <p key={i} className="m-archive-insight">{r}</p>
             ))}
           </div>
         </>
