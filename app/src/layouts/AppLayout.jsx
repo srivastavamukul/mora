@@ -4,6 +4,7 @@ import SideNav from './SideNav'
 import TopBar from './TopBar'
 import BottomNav from './BottomNav'
 import JournalComposeModal from '../components/JournalComposeModal'
+import FloatingCompanion from '../components/FloatingCompanion'
 import { useApp } from '../context/AppContext'
 
 export default function AppLayout() {
@@ -33,6 +34,7 @@ export default function AppLayout() {
       </main>
       <BottomNav />
       {isComposeOpen ? <JournalComposeModal onClose={closeCompose} onSave={handleComposeSave} /> : null}
+      <FloatingCompanion />
     </div>
   )
 }
