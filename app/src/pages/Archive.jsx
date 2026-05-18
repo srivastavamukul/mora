@@ -38,11 +38,6 @@ export default function Archive() {
 
   const archiveEvolution = useMemo(() => buildArchiveEvolution(items), [items])
   const memoryReview = useMemo(() => buildMemoryReview(items), [items])
-  const companionContext = useMemo(() => buildMemoryContext('', items), [items])
-  const companionReflections = useMemo(
-    () => buildMemoryCompanionResponse(companionContext).reflections,
-    [companionContext]
-  )
   const resolvedQuery = useMemo(() => resolveQuery(debouncedQuery), [debouncedQuery, resolveQuery])
   const queryContext = useMemo(
     () => resolvedQuery ? buildMemoryContext(resolvedQuery, items) : null,
@@ -85,6 +80,14 @@ export default function Archive() {
     )
   }
 
+  const rule = (
+    <div className="m-rule">
+      <span className="m-rule-line" />
+      <span className="m-rule-orn">✦</span>
+      <span className="m-rule-line" />
+    </div>
+  )
+
   return (
     <div className="m-archive">
       <OnboardingHint hintKey="archive">
@@ -101,11 +104,7 @@ export default function Archive() {
         {topTag ? ` · Top theme: ${topTag.tag}` : null}
       </p>
 
-      <div className="m-rule">
-        <span className="m-rule-line" />
-        <span className="m-rule-orn">✦</span>
-        <span className="m-rule-line" />
-      </div>
+      {rule}
 
       <div className="m-archive-activity">
         <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 4 }}>Activity</span>
@@ -117,13 +116,48 @@ export default function Archive() {
         {sentence && <p className="m-archive-stat" style={{ marginTop: 8 }}>{sentence}</p>}
       </div>
 
+      {rule}
+
+      <div className="m-archive-insights">
+        <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>Mora Companion</span>
+        {!debouncedQuery && (
+          <div style={{ marginBottom: 16 }}>
+            <p className="m-archive-insight" style={{ fontStyle: 'italic', color: 'var(--mora-ink-3)', marginBottom: 4 }}>What have I been thinking about lately?</p>
+            <p className="m-archive-insight" style={{ fontStyle: 'italic', color: 'var(--mora-ink-3)', marginBottom: 4 }}>Show startup memories</p>
+            <p className="m-archive-insight" style={{ fontStyle: 'italic', color: 'var(--mora-ink-3)' }}>What else related to that?</p>
+          </div>
+        )}
+        <div className="m-search" style={{ width: '100%', maxWidth: 400, boxSizing: 'border-box' }}>
+          <i className="ph ph-magnifying-glass" />
+          <input
+            type="text"
+            value={queryInput}
+            onChange={handleQueryChange}
+            placeholder="Ask your reflections..."
+          />
+        </div>
+        {debouncedQuery && queryResponse && (
+          <div style={{ marginTop: 24 }}>
+            {queryResponse.reflections.map((r, i) => (
+              <p key={i} className="m-archive-insight">{r}</p>
+            ))}
+            {queryMemories.length > 0 && (
+              <>
+                <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginTop: 20, marginBottom: 16, display: 'block' }}>Related Memories</span>
+                <div className="m-grid">
+                  {queryMemories.map(memory => (
+                    <MemoryCard key={memory.id} memory={memory} onOpen={openItem} />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
       {memoryReview.observations.length > 0 && (
         <>
-          <div className="m-rule">
-            <span className="m-rule-line" />
-            <span className="m-rule-orn">✦</span>
-            <span className="m-rule-line" />
-          </div>
+          {rule}
           <div className="m-archive-insights">
             <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>This Week in Your Mind</span>
             {memoryReview.observations.map((obs, i) => (
@@ -133,50 +167,7 @@ export default function Archive() {
         </>
       )}
 
-      {companionReflections.length > 0 && (
-        <>
-          <div className="m-rule">
-            <span className="m-rule-line" />
-            <span className="m-rule-orn">✦</span>
-            <span className="m-rule-line" />
-          </div>
-          <div className="m-archive-insights">
-            <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>Your Reflections Are Noticing</span>
-            {companionReflections.map((r, i) => (
-              <p key={i} className="m-archive-insight">{r}</p>
-            ))}
-            <div className="m-search" style={{ marginTop: 20, width: '100%', maxWidth: 400, boxSizing: 'border-box' }}>
-              <i className="ph ph-magnifying-glass" />
-              <input
-                type="text"
-                value={queryInput}
-                onChange={handleQueryChange}
-                placeholder="Ask your reflections..."
-              />
-            </div>
-            {debouncedQuery && queryResponse && (
-              <div style={{ marginTop: 24 }}>
-                {queryResponse.reflections.map((r, i) => (
-                  <p key={i} className="m-archive-insight">{r}</p>
-                ))}
-                {queryMemories.length > 0 && (
-                  <div className="m-grid" style={{ marginTop: 16 }}>
-                    {queryMemories.map(memory => (
-                      <MemoryCard key={memory.id} memory={memory} onOpen={openItem} />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
-      <div className="m-rule">
-        <span className="m-rule-line" />
-        <span className="m-rule-orn">✦</span>
-        <span className="m-rule-line" />
-      </div>
+      {rule}
 
       <div className="m-archive-insights">
         <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>What Your Reflections Say</span>
@@ -187,11 +178,7 @@ export default function Archive() {
 
       {archiveEvolution.shifts.length > 0 && (
         <>
-          <div className="m-rule">
-            <span className="m-rule-line" />
-            <span className="m-rule-orn">✦</span>
-            <span className="m-rule-line" />
-          </div>
+          {rule}
           <div className="m-archive-insights">
             <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>Reflections Evolution</span>
             {archiveEvolution.shifts.map((shift, i) => (
