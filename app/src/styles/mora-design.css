@@ -2507,30 +2507,46 @@
 }
 
 /* ============ Floating Companion ============ */
+
+/* Entry animations */
+@keyframes m-companion-slide-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes m-companion-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Trigger pill */
 .m-companion-trigger {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: 28px;
+  right: 28px;
   z-index: 200;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   background: var(--mora-paper-deep);
   border: 1px solid var(--mora-rule);
   border-radius: 999px;
-  padding: 9px 16px 9px 13px;
+  padding: 10px 18px 10px 14px;
   font-family: var(--mora-font-sans);
   font-size: 13px;
   font-weight: 500;
   color: var(--mora-ink-2);
   cursor: pointer;
   box-shadow: var(--mora-shadow-2);
-  transition: all 180ms cubic-bezier(.32, .72, .28, 1);
+  transition: background 180ms cubic-bezier(.32, .72, .28, 1),
+              color 180ms cubic-bezier(.32, .72, .28, 1),
+              border-color 180ms cubic-bezier(.32, .72, .28, 1);
 }
 
 .m-companion-trigger:hover {
   background: var(--mora-vellum);
   color: var(--mora-ink);
+  border-color: var(--mora-rule);
 }
 
 .m-companion-trigger.is-open {
@@ -2546,58 +2562,87 @@
   flex-shrink: 0;
 }
 
+/* Overlay scrim */
 .m-companion-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(30, 26, 20, 0.15);
+  background: rgba(30, 26, 20, 0.12);
   z-index: 290;
+  animation: m-companion-fade-in 200ms cubic-bezier(.32, .72, .28, 1) both;
 }
 
+/* Panel sheet */
 .m-companion-sheet {
   position: fixed;
   top: 0;
   right: 0;
   bottom: 0;
-  width: 380px;
-  max-width: 90vw;
-  background: var(--mora-paper-deep);
+  width: 400px;
+  max-width: 92vw;
+  background: var(--mora-paper);
   border-left: 1px solid var(--mora-rule-soft);
   z-index: 300;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  animation: m-companion-slide-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* Header */
 .m-companion-head {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 20px 20px 16px;
+  padding: 28px 24px 22px;
   border-bottom: 1px solid var(--mora-rule-soft);
   flex-shrink: 0;
 }
 
-.m-companion-title {
-  font-family: var(--mora-font-serif);
-  font-size: 22px;
-  font-weight: 500;
-  color: var(--mora-ink);
-  letter-spacing: -0.005em;
+.m-companion-head-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
+.m-companion-eyebrow-sm {
+  display: inline-flex;
+}
+
+.m-companion-title {
+  font-family: var(--mora-font-serif);
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--mora-ink);
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.m-companion-close-btn {
+  margin-top: 2px;
+}
+
+/* Scrollable body */
 .m-companion-body {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 28px 24px 32px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 28px;
+}
+
+/* Idle state: seed prompts */
+.m-companion-idle {
+  display: flex;
+  flex-direction: column;
 }
 
 .m-companion-prompts {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
+  border-left: 1px solid var(--mora-rule-soft);
+  padding-left: 16px;
 }
 
 .m-companion-prompt {
@@ -2606,52 +2651,150 @@
   border: none;
   font-family: var(--mora-font-serif);
   font-style: italic;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--mora-ink-3);
   cursor: pointer;
-  padding: 4px 0;
+  padding: 7px 0;
   line-height: 1.5;
-  transition: color 180ms cubic-bezier(.32, .72, .28, 1);
+  transition: color 200ms cubic-bezier(.32, .72, .28, 1);
 }
 
 .m-companion-prompt:hover {
   color: var(--mora-ink-2);
 }
 
-.m-companion-search {
-  width: 100%;
-  box-sizing: border-box;
+/* Editorial input — softer than the topbar search pill */
+.m-companion-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--mora-vellum);
+  border: 1px solid var(--mora-rule-soft);
+  border-radius: 8px;
+  padding: 12px 14px;
+  transition: background 180ms cubic-bezier(.32, .72, .28, 1),
+              border-color 180ms cubic-bezier(.32, .72, .28, 1);
+}
+
+.m-companion-input-wrap:focus-within {
+  background: var(--mora-paper-deep);
+  border-color: var(--mora-rule);
+}
+
+.m-companion-input-icon {
+  color: var(--mora-ink-4);
+  font-size: 15px;
   flex-shrink: 0;
 }
 
+.m-companion-input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font-family: var(--mora-font-serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--mora-ink);
+  min-width: 0;
+}
+
+.m-companion-input::placeholder {
+  color: var(--mora-ink-4);
+}
+
+.m-companion-input-clear {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--mora-ink-4);
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 140ms;
+}
+
+.m-companion-input-clear:hover {
+  color: var(--mora-ink-3);
+}
+
+/* Results */
 .m-companion-results {
   display: flex;
   flex-direction: column;
+  gap: 24px;
 }
 
-.m-companion-eyebrow {
-  display: inline-flex;
-  margin-bottom: 12px;
+.m-companion-noticed {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .m-companion-insight {
   font-family: var(--mora-font-serif);
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 15px;
+  line-height: 1.65;
   color: var(--mora-ink-2);
-  margin: 0 0 8px;
+  margin: 0;
+}
+
+.m-companion-memories {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.m-companion-memories-rule {
+  display: flex;
+  align-items: center;
+}
+
+.m-companion-memories-rule .m-rule-line {
+  background: var(--mora-rule-soft);
 }
 
 .m-companion-cards {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 4px;
 }
 
+/* Footer: path to archive */
+.m-companion-foot {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--mora-rule-soft);
+}
+
+.m-companion-archive-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-family: var(--mora-font-serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--mora-ink-3);
+  cursor: pointer;
+  padding: 0;
+  transition: color 180ms cubic-bezier(.32, .72, .28, 1);
+}
+
+.m-companion-archive-link:hover {
+  color: var(--mora-ember);
+}
+
+.m-companion-archive-link i {
+  font-size: 13px;
+}
+
+/* Mobile adjustments */
 @media (max-width: 768px) {
   .m-companion-trigger {
-    bottom: 72px;
+    bottom: 80px;
   }
 
   .m-companion-sheet {

@@ -43,6 +43,11 @@ function CompanionPanel({ onClose, resolveQuery, commitQuery, isReference }) {
     onClose()
   }
 
+  function goToReflections() {
+    navigate('/archive')
+    onClose()
+  }
+
   const resolvedQuery = useMemo(() => resolveQuery(debouncedQuery), [debouncedQuery, resolveQuery])
   const queryContext = useMemo(
     () => (resolvedQuery ? buildMemoryContext(resolvedQuery, items) : null),
@@ -53,7 +58,7 @@ function CompanionPanel({ onClose, resolveQuery, commitQuery, isReference }) {
     [resolvedQuery, queryContext]
   )
   const queryMemories = useMemo(
-    () => (queryContext ? queryContext.relevantMemories.slice(0, 4).map(item => mapItemToMemory(item)) : []),
+    () => (queryContext ? queryContext.relevantMemories.slice(0, 3).map(item => mapItemToMemory(item)) : []),
     [queryContext]
   )
 
@@ -63,61 +68,99 @@ function CompanionPanel({ onClose, resolveQuery, commitQuery, isReference }) {
     }
   }, [debouncedQuery, queryContext, isReference, commitQuery])
 
+  const hasResults = debouncedQuery && companionInsight
+
   return (
     <>
+      {/* Header */}
       <div className="m-companion-head">
-        <span className="m-companion-title">Mora</span>
-        <button className="m-iconbtn" onClick={onClose} aria-label="Close companion">
+        <div className="m-companion-head-left">
+          <span className="m-eyebrow m-companion-eyebrow-sm">
+            <span className="m-eyebrow-dot" style={{ background: 'var(--mora-ochre)' }} />
+            Memory companion
+          </span>
+          <span className="m-companion-title">Mora</span>
+        </div>
+        <button className="m-iconbtn m-companion-close-btn" onClick={onClose} aria-label="Close companion">
           <i className="ph ph-x" />
         </button>
       </div>
 
+      {/* Body */}
       <div className="m-companion-body">
-        {!debouncedQuery && (
-          <div className="m-companion-prompts">
-            {PROMPTS.map(p => (
-              <button key={p} className="m-companion-prompt" onClick={() => applyPrompt(p)}>
-                {p}
-              </button>
-            ))}
+
+        {/* Idle: seed prompts */}
+        {!queryInput && (
+          <div className="m-companion-idle">
+            <div className="m-companion-prompts">
+              {PROMPTS.map(p => (
+                <button key={p} className="m-companion-prompt" onClick={() => applyPrompt(p)}>
+                  {p}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
-        <div className="m-search m-companion-search">
-          <i className="ph ph-magnifying-glass" />
+        {/* Input */}
+        <div className="m-companion-input-wrap">
+          <i className="ph ph-magnifying-glass m-companion-input-icon" />
           <input
             ref={inputRef}
             type="text"
             value={queryInput}
             onChange={handleQueryChange}
+            className="m-companion-input"
             placeholder="Ask your reflections..."
           />
+          {queryInput && (
+            <button
+              className="m-companion-input-clear"
+              onClick={() => { setQueryInput(''); setDebouncedQuery(''); inputRef.current?.focus() }}
+              aria-label="Clear"
+            >
+              <i className="ph ph-x-circle" />
+            </button>
+          )}
         </div>
 
-        {debouncedQuery && companionInsight && (
+        {/* Results */}
+        {hasResults && (
           <div className="m-companion-results">
-            <span className="m-eyebrow m-companion-eyebrow">
-              <span className="m-eyebrow-dot" style={{ background: 'var(--mora-ochre)' }} />
-              Mora Noticed
-            </span>
+            {/* Mora Noticed */}
             {companionInsight.summary && (
-              <p className="m-companion-insight">{companionInsight.summary}</p>
-            )}
-            {queryMemories.length > 0 && (
-              <>
-                <span className="m-eyebrow m-companion-eyebrow" style={{ marginTop: 20 }}>
+              <div className="m-companion-noticed">
+                <span className="m-eyebrow m-companion-eyebrow-sm">
                   <span className="m-eyebrow-dot" style={{ background: 'var(--mora-ochre)' }} />
-                  Related Memories
+                  Mora noticed
                 </span>
+                <p className="m-companion-insight">{companionInsight.summary}</p>
+              </div>
+            )}
+
+            {/* Related memories */}
+            {queryMemories.length > 0 && (
+              <div className="m-companion-memories">
+                <div className="m-companion-memories-rule">
+                  <span className="m-rule-line" />
+                </div>
                 <div className="m-companion-cards">
                   {queryMemories.map(memory => (
                     <MemoryCard key={memory.id} memory={memory} onOpen={openItem} />
                   ))}
                 </div>
-              </>
+              </div>
             )}
           </div>
         )}
+
+        {/* Footer: path to archive */}
+        <div className="m-companion-foot">
+          <button className="m-companion-archive-link" onClick={goToReflections}>
+            All reflections
+            <i className="ph ph-arrow-right" />
+          </button>
+        </div>
       </div>
     </>
   )
@@ -150,11 +193,7 @@ export default function FloatingCompanion() {
       </button>
 
       {isOpen && (
-        <div
-          className="m-companion-overlay"
-          onClick={close}
-          aria-hidden="true"
-        />
+        <div className="m-companion-overlay" onClick={close} aria-hidden="true" />
       )}
 
       {isOpen && (
