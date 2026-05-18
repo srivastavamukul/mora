@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from 'react'
+import { useMemo, useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { OnboardingHint } from '../components/OnboardingHint'
@@ -7,6 +7,7 @@ import { buildArchiveEvolution } from '../utils/buildArchiveEvolution'
 import { buildMemoryReview } from '../utils/buildMemoryReview'
 import { buildMemoryContext } from '../utils/buildMemoryContext'
 import { buildMemoryCompanionResponse } from '../utils/buildMemoryCompanionResponse'
+import { useCompanionSession } from '../hooks/useCompanionSession'
 
 function sparklineSentence(weeklyGrowth) {
   if (weeklyGrowth.length < 8) return null
@@ -136,6 +137,29 @@ export default function Archive() {
             {companionReflections.map((r, i) => (
               <p key={i} className="m-archive-insight">{r}</p>
             ))}
+            <div className="m-search" style={{ marginTop: 20, width: '100%', maxWidth: 400, boxSizing: 'border-box' }}>
+              <i className="ph ph-magnifying-glass" />
+              <input
+                type="text"
+                value={queryInput}
+                onChange={handleQueryChange}
+                placeholder="Ask your archive..."
+              />
+            </div>
+            {debouncedQuery && queryResponse && (
+              <div style={{ marginTop: 24 }}>
+                {queryResponse.reflections.map((r, i) => (
+                  <p key={i} className="m-archive-insight">{r}</p>
+                ))}
+                {queryMemories.length > 0 && (
+                  <div className="m-grid" style={{ marginTop: 16 }}>
+                    {queryMemories.map(memory => (
+                      <MemoryCard key={memory.id} memory={memory} onOpen={openItem} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </>
       )}
