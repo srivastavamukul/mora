@@ -21,7 +21,7 @@ function sourceFreq(items) {
 
 const EMPTY = { relevantMemories: [], relatedJournals: [], themes: [], sources: [], observations: [] }
 
-export function buildMemoryContext(query, items, signals = {}) {
+export function buildMemoryContext(query = '', items, signals = {}) {
   if (!Array.isArray(items) || items.length === 0) return EMPTY
 
   const q = typeof query === 'string' ? query.trim() : ''
