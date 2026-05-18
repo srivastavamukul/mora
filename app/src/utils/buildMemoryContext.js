@@ -1,10 +1,14 @@
 import { semanticSearch } from './scoreSearchMatch'
+import { enrichSemanticMetadata, FILLER_WORDS } from './enrichSemanticMetadata'
 
 function tagFreq(items) {
   const freq = {}
   for (const item of items) {
     for (const tag of (Array.isArray(item.tags) ? item.tags : [])) {
       if (tag) freq[tag] = (freq[tag] || 0) + 1
+    }
+    for (const theme of enrichSemanticMetadata(item).themes) {
+      freq[theme] = (freq[theme] || 0) + 1
     }
   }
   return freq
@@ -38,6 +42,7 @@ export function buildMemoryContext(query = '', items, signals = {}) {
     : journals.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 3)
 
   const themes = Object.entries(tagFreq(relevantMemories))
+    .filter(([tag]) => !FILLER_WORDS.has(tag.toLowerCase()))
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
     .map(([tag]) => tag)

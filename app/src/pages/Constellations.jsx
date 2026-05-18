@@ -1,7 +1,9 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { groupItemsByTags } from '../utils/groupItems'
 import { buildDisplayMemory } from '../utils/buildDisplayMemory'
+import { enrichSemanticMetadata } from '../utils/enrichSemanticMetadata'
 
 function relativeTimeLabel(ts) {
   if (!ts) return ''
@@ -65,7 +67,17 @@ export default function Constellations() {
   const { items, flags, setSelectedItemId } = useApp()
   const navigate = useNavigate()
 
-  const groups = groupItemsByTags(items, flags)
+  const enrichedItems = useMemo(() =>
+    items.map(item => {
+      const { themes } = enrichSemanticMetadata(item)
+      if (themes.length === 0) return item
+      const existing = Array.isArray(item.tags) ? item.tags : []
+      return { ...item, tags: [...new Set([...existing, ...themes])] }
+    }),
+    [items]
+  )
+
+  const groups = groupItemsByTags(enrichedItems, flags)
   const groupEntries = Object.entries(groups).sort((a, b) => b[1].length - a[1].length)
 
   const handleItemClick = (id) => {
