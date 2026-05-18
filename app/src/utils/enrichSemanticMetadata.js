@@ -282,23 +282,32 @@ function buildCleanDescription(raw) {
     .slice(0, 200)
 }
 
+const _cache = new Map()
+
 export function enrichSemanticMetadata(item) {
-  if (!item) return { entities: [], themes: [], cleanTitle: '', cleanDescription: '' }
+  if (!item) return { entities: [], themes: [], cleanTitle: '', cleanDescription: '', titleTransformed: false }
+
+  const cacheKey = item.id ? `${item.id}:${item.updatedAt || item.createdAt || 0}` : null
+  if (cacheKey && _cache.has(cacheKey)) return _cache.get(cacheKey)
 
   const rawTitle = item.title || ''
   const rawDesc = item.description || item.body || ''
   const tags = Array.isArray(item.tags) ? item.tags : []
 
-  const entities = extractEntities(rawTitle) || extractEntities(rawDesc.slice(0, 200))
+  const titleEntities = extractEntities(rawTitle)
+  const entities = titleEntities.length > 0 ? titleEntities : extractEntities(rawDesc.slice(0, 200))
 
-  // lift from both existing tags and title words (>2 chars)
   const titleWords = rawTitle.toLowerCase().split(/\W+/).filter(w => w.length > 2)
   const themes = liftThemes([...tags, ...titleWords])
 
-  return {
-    entities,
-    themes,
-    cleanTitle: buildCleanTitle(rawTitle),
-    cleanDescription: buildCleanDescription(rawDesc),
+  const cleanTitle = buildCleanTitle(rawTitle)
+  const titleTransformed = cleanTitle !== rawTitle.trim()
+  const cleanDescription = buildCleanDescription(rawDesc)
+
+  const result = { entities, themes, cleanTitle, cleanDescription, titleTransformed }
+  if (cacheKey) {
+    if (_cache.size > 1000) _cache.clear()
+    _cache.set(cacheKey, result)
   }
+  return result
 }

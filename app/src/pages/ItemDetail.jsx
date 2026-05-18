@@ -6,6 +6,7 @@ import { getRelatedItems } from '../utils/getRelatedItems'
 import { generateItemSummary } from '../utils/generateItemSummary'
 import { hasPrivateContext } from '../utils/hasPrivateContext'
 import { enrichMemoryMetadata } from '../utils/enrichMemoryMetadata'
+import { enrichSemanticMetadata } from '../utils/enrichSemanticMetadata'
 
 const CAPTURE_LABEL = { video: 'Video', audio: 'Audio', article: 'Article', image: 'Image', note: 'Note' }
 
@@ -174,6 +175,8 @@ export default function ItemDetail() {
   const isNote = type === 'note'
   const isJournal = type === 'journal'
   const { displayTitle, displayDescription, sourceLabel, estimatedReadTime, captureType } = enrichMemoryMetadata(item)
+  const { cleanTitle, titleTransformed } = enrichSemanticMetadata(item)
+  const title = titleTransformed && cleanTitle ? cleanTitle : displayTitle
   const bodyText = displayDescription || item.description || item.body || ''
   const authorLine = item.author ? `— ${item.author}` : ''
   const showFigure = !thumbFailed && (item.thumbnail || item.url) && !(isNote || isJournal)
@@ -236,16 +239,16 @@ export default function ItemDetail() {
       </div>
 
       {(isNote || isJournal) ? (
-        <blockquote className="m-detail-quote">{displayTitle}</blockquote>
+        <blockquote className="m-detail-quote">{title}</blockquote>
       ) : (
-        <h1 className="m-detail-title">{displayTitle}</h1>
+        <h1 className="m-detail-title">{title}</h1>
       )}
 
       {authorLine && <p className="m-detail-author">{authorLine}</p>}
 
       {bodyText ? (
         <p className="m-detail-body">{bodyText}</p>
-      ) : summary && summary !== displayTitle ? (
+      ) : summary && summary !== title ? (
         <p className="m-detail-summary">{summary}</p>
       ) : null}
 

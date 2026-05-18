@@ -1,5 +1,8 @@
+import { enrichSemanticMetadata } from './enrichSemanticMetadata'
+
 export function getItemMemoryText(item) {
   if (!item) return ''
+  const { entities, themes } = enrichSemanticMetadata(item)
   const parts = [
     item.title || '',
     item.description || item.body || '',
@@ -8,7 +11,8 @@ export function getItemMemoryText(item) {
     item.type || '',
     item.privateNote || '',
     item.collection || '',
+    entities.join(' '),
+    themes.join(' '),
   ]
-  const text = parts.filter(Boolean).join(' ').toLowerCase().trim()
-  return text
+  return parts.filter(Boolean).join(' ').toLowerCase().trim()
 }

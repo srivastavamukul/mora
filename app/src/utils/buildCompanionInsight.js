@@ -3,7 +3,7 @@ function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : '' }
 export function buildCompanionInsight(query, context) {
   if (!query || !context) return { summary: '', signals: [] }
 
-  const { themes = [], sources = [], observations = [], relevantMemories = [] } = context
+  const { themes = [], sources = [], observations = [], relevantMemories = [], entities = [] } = context
 
   const signals = [...themes.slice(0, 3), ...sources.slice(0, 1)]
 
@@ -22,6 +22,8 @@ export function buildCompanionInsight(query, context) {
     core = top.toLowerCase() === q
       ? `${cap(top)} ideas appear repeatedly across your memories`
       : `You seem to return often to ${top} ideas`
+  } else if (entities.length > 0) {
+    core = `${entities[0]} comes up across several of your memories`
   } else if (observations.length > 0) {
     return { summary: observations[0], signals }
   } else {

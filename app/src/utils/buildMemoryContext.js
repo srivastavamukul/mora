@@ -23,7 +23,7 @@ function sourceFreq(items) {
   return freq
 }
 
-const EMPTY = { relevantMemories: [], relatedJournals: [], themes: [], sources: [], observations: [] }
+const EMPTY = { relevantMemories: [], relatedJournals: [], themes: [], sources: [], observations: [], entities: [] }
 
 export function buildMemoryContext(query = '', items, signals = {}) {
   if (!Array.isArray(items) || items.length === 0) return EMPTY
@@ -63,5 +63,11 @@ export function buildMemoryContext(query = '', items, signals = {}) {
     if (signals.saveFrequency === 'high') observations.push('High save activity recently.')
   }
 
-  return { relevantMemories, relatedJournals, themes, sources, observations }
+  const entitySet = new Set()
+  for (const item of relevantMemories) {
+    for (const e of enrichSemanticMetadata(item).entities) entitySet.add(e)
+  }
+  const entities = [...entitySet].slice(0, 3)
+
+  return { relevantMemories, relatedJournals, themes, sources, observations, entities }
 }

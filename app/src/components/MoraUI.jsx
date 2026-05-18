@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useMemo } from 'react'
 import { enrichMemoryMetadata } from '../utils/enrichMemoryMetadata'
+import { enrichSemanticMetadata } from '../utils/enrichSemanticMetadata'
 
 const CAPTURE_LABEL = { video: 'Video', audio: 'Audio', article: 'Article', image: 'Image', note: 'Note' }
 
@@ -102,6 +103,7 @@ export function mapItemToMemory(item, flags = {}) {
   const body = item.body || item.description || ''
   const thumbnail = safeThumbnailUrl(item.thumbnail || item.metadata?.thumbnail || '')
   const kept = Boolean(flags[item.id]?.isSaved)
+  const { cleanTitle, cleanDescription, entities, themes: semanticThemes, titleTransformed } = enrichSemanticMetadata(item)
 
   return {
     id: item.id,
@@ -117,6 +119,7 @@ export function mapItemToMemory(item, flags = {}) {
     author: item.author || null,
     privateNote: item.privateNote || null,
     raw: item,
+    semantic: { cleanTitle, cleanDescription, entities, themes: semanticThemes, titleTransformed },
   }
 }
 
@@ -168,6 +171,7 @@ export function MemoryCard({ memory, onOpen }) {
   const isSong = memory.type === 'song'
   const { displayTitle, displayDescription, sourceLabel, estimatedReadTime, captureType } = enrichMemoryMetadata(memory.raw)
   const captureLabel = CAPTURE_LABEL[captureType] || null
+  const title = (memory.semantic?.titleTransformed && memory.semantic?.cleanTitle) ? memory.semantic.cleanTitle : displayTitle
 
   return (
     <article
@@ -201,7 +205,7 @@ export function MemoryCard({ memory, onOpen }) {
         <SourceChip source={sourceLabel} />
         <h3 className={`m-card-title${isNote ? ' is-quote' : ''}`}>
           {isNote ? '"' : ''}
-          {displayTitle}
+          {title}
           {isNote ? '"' : ''}
         </h3>
         {displayDescription && !isImage ? <p className="m-card-text">{displayDescription}</p> : null}

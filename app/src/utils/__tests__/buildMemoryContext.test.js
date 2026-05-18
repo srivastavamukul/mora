@@ -18,6 +18,7 @@ describe('buildMemoryContext', () => {
         themes: [],
         sources: [],
         observations: [],
+        entities: [],
       })
     })
 
@@ -29,6 +30,7 @@ describe('buildMemoryContext', () => {
         themes: [],
         sources: [],
         observations: [],
+        entities: [],
       })
     })
 
