@@ -6,7 +6,7 @@ import { MemoryCard, mapItemToMemory } from '../components/MoraUI'
 import { buildArchiveEvolution } from '../utils/buildArchiveEvolution'
 import { buildMemoryReview } from '../utils/buildMemoryReview'
 import { buildMemoryContext } from '../utils/buildMemoryContext'
-import { buildMemoryCompanionResponse } from '../utils/buildMemoryCompanionResponse'
+import { buildCompanionInsight } from '../utils/buildCompanionInsight'
 import { useCompanionSession } from '../hooks/useCompanionSession'
 
 function sparklineSentence(weeklyGrowth) {
@@ -43,9 +43,9 @@ export default function Archive() {
     () => resolvedQuery ? buildMemoryContext(resolvedQuery, items) : null,
     [resolvedQuery, items]
   )
-  const queryResponse = useMemo(
-    () => queryContext ? buildMemoryCompanionResponse(queryContext) : null,
-    [queryContext]
+  const companionInsight = useMemo(
+    () => resolvedQuery && queryContext ? buildCompanionInsight(resolvedQuery, queryContext) : null,
+    [resolvedQuery, queryContext]
   )
   const queryMemories = useMemo(
     () => queryContext ? queryContext.relevantMemories.slice(0, 5).map(item => mapItemToMemory(item)) : [],
@@ -136,11 +136,12 @@ export default function Archive() {
             placeholder="Ask your reflections..."
           />
         </div>
-        {debouncedQuery && queryResponse && (
+        {debouncedQuery && companionInsight && (
           <div style={{ marginTop: 24 }}>
-            {queryResponse.reflections.map((r, i) => (
-              <p key={i} className="m-archive-insight">{r}</p>
-            ))}
+            <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 12, display: 'block' }}>Mora Noticed</span>
+            {companionInsight.summary && (
+              <p className="m-archive-insight">{companionInsight.summary}</p>
+            )}
             {queryMemories.length > 0 && (
               <>
                 <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginTop: 20, marginBottom: 16, display: 'block' }}>Related Memories</span>
