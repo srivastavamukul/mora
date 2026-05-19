@@ -6,7 +6,7 @@ import { getRelatedItems } from '../utils/getRelatedItems'
 import { generateItemSummary } from '../utils/generateItemSummary'
 import { hasPrivateContext } from '../utils/hasPrivateContext'
 import { enrichMemoryMetadata } from '../utils/enrichMemoryMetadata'
-import { enrichSemanticMetadata } from '../utils/enrichSemanticMetadata'
+import { buildMemoryNarrative } from '../utils/buildMemoryNarrative'
 
 const CAPTURE_LABEL = { video: 'Video', audio: 'Audio', article: 'Article', image: 'Image', note: 'Note' }
 
@@ -175,8 +175,8 @@ export default function ItemDetail() {
   const isNote = type === 'note'
   const isJournal = type === 'journal'
   const { displayTitle, displayDescription, sourceLabel, estimatedReadTime, captureType } = enrichMemoryMetadata(item)
-  const { cleanTitle, titleTransformed } = enrichSemanticMetadata(item)
-  const title = titleTransformed && cleanTitle ? cleanTitle : displayTitle
+  const { narrativeTitle, narrativeSummary } = useMemo(() => buildMemoryNarrative(item), [item])
+  const title = narrativeTitle || displayTitle
   const bodyText = displayDescription || item.description || item.body || ''
   const authorLine = item.author ? `— ${item.author}` : ''
   const showFigure = !thumbFailed && (item.thumbnail || item.url) && !(isNote || isJournal)
@@ -250,6 +250,8 @@ export default function ItemDetail() {
         <p className="m-detail-body">{bodyText}</p>
       ) : summary && summary !== title ? (
         <p className="m-detail-summary">{summary}</p>
+      ) : narrativeSummary ? (
+        <p className="m-detail-summary">{narrativeSummary}</p>
       ) : null}
 
       <div className="m-detail-actions">

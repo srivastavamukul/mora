@@ -2,6 +2,7 @@
 import { useMemo } from 'react'
 import { enrichMemoryMetadata } from '../utils/enrichMemoryMetadata'
 import { enrichSemanticMetadata } from '../utils/enrichSemanticMetadata'
+import { buildMemoryNarrative } from '../utils/buildMemoryNarrative'
 
 const CAPTURE_LABEL = { video: 'Video', audio: 'Audio', article: 'Article', image: 'Image', note: 'Note' }
 
@@ -170,8 +171,10 @@ export function MemoryCard({ memory, onOpen }) {
   const isNote = memory.type === 'note'
   const isSong = memory.type === 'song'
   const { displayTitle, displayDescription, sourceLabel, estimatedReadTime, captureType } = enrichMemoryMetadata(memory.raw)
+  const { narrativeTitle, narrativeSummary } = buildMemoryNarrative(memory.raw)
   const captureLabel = CAPTURE_LABEL[captureType] || null
-  const title = (memory.semantic?.titleTransformed && memory.semantic?.cleanTitle) ? memory.semantic.cleanTitle : displayTitle
+  const title = narrativeTitle || displayTitle
+  const description = displayDescription || narrativeSummary
 
   return (
     <article
@@ -208,7 +211,7 @@ export function MemoryCard({ memory, onOpen }) {
           {title}
           {isNote ? '"' : ''}
         </h3>
-        {displayDescription && !isImage ? <p className="m-card-text">{displayDescription}</p> : null}
+        {description && !isImage ? <p className="m-card-text">{description}</p> : null}
         <div className="m-card-meta">
           <span>{memory.time}</span>
           {captureLabel ? <span className="m-card-type">{captureLabel}</span> : null}
