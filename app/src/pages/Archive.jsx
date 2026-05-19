@@ -7,6 +7,7 @@ import { buildArchiveEvolution } from '../utils/buildArchiveEvolution'
 import { buildMemoryEvolution } from '../utils/buildMemoryEvolution'
 import { buildMemoryReview } from '../utils/buildMemoryReview'
 import { buildMonthlyMemoryReview } from '../utils/buildMonthlyMemoryReview'
+import { buildYearlyMemoryReview } from '../utils/buildYearlyMemoryReview'
 import { buildMemoryContext } from '../utils/buildMemoryContext'
 import { buildCompanionIntelligence } from '../utils/buildCompanionIntelligence'
 import { buildResurfacingSignals } from '../utils/buildResurfacingSignals'
@@ -44,6 +45,7 @@ export default function Archive() {
   const resurfacingSignals = useMemo(() => buildResurfacingSignals(items), [items])
   const memoryReview = useMemo(() => buildMemoryReview(items), [items])
   const monthlyReview = useMemo(() => buildMonthlyMemoryReview(items), [items])
+  const yearlyReview = useMemo(() => buildYearlyMemoryReview(items), [items])
   const resolvedQuery = useMemo(() => resolveQuery(debouncedQuery), [debouncedQuery, resolveQuery])
   const queryContext = useMemo(
     () => resolvedQuery ? buildMemoryContext(resolvedQuery, items) : null,
@@ -206,6 +208,19 @@ export default function Archive() {
                   <p className="m-archive-insight">{p.dominantThemes.slice(0, 2).join(' and ')} were on your mind.</p>
                 )}
               </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {yearlyReview.observations.length > 0 && (
+        <>
+          {rule}
+          <div className="m-archive-insights">
+            <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 8 }}>This Year in Your Mind</span>
+            <p className="m-archive-stat" style={{ fontStyle: 'italic', color: 'var(--mora-ink-3)', marginBottom: 16 }}>{yearlyReview.year}</p>
+            {yearlyReview.observations.map((obs, i) => (
+              <p key={i} className="m-archive-insight">{obs}</p>
             ))}
           </div>
         </>
