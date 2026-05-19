@@ -10,6 +10,7 @@ import { buildMemoryEvolution } from '../utils/buildMemoryEvolution'
 import { buildResurfacingSignals } from '../utils/buildResurfacingSignals'
 import { buildMemoryGraph } from '../utils/buildMemoryGraph'
 import { buildMemoryRecall } from '../utils/buildMemoryRecall'
+import { buildMemoryAdvisor } from '../utils/buildMemoryAdvisor'
 import { useCompanionSession } from '../hooks/useCompanionSession'
 
 const PROMPTS = [
@@ -76,6 +77,10 @@ function CompanionPanel({ onClose, resolveQuery, commitQuery, isReference }) {
       ? buildMemoryRecall(resolvedQuery, queryContext, memoryGraph, memoryEvolution)
       : null,
     [resolvedQuery, queryContext, memoryGraph, memoryEvolution]
+  )
+  const memoryAdvisor = useMemo(
+    () => buildMemoryAdvisor(items, memoryEvolution, resurfacingSignals, memoryGraph),
+    [items, memoryEvolution, resurfacingSignals, memoryGraph]
   )
   const queryMemories = useMemo(() => {
     const source = memoryRecall?.recalledItems?.length
@@ -171,6 +176,22 @@ function CompanionPanel({ onClose, resolveQuery, commitQuery, isReference }) {
                     <MemoryCard key={memory.id} memory={memory} onOpen={openItem} />
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Mora Observed */}
+            {memoryAdvisor.observations.length > 0 && (
+              <div className="m-companion-advisor">
+                <div className="m-companion-memories-rule">
+                  <span className="m-rule-line" />
+                </div>
+                <span className="m-eyebrow m-companion-eyebrow-sm">
+                  <span className="m-eyebrow-dot" style={{ background: 'var(--mora-ochre)' }} />
+                  Mora observed
+                </span>
+                {memoryAdvisor.observations.map((obs, i) => (
+                  <p key={i} className="m-companion-insight">{obs}</p>
+                ))}
               </div>
             )}
           </div>
