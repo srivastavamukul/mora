@@ -23,7 +23,7 @@ function validateItem(item) {
   };
 }
 
-export function captureItem(input = {}, existingItem = null) {
+export function captureItem(input = {}, existingItem = null, seenTitles = new Set()) {
   const { captureMode, ...rest } = input
 
   return validateItem(normalizeItem(
@@ -32,6 +32,7 @@ export function captureItem(input = {}, existingItem = null) {
       origin: rest.origin || captureMode || 'manual',
       raw: input.raw ?? input,
     },
-    existingItem
+    existingItem,
+    seenTitles
   ));
 }

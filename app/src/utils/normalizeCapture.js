@@ -1,7 +1,3 @@
-/**
- * URL Capture and Normalization System
- * Reusable utilities for normalizing captured items from any source
- */
 import { normalizeTag } from './filterItems'
 
 export function safeParseUrl(url) {
@@ -57,60 +53,125 @@ export function inferType(source) {
   return typeMap[source] || 'link'
 }
 
+// Site-name-only titles that carry no useful information
+const SITE_NAME_TITLES = new Set([
+  'youtube', 'pinterest', 'instagram', 'spotify', 'twitter', 'x',
+  'tiktok', 'linkedin', 'facebook', 'reddit', 'medium', 'home', 'untitled',
+])
+
+const PLATFORM_FALLBACKS = {
+  youtube: 'YouTube Video',
+  spotify: 'Spotify Track',
+  instagram: 'Instagram Post',
+  pinterest: 'Pinterest Pin',
+  x: 'X Post',
+  linkedin: 'LinkedIn Post',
+  medium: 'Medium Article',
+}
+
+function isSuppressedTitle(title, source, url) {
+  const lower = title.toLowerCase()
+  if (SITE_NAME_TITLES.has(lower)) return true
+  // Pinterest search page: title is just the search query — suppress it in inferTitle fallback
+  if (source === 'pinterest') {
+    const parsed = safeParseUrl(url)
+    if (parsed?.pathname.includes('/search/')) return true
+  }
+  return false
+}
+
+// --- Pinterest-specific title extraction ---
+
+const GENERIC_PINTEREST_TITLES = new Set([
+  'pinterest', 'pin', 'pinterest pin', 'image', 'photo', 'picture',
+  'video', 'save', 'saved', 'discover', 'home', 'untitled', 'ideas',
+])
+
+function isGenericPinterestTitle(title) {
+  if (!title || title.length < 3) return true
+  const lower = title.toLowerCase().trim()
+  if (GENERIC_PINTEREST_TITLES.has(lower)) return true
+  // "word - Pinterest" / "word | Pinterest" suffix
+  if (/[-|·]\s*pinterest\s*$/i.test(lower)) return true
+  return false
+}
+
+function pinterestBoardFromUrl(url) {
+  const parsed = safeParseUrl(url)
+  if (!parsed) return null
+  const parts = parsed.pathname.split('/').filter(Boolean)
+  // /username/board-name/ — skip system paths
+  const SYSTEM_PATHS = new Set(['pin', 'search', 'topic', 'ideas', 'today', 'explore', 'settings'])
+  if (parts.length >= 2 && !SYSTEM_PATHS.has(parts[0])) {
+    const slug = parts[1]
+    if (slug && slug.length > 2 && !/^\d+$/.test(slug)) {
+      return slug.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase()).trim()
+    }
+  }
+  return null
+}
+
+function firstMeaningfulPhrase(text, maxWords = 8) {
+  if (!text || typeof text !== 'string') return null
+  const sentence = text.split(/[.!?\n]/)[0].trim()
+  const words = sentence.split(/\s+/).filter(w => w.length > 1).slice(0, maxWords)
+  const phrase = words.join(' ').trim()
+  return phrase.length >= 8 ? phrase : null
+}
+
+function buildPinterestTitle(formData, seenTitles) {
+  const url = formData.url || ''
+  const isSearch = safeParseUrl(url)?.pathname.includes('/search/')
+
+  const rawCandidates = [
+    formData.metadata?.pinTitle,
+    formData.metadata?.ogTitle,
+    !isSearch ? formData.title : null,
+    formData.metadata?.imageAlt,
+    firstMeaningfulPhrase(formData.description),
+    firstMeaningfulPhrase(formData.metadata?.ogDescription),
+    firstMeaningfulPhrase(formData.selectedText),
+    pinterestBoardFromUrl(url),
+  ]
+
+  for (const candidate of rawCandidates) {
+    if (!candidate) continue
+    const cleaned = candidate.trim().slice(0, 100)
+    if (isGenericPinterestTitle(cleaned)) continue
+    if (seenTitles.has(cleaned.toLowerCase())) continue
+    return cleaned
+  }
+
+  return null
+}
+
+// --- end Pinterest ---
+
 export function inferTitle(url, source, userTitle) {
-  if (userTitle && userTitle.trim()) {
-    return userTitle.trim()
+  const cleaned = userTitle?.trim()
+
+  if (cleaned && !isSuppressedTitle(cleaned, source, url)) {
+    return cleaned
   }
 
-  // Platform-specific fallbacks
-  const titleMap = {
-    youtube: 'YouTube Video',
-    spotify: 'Spotify Track',
-    instagram: 'Instagram Post',
-    pinterest: 'Pinterest Pin',
-    x: 'X Post',
-    linkedin: 'LinkedIn Post',
-    medium: 'Medium Article',
-  }
-
-  if (titleMap[source]) {
-    return titleMap[source]
-  }
+  if (PLATFORM_FALLBACKS[source]) return PLATFORM_FALLBACKS[source]
 
   // Try to derive from URL slug
   const parsed = safeParseUrl(url)
   if (parsed) {
     const pathname = parsed.pathname
     if (pathname && pathname !== '/') {
-      const lastSegment = pathname
-        .split('/')
-        .filter(Boolean)
-        .pop()
-        if (lastSegment) {
-            // detect garbage/IDs
-            if (/^[a-zA-Z0-9_-]{6,}$/.test(lastSegment)) {
-              const titleMap = {
-                youtube: 'YouTube Video',
-                spotify: 'Spotify Track',
-                instagram: 'Instagram Post',
-                pinterest: 'Pinterest Pin',
-                x: 'X Post',
-                linkedin: 'LinkedIn Post',
-                medium: 'Medium Article',
-              }
-              return titleMap[source] || 'Saved Link'
-            }
-          
-            const derived = decodeURIComponent(lastSegment)
-              .replace(/[-_]/g, ' ')
-              .trim()
-          
-            if (derived.length > 0) return derived
-          }
+      const lastSegment = pathname.split('/').filter(Boolean).pop()
+      if (lastSegment) {
+        if (/^[a-zA-Z0-9_-]{6,}$/.test(lastSegment)) {
+          return PLATFORM_FALLBACKS[source] || 'Saved Link'
+        }
+        const derived = decodeURIComponent(lastSegment).replace(/[-_]/g, ' ').trim()
+        if (derived.length > 0) return derived
+      }
     }
   }
 
-  // Final fallback
   return 'Saved Link'
 }
 
@@ -147,12 +208,18 @@ export function normalizeTags(tagsInput) {
     .filter((tag, index, arr) => arr.indexOf(tag) === index)
 }
 
-export function normalizeItem(formData, existingItem = null) {
+export function normalizeItem(formData, existingItem = null, seenTitles = new Set()) {
   const isEditing = !!existingItem
   const now = Date.now()
 
-  const source = formData.source?.trim() || inferSource(formData.url)
-  const title = inferTitle(formData.url, source, formData.title)
+  const explicitSource = formData.source?.trim()
+  const urlSource = inferSource(formData.url)
+  // Prefer URL-inferred platform over a generic 'web' from the extension
+  const source = (explicitSource && explicitSource !== 'web') ? explicitSource : (urlSource || explicitSource || 'web')
+
+  // Pinterest: extract best available title from all metadata fields; bypass inferTitle
+  const pinterestTitle = source === 'pinterest' ? buildPinterestTitle(formData, seenTitles) : null
+  const title = pinterestTitle ?? inferTitle(formData.url, source, formData.title)
   const type = existingItem
     ? existingItem.type
     : (formData.type || formData.filterKey || inferType(source))
@@ -168,7 +235,7 @@ export function normalizeItem(formData, existingItem = null) {
     url: formData.url || null,
     source: source || 'web',
     type,
-    thumbnail: formData.thumbnail || existingItem?.thumbnail || "",
+    thumbnail: formData.thumbnail || formData.imageUrl || formData.metadata?.thumbnail || existingItem?.thumbnail || "",
     description: formData.description || existingItem?.description || "",
     tags,
     mood: formData.mood?.trim() || null,

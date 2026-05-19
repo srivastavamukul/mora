@@ -18,10 +18,11 @@ export function initBridge(setItems) {
     setItems(current => {
       let next = [...current]
       let changed = false
+      const seenTitles = new Set(current.map(i => i.title?.toLowerCase()).filter(Boolean))
       for (const raw of payload) {
         try {
           if (!raw || typeof raw !== 'object') { batchOutcomes.push('invalid'); continue }
-          const candidate = captureItem({ ...raw, origin: 'extension' })
+          const candidate = captureItem({ ...raw, origin: 'extension' }, null, seenTitles)
           if (!candidate || !candidate.url) { batchOutcomes.push('invalid'); continue }
           const { isDuplicate } = deduplicateCapture(next, candidate)
           if (isDuplicate) {
@@ -29,6 +30,7 @@ export function initBridge(setItems) {
           } else {
             batchOutcomes.push(candidate.thumbnail ? 'added' : 'partial')
             next.push(candidate)
+            if (candidate.title) seenTitles.add(candidate.title.toLowerCase())
             changed = true
           }
         } catch {
