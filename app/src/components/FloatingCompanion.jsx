@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { useApp } from '../context/AppContext'
 import { MemoryCard, mapItemToMemory } from './MoraUI'
 import { buildMemoryContext } from '../utils/buildMemoryContext'
-import { buildCompanionInsight } from '../utils/buildCompanionInsight'
+import { buildCompanionIntelligence } from '../utils/buildCompanionIntelligence'
+import { buildMemoryReview } from '../utils/buildMemoryReview'
+import { buildMonthlyMemoryReview } from '../utils/buildMonthlyMemoryReview'
+import { buildMemoryEvolution } from '../utils/buildMemoryEvolution'
+import { buildResurfacingSignals } from '../utils/buildResurfacingSignals'
 import { useCompanionSession } from '../hooks/useCompanionSession'
 
 const PROMPTS = [
@@ -48,14 +52,21 @@ function CompanionPanel({ onClose, resolveQuery, commitQuery, isReference }) {
     onClose()
   }
 
+  const memoryReview = useMemo(() => buildMemoryReview(items), [items])
+  const monthlyReview = useMemo(() => buildMonthlyMemoryReview(items), [items])
+  const memoryEvolution = useMemo(() => buildMemoryEvolution(items), [items])
+  const resurfacingSignals = useMemo(() => buildResurfacingSignals(items), [items])
+
   const resolvedQuery = useMemo(() => resolveQuery(debouncedQuery), [debouncedQuery, resolveQuery])
   const queryContext = useMemo(
     () => (resolvedQuery ? buildMemoryContext(resolvedQuery, items) : null),
     [resolvedQuery, items]
   )
   const companionInsight = useMemo(
-    () => (resolvedQuery && queryContext ? buildCompanionInsight(resolvedQuery, queryContext) : null),
-    [resolvedQuery, queryContext]
+    () => resolvedQuery && queryContext
+      ? buildCompanionIntelligence(resolvedQuery, queryContext, memoryReview, monthlyReview, memoryEvolution, resurfacingSignals)
+      : null,
+    [resolvedQuery, queryContext, memoryReview, monthlyReview, memoryEvolution, resurfacingSignals]
   )
   const queryMemories = useMemo(
     () => (queryContext ? queryContext.relevantMemories.slice(0, 3).map(item => mapItemToMemory(item)) : []),
@@ -128,13 +139,13 @@ function CompanionPanel({ onClose, resolveQuery, commitQuery, isReference }) {
         {hasResults && (
           <div className="m-companion-results">
             {/* Mora Noticed */}
-            {companionInsight.summary && (
+            {companionInsight.response && (
               <div className="m-companion-noticed">
                 <span className="m-eyebrow m-companion-eyebrow-sm">
                   <span className="m-eyebrow-dot" style={{ background: 'var(--mora-ochre)' }} />
                   Mora noticed
                 </span>
-                <p className="m-companion-insight">{companionInsight.summary}</p>
+                <p className="m-companion-insight">{companionInsight.response}</p>
               </div>
             )}
 

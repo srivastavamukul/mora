@@ -8,7 +8,8 @@ import { buildMemoryEvolution } from '../utils/buildMemoryEvolution'
 import { buildMemoryReview } from '../utils/buildMemoryReview'
 import { buildMonthlyMemoryReview } from '../utils/buildMonthlyMemoryReview'
 import { buildMemoryContext } from '../utils/buildMemoryContext'
-import { buildCompanionInsight } from '../utils/buildCompanionInsight'
+import { buildCompanionIntelligence } from '../utils/buildCompanionIntelligence'
+import { buildResurfacingSignals } from '../utils/buildResurfacingSignals'
 import { useCompanionSession } from '../hooks/useCompanionSession'
 
 function sparklineSentence(weeklyGrowth) {
@@ -40,6 +41,7 @@ export default function Archive() {
 
   const archiveEvolution = useMemo(() => buildArchiveEvolution(items), [items])
   const memoryEvolution = useMemo(() => buildMemoryEvolution(items), [items])
+  const resurfacingSignals = useMemo(() => buildResurfacingSignals(items), [items])
   const memoryReview = useMemo(() => buildMemoryReview(items), [items])
   const monthlyReview = useMemo(() => buildMonthlyMemoryReview(items), [items])
   const resolvedQuery = useMemo(() => resolveQuery(debouncedQuery), [debouncedQuery, resolveQuery])
@@ -48,8 +50,10 @@ export default function Archive() {
     [resolvedQuery, items]
   )
   const companionInsight = useMemo(
-    () => resolvedQuery && queryContext ? buildCompanionInsight(resolvedQuery, queryContext) : null,
-    [resolvedQuery, queryContext]
+    () => resolvedQuery && queryContext
+      ? buildCompanionIntelligence(resolvedQuery, queryContext, memoryReview, monthlyReview, memoryEvolution, resurfacingSignals)
+      : null,
+    [resolvedQuery, queryContext, memoryReview, monthlyReview, memoryEvolution, resurfacingSignals]
   )
   const queryMemories = useMemo(
     () => queryContext ? queryContext.relevantMemories.slice(0, 5).map(item => mapItemToMemory(item)) : [],
@@ -143,8 +147,8 @@ export default function Archive() {
         {debouncedQuery && companionInsight && (
           <div style={{ marginTop: 24 }}>
             <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 12, display: 'block' }}>Mora Noticed</span>
-            {companionInsight.summary && (
-              <p className="m-archive-insight">{companionInsight.summary}</p>
+            {companionInsight.response && (
+              <p className="m-archive-insight">{companionInsight.response}</p>
             )}
             {queryMemories.length > 0 && (
               <>
