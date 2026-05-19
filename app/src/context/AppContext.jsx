@@ -8,6 +8,7 @@ import { buildTimelineGroups } from '../utils/buildTimelineGroups'
 import { buildBehaviorSignals } from '../utils/buildBehaviorSignals'
 import { getRecentlyRelevantItems } from '../utils/getRecentlyRelevantItems'
 import { buildResurfacedItems } from '../utils/buildResurfacedItems'
+import { buildResurfacingSignals } from '../utils/buildResurfacingSignals'
 import { buildMemoryInsights } from '../utils/buildMemoryInsights'
 import { getUpcomingMemoryEvents } from '../utils/getUpcomingMemoryEvents'
 import { getRecentReflections } from '../utils/getRecentReflections'
@@ -87,7 +88,11 @@ export function AppProvider({ children }) {
   const timelineGroups = useMemo(() => buildTimelineGroups(items), [items])
   const behaviorSignals = useMemo(() => buildBehaviorSignals(items), [items])
   const recentlyRelevant = useMemo(() => getRecentlyRelevantItems(items), [items])
-  const resurfacedItems = useMemo(() => buildResurfacedItems(items, behaviorSignals), [items, behaviorSignals])
+  const resurfacingSignals = useMemo(() => buildResurfacingSignals(items), [items])
+  const resurfacedItems = useMemo(() => {
+    const candidates = resurfacingSignals.revisitCandidates
+    return candidates.length > 0 ? candidates : buildResurfacedItems(items, behaviorSignals)
+  }, [items, behaviorSignals, resurfacingSignals])
   const memoryStats = useMemo(() => buildMemoryStats(items), [items])
   const memoryInsights = useMemo(
     () => buildMemoryInsights(items, behaviorSignals, interestClusters, flags),
@@ -105,7 +110,7 @@ export function AppProvider({ children }) {
   )
 
   return (
-    <AppContext.Provider value={{ items, setItems, sources, setSources, selectedItemId, setSelectedItemId, toggleSource, flags, setFlags, toggleFlag, updateItem, deleteItem, interestClusters, timelineGroups, behaviorSignals, recentlyRelevant, resurfacedItems, memoryStats, memoryInsights, upcomingMemoryEvents, recentReflections, familiarMemorySignals, personalRecallMoments }}>
+    <AppContext.Provider value={{ items, setItems, sources, setSources, selectedItemId, setSelectedItemId, toggleSource, flags, setFlags, toggleFlag, updateItem, deleteItem, interestClusters, timelineGroups, behaviorSignals, recentlyRelevant, resurfacedItems, resurfacingSignals, memoryStats, memoryInsights, upcomingMemoryEvents, recentReflections, familiarMemorySignals, personalRecallMoments }}>
       {children}
     </AppContext.Provider>
   )

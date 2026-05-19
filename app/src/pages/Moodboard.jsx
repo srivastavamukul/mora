@@ -27,7 +27,7 @@ function sortMemories(memories, sort) {
 export default function Moodboard() {
   const navigate = useNavigate()
   const { query } = useOutletContext()
-  const { items, flags, resurfacedItems, setSelectedItemId, personalRecallMoments } = useApp()
+  const { items, flags, resurfacedItems, resurfacingSignals, setSelectedItemId, personalRecallMoments } = useApp()
   const [filter, setFilter] = useState('all')
   const [sort, setSort] = useState('feeling')
   const [activeTags, setActiveTags] = useState([])
@@ -47,6 +47,20 @@ export default function Moodboard() {
   )
 
   const topTags = useMemo(() => getTopTags(items, 8), [items])
+
+  const resurfaceBlurb = useMemo(() => {
+    const { recurringThemes, dormantThemes, trendCandidates } = resurfacingSignals || {}
+    if (recurringThemes?.length > 0 && trendCandidates?.length > 0) {
+      return `You've returned to ${recurringThemes[0].theme} often. These feel relevant again.`
+    }
+    if (dormantThemes?.length > 0) {
+      return `You haven't revisited ${dormantThemes[0].theme} recently. These might reconnect you.`
+    }
+    if (recurringThemes?.length > 0) {
+      return `You've returned to ${recurringThemes[0].theme} often.`
+    }
+    return 'Three memories from the past, brought up by something you saved this week.'
+  }, [resurfacingSignals])
 
   const filteredMemories = useMemo(() => {
     const base = filterItemsAdvanced(memories, { type: filter, tags: activeTags, source: activeSource })
@@ -70,9 +84,7 @@ export default function Moodboard() {
         <section className="m-resurface">
           <div className="m-resurface-head">
             <Eyebrow color="var(--mora-ochre)">A LITTLE FROM THE PAST</Eyebrow>
-            <p className="m-resurface-blurb">
-              Three memories from the past, brought up by something you saved this week.
-            </p>
+            <p className="m-resurface-blurb">{resurfaceBlurb}</p>
           </div>
           <div className="m-resurface-row">
             {resurfaced.map(memory => (
