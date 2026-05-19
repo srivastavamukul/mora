@@ -1,11 +1,17 @@
 {
     "name": "mora",
     "private": true,
-    "workspaces": ["app"],
+    "workspaces": [
+        "app"
+    ],
     "scripts": {
-      "dev": "npm --workspace app run dev",
-      "build": "npm --workspace app run build",
-      "preview": "npm --workspace app run preview",
-      "lint": "npm --workspace app run lint"
+        "dev": "npm --workspace app run dev",
+        "build": "npm --workspace app run build",
+        "preview": "npm --workspace app run preview",
+        "lint": "npm --workspace app run lint"
+    },
+    "dependencies": {
+        "@capacitor/cli": "^8.3.4",
+        "@capacitor/core": "^8.3.4"
     }
-  }
+}

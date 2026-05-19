@@ -67,3 +67,31 @@ Thumbs.db
 # pnpm-lock.yaml
 
 next_instructions.md
+
+# Mobile / Capacitor build artifacts
+# Ignore mobile-level node_modules and lockfiles (node_modules already covered above)
+mobile/node_modules/
+
+# Capacitor Android generated files and build output
+mobile/android/
+mobile/android/**/build/
+mobile/android/.gradle/
+mobile/android/gradle/
+mobile/android/local.properties
+mobile/android/gradlew
+mobile/android/gradlew.bat
+mobile/android/*.keystore
+mobile/android/captures/
+mobile/android/.idea/
+mobile/android/**/*.iml
+
+# Android app-specific generated assets from Capacitor
+mobile/android/app/src/main/assets/public
+mobile/android/app/src/main/assets/capacitor.config.json
+mobile/android/app/src/main/assets/capacitor.plugins.json
+
+# iOS (if added by Capacitor)
+mobile/ios/
+
+# Capacitor plugins / extras
+mobile/capacitor-cordova-android-plugins/
