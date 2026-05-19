@@ -81,7 +81,14 @@ export function AppProvider({ children }) {
   }
 
   const deleteItem = (id) => {
-    setItems(prev => prev.filter(item => item.id !== id))
+    setItems(prev => {
+      const toDelete = prev.find(item => item.id === id)
+      if (toDelete?.url) {
+        // Signal extension to remove this URL from the capture queue (Bug 3)
+        window.postMessage({ source: 'mora-app', type: 'ITEM_DELETED', url: toDelete.url }, window.location.origin)
+      }
+      return prev.filter(item => item.id !== id)
+    })
   }
 
   const interestClusters = useMemo(() => buildInterestClusters(items), [items])

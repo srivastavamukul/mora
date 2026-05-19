@@ -52,5 +52,9 @@ export function initBridge(setItems) {
   }
 
   window.addEventListener('message', handleMessage)
+
+  // Request any items saved before app loaded or while bridge was dead (Bug 4)
+  window.postMessage({ source: 'mora-app', type: 'REQUEST_PENDING' }, window.location.origin)
+
   return () => window.removeEventListener('message', handleMessage)
 }

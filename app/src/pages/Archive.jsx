@@ -4,7 +4,9 @@ import { useApp } from '../context/AppContext'
 import { OnboardingHint } from '../components/OnboardingHint'
 import { MemoryCard, mapItemToMemory } from '../components/MoraUI'
 import { buildArchiveEvolution } from '../utils/buildArchiveEvolution'
+import { buildMemoryEvolution } from '../utils/buildMemoryEvolution'
 import { buildMemoryReview } from '../utils/buildMemoryReview'
+import { buildMonthlyMemoryReview } from '../utils/buildMonthlyMemoryReview'
 import { buildMemoryContext } from '../utils/buildMemoryContext'
 import { buildCompanionInsight } from '../utils/buildCompanionInsight'
 import { useCompanionSession } from '../hooks/useCompanionSession'
@@ -37,7 +39,9 @@ export default function Archive() {
   function openItem(id) { navigate(`/item/${id}`) }
 
   const archiveEvolution = useMemo(() => buildArchiveEvolution(items), [items])
+  const memoryEvolution = useMemo(() => buildMemoryEvolution(items), [items])
   const memoryReview = useMemo(() => buildMemoryReview(items), [items])
+  const monthlyReview = useMemo(() => buildMonthlyMemoryReview(items), [items])
   const resolvedQuery = useMemo(() => resolveQuery(debouncedQuery), [debouncedQuery, resolveQuery])
   const queryContext = useMemo(
     () => resolvedQuery ? buildMemoryContext(resolvedQuery, items) : null,
@@ -163,6 +167,41 @@ export default function Archive() {
             <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>This Week in Your Mind</span>
             {memoryReview.observations.map((obs, i) => (
               <p key={i} className="m-archive-insight">{obs}</p>
+            ))}
+          </div>
+        </>
+      )}
+
+      {monthlyReview.observations.length > 0 && (
+        <>
+          {rule}
+          <div className="m-archive-insights">
+            <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 8 }}>This Month in Your Mind</span>
+            {monthlyReview.month && (
+              <p className="m-archive-stat" style={{ fontStyle: 'italic', color: 'var(--mora-ink-3)', marginBottom: 16 }}>{monthlyReview.month}</p>
+            )}
+            {monthlyReview.observations.map((obs, i) => (
+              <p key={i} className="m-archive-insight">{obs}</p>
+            ))}
+          </div>
+        </>
+      )}
+
+      {memoryEvolution.periods.length > 0 && (
+        <>
+          {rule}
+          <div className="m-archive-insights">
+            <span className="m-eyebrow" style={{ color: 'var(--mora-ochre)', marginBottom: 20 }}>Evolution of your mind</span>
+            {memoryEvolution.periods.map((p, i) => (
+              <div key={i} style={{ marginBottom: 20 }}>
+                <p className="m-archive-stat" style={{ fontStyle: 'italic', color: 'var(--mora-ink-3)', marginBottom: 6 }}>{p.period}</p>
+                {p.changeSignals.map((sig, j) => (
+                  <p key={j} className="m-archive-insight">{sig}</p>
+                ))}
+                {p.changeSignals.length === 0 && p.dominantThemes.length > 0 && (
+                  <p className="m-archive-insight">{p.dominantThemes.slice(0, 2).join(' and ')} were on your mind.</p>
+                )}
+              </div>
             ))}
           </div>
         </>

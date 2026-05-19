@@ -59,15 +59,33 @@
         .find(isInstagramCDN)
       if (loaded) return loaded
 
-      // Foreign CDN images load slower — check src/currentSrc even if not rendered yet
+      // Foreign CDN images load slower — check src/currentSrc/data-src/srcset even if not rendered yet
       const unloaded = allImgs
-        .map(i => i.currentSrc || i.src || i.dataset?.src || '')
+        .map(i => {
+          const srcset = i.getAttribute('srcset')
+          const firstSrcset = srcset ? srcset.split(',')[0].trim().split(' ')[0] : ''
+          return i.currentSrc || i.src || i.dataset?.src || firstSrcset || ''
+        })
         .find(isInstagramCDN)
       if (unloaded) return unloaded
 
       const metaImg = getMeta(['meta[property="og:image"]', 'meta[name="twitter:image"]']) || ''
 
-      // ONLY use meta as LAST fallback (not primary)
+      // If og:url matches current URL exactly, meta tags are for this page (fresh load, not SPA nav)
+      // Trust og:image immediately in that case
+      if (metaImg) {
+        const ogUrl = getMeta(['meta[property="og:url"]']) || ''
+        if (ogUrl) {
+          try {
+            const ogParsed = new URL(ogUrl)
+            const currentParsed = new URL(url)
+            if (ogParsed.hostname === currentParsed.hostname && ogParsed.pathname === currentParsed.pathname) {
+              return metaImg
+            }
+          } catch {}
+        }
+      }
+
       return attempts >= 4 ? metaImg : ''
     }
 
@@ -159,7 +177,27 @@
         : thumbnail
     }
 
+    let pinterestMetadata = null
     if (source === 'pinterest') {
+      const ogTitleMeta = getMeta(['meta[property="og:title"]']) || ''
+      const ogDescriptionMeta = getMeta(['meta[property="og:description"]']) || ''
+
+      // Extract actual pin title from DOM — Pinterest-specific selectors
+      const pinTitleEl =
+        document.querySelector('[data-test-id="pin-title"]') ||
+        document.querySelector('[data-test-id="truncated-title"]') ||
+        document.querySelector('h1')
+      const pinTitle = pinTitleEl?.textContent?.trim() || ''
+
+      // Extract image alt from main pin image
+      const pinImgEl =
+        document.querySelector('[data-test-id="pin-closeup-image"] img') ||
+        document.querySelector('article img[alt]') ||
+        document.querySelector('img[srcset][alt]')
+      const imageAlt = pinImgEl?.alt?.trim() || ''
+
+      pinterestMetadata = { pinTitle, ogTitle: ogTitleMeta, imageAlt, ogDescription: ogDescriptionMeta }
+
       thumbnail =
         getMeta([
           'meta[property="og:image:secure_url"]',
@@ -193,7 +231,8 @@
       thumbnail: thumbnail || '',
       source,
       type,
-      selectedText
+      selectedText,
+      ...(pinterestMetadata ? { metadata: pinterestMetadata } : {}),
     })
   }, delay)
 })()
