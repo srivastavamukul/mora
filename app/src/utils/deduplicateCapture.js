@@ -1,4 +1,4 @@
-function normalizeUrl(urlStr) {
+export function normalizeUrl(urlStr) {
   if (!urlStr || typeof urlStr !== 'string') return null;
 
   try {
@@ -29,7 +29,7 @@ function normalizeUrl(urlStr) {
   }
 }
 
-function getPlatformId(item) {
+export function getPlatformId(item) {
   if (!item || !item.url) return null;
 
   try {
