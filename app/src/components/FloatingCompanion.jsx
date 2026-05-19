@@ -8,6 +8,8 @@ import { buildMemoryReview } from '../utils/buildMemoryReview'
 import { buildMonthlyMemoryReview } from '../utils/buildMonthlyMemoryReview'
 import { buildMemoryEvolution } from '../utils/buildMemoryEvolution'
 import { buildResurfacingSignals } from '../utils/buildResurfacingSignals'
+import { buildMemoryGraph } from '../utils/buildMemoryGraph'
+import { buildMemoryRecall } from '../utils/buildMemoryRecall'
 import { useCompanionSession } from '../hooks/useCompanionSession'
 
 const PROMPTS = [
@@ -56,6 +58,7 @@ function CompanionPanel({ onClose, resolveQuery, commitQuery, isReference }) {
   const monthlyReview = useMemo(() => buildMonthlyMemoryReview(items), [items])
   const memoryEvolution = useMemo(() => buildMemoryEvolution(items), [items])
   const resurfacingSignals = useMemo(() => buildResurfacingSignals(items), [items])
+  const memoryGraph = useMemo(() => buildMemoryGraph(items), [items])
 
   const resolvedQuery = useMemo(() => resolveQuery(debouncedQuery), [debouncedQuery, resolveQuery])
   const queryContext = useMemo(
@@ -68,10 +71,18 @@ function CompanionPanel({ onClose, resolveQuery, commitQuery, isReference }) {
       : null,
     [resolvedQuery, queryContext, memoryReview, monthlyReview, memoryEvolution, resurfacingSignals]
   )
-  const queryMemories = useMemo(
-    () => (queryContext ? queryContext.relevantMemories.slice(0, 3).map(item => mapItemToMemory(item)) : []),
-    [queryContext]
+  const memoryRecall = useMemo(
+    () => resolvedQuery && queryContext
+      ? buildMemoryRecall(resolvedQuery, queryContext, memoryGraph, memoryEvolution)
+      : null,
+    [resolvedQuery, queryContext, memoryGraph, memoryEvolution]
   )
+  const queryMemories = useMemo(() => {
+    const source = memoryRecall?.recalledItems?.length
+      ? memoryRecall.recalledItems
+      : (queryContext?.relevantMemories || [])
+    return source.slice(0, 3).map(item => mapItemToMemory(item))
+  }, [queryContext, memoryRecall])
 
   useEffect(() => {
     if (debouncedQuery && queryContext && !isReference(debouncedQuery)) {
