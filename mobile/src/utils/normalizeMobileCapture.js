@@ -50,6 +50,8 @@ export function normalizeMobileCapture(input = {}) {
     channel,
     artist,
   } = input
+  // TRACE-6: normalizeMobileCapture key inputs
+  console.log('[MoraTrace][Stage6-Normalize] input:', JSON.stringify({ url, title, text, thumbnail: inputThumbnail ?? null, source: explicitSource, type: inputType }))
   const now = Date.now()
 
   const source = inferSource(url, explicitSource)
@@ -71,6 +73,9 @@ export function normalizeMobileCapture(input = {}) {
   if (board)   extraMeta.board   = board
   if (channel) extraMeta.channel = channel
   if (artist)  extraMeta.artist  = artist
+
+  // TRACE-6b: normalizeMobileCapture resolved values before return
+  console.log('[MoraTrace][Stage6-Normalize] resolved:', JSON.stringify({ resolvedTitle, url: url || null, source, type, thumbnail, description: text || '' }))
 
   return {
     id: String(now),

@@ -63,11 +63,16 @@ function enqueue(payload) {
 
 function processEntry(entry) {
   const routed    = routeSharedContent(entry.payload)
+  // TRACE-3: payload entering processEntry + routing result
+  console.log('[MoraTrace][Stage3-Service:processEntry] payload=', JSON.stringify({ url: entry.payload.url, title: entry.payload.title, text: entry.payload.text, thumbnail: entry.payload.thumbnail }))
+  console.log('[MoraTrace][Stage3-Service:processEntry] routed.platform=', routed.platform, 'routed.extracted=', JSON.stringify(routed.extracted))
   const moraItem  = normalizeMobileCapture({
     ...entry.payload,
     source: routed.platform !== 'generic' ? routed.platform : undefined,
     ...routed.extracted,
   })
+  // TRACE-3b: final normalized item
+  console.log('[MoraTrace][Stage3-Service:processEntry] moraItem=', JSON.stringify({ id: moraItem.id, url: moraItem.url, title: moraItem.title, description: moraItem.description, thumbnail: moraItem.thumbnail, source: moraItem.source, type: moraItem.type }))
   return moraItem
 }
 

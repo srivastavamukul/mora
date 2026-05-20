@@ -33,6 +33,9 @@ function deriveTitleFromCaption(text, url) {
 
 export function extractInstagramShare(input = {}) {
   const { url, text, title, thumbnail } = input
+  // TRACE-5: Instagram extractor input
+  console.log('[MoraTrace][Stage5-Instagram] input:', JSON.stringify({ url, text, title, thumbnail: thumbnail ?? null }))
+
   const parsed = safeParseUrl(url)
   const type = inferTypeFromUrl(parsed)
   const creator = inferCreatorFromUrl(parsed)
@@ -50,5 +53,8 @@ export function extractInstagramShare(input = {}) {
   }
   // Only include thumbnail if present — avoid overwriting payload thumbnail with null
   if (thumbnail) result.thumbnail = thumbnail
+
+  // TRACE-5b: Instagram extractor output
+  console.log('[MoraTrace][Stage5-Instagram] output:', JSON.stringify(result))
   return result
 }
