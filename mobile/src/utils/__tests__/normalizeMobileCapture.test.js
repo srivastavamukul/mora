@@ -70,6 +70,55 @@ describe('extractInstagramShare', () => {
     const result = extractInstagramShare({ url: 'https://instagram.com/p/abc/', text: 'Beautiful sunset photo' })
     expect(result.title).toBe('Beautiful sunset photo')
   })
+
+  it('detects profile type from username-only URL', () => {
+    const result = extractInstagramShare({ url: 'https://instagram.com/johndoe/' })
+    expect(result.type).toBe('profile')
+  })
+
+  it('derives @creator title for profile share', () => {
+    const result = extractInstagramShare({ url: 'https://instagram.com/johndoe/' })
+    expect(result.title).toBe('@johndoe')
+  })
+
+  it('derives title from first line of multi-line caption', () => {
+    const result = extractInstagramShare({
+      url: 'https://instagram.com/p/abc/',
+      text: 'Golden hour magic\n#sunset #photography',
+    })
+    expect(result.title).toBe('Golden hour magic')
+  })
+
+  it('strips appended URL from caption when deriving title', () => {
+    const url = 'https://www.instagram.com/reel/abc123/'
+    const result = extractInstagramShare({ url, text: `Amazing reel content ${url}` })
+    expect(result.title).toBe('Amazing reel content')
+  })
+
+  it('returns null title when text is only the URL', () => {
+    const url = 'https://www.instagram.com/p/abc123/'
+    const result = extractInstagramShare({ url, text: url })
+    expect(result.title).toBe(null)
+  })
+
+  it('preserves full text as description', () => {
+    const text = 'Golden hour magic\n#sunset #photography'
+    const result = extractInstagramShare({ url: 'https://instagram.com/p/abc/', text })
+    expect(result.description).toBe(text)
+  })
+
+  it('preserves thumbnail from input payload', () => {
+    const result = extractInstagramShare({
+      url: 'https://instagram.com/p/abc/',
+      thumbnail: 'https://cdn.example.com/thumb.jpg',
+    })
+    expect(result.thumbnail).toBe('https://cdn.example.com/thumb.jpg')
+  })
+
+  it('omits thumbnail key when none provided', () => {
+    const result = extractInstagramShare({ url: 'https://instagram.com/p/abc/' })
+    expect(Object.prototype.hasOwnProperty.call(result, 'thumbnail')).toBe(false)
+  })
 })
 
 // --- extractPinterestShare ---
@@ -268,5 +317,84 @@ describe('full pipeline — Spotify playlist share', () => {
     })
     expect(item.type).toBe('playlist')
     expect(item.title).toBe('Chill Vibes')
+  })
+})
+
+// --- full pipeline: Instagram share types ---
+
+describe('full pipeline — Instagram reel share', () => {
+  it('extracts reel type and caption title, no placeholder', () => {
+    const payload = { url: 'https://www.instagram.com/reel/abc123/', text: 'Watch this amazing reel' }
+    const routed = routeSharedContent(payload)
+    const item = normalizeMobileCapture({
+      ...payload,
+      source: routed.platform !== 'generic' ? routed.platform : undefined,
+      ...routed.extracted,
+    })
+    expect(item.type).toBe('reel')
+    expect(item.title).toBe('Watch this amazing reel')
+    expect(item.title).not.toBe('Instagram Post')
+  })
+})
+
+describe('full pipeline — Instagram post share', () => {
+  it('extracts post type, caption title, and creator', () => {
+    const payload = { url: 'https://www.instagram.com/natgeo/p/abc123/', text: 'Stunning wildlife photo' }
+    const routed = routeSharedContent(payload)
+    const item = normalizeMobileCapture({
+      ...payload,
+      source: routed.platform !== 'generic' ? routed.platform : undefined,
+      ...routed.extracted,
+    })
+    expect(item.type).toBe('post')
+    expect(item.title).toBe('Stunning wildlife photo')
+    expect(item.metadata.creator).toBe('natgeo')
+  })
+})
+
+describe('full pipeline — Instagram profile share', () => {
+  it('sets profile type and @username title', () => {
+    const payload = { url: 'https://www.instagram.com/natgeo/' }
+    const routed = routeSharedContent(payload)
+    const item = normalizeMobileCapture({
+      ...payload,
+      source: routed.platform !== 'generic' ? routed.platform : undefined,
+      ...routed.extracted,
+    })
+    expect(item.type).toBe('profile')
+    expect(item.title).toBe('@natgeo')
+    expect(item.metadata.creator).toBe('natgeo')
+  })
+})
+
+describe('full pipeline — Instagram share missing metadata', () => {
+  it('falls back to platform placeholder only as last resort', () => {
+    const payload = { url: 'https://www.instagram.com/p/abc123/' }
+    const routed = routeSharedContent(payload)
+    const item = normalizeMobileCapture({
+      ...payload,
+      source: routed.platform !== 'generic' ? routed.platform : undefined,
+      ...routed.extracted,
+    })
+    expect(item.title).toBe('Instagram Post')
+    expect(item.source).toBe('instagram')
+  })
+})
+
+describe('full pipeline — Instagram thumbnail persistence', () => {
+  it('preserves thumbnail through full pipeline', () => {
+    const payload = {
+      url: 'https://www.instagram.com/p/abc123/',
+      text: 'Great post',
+      thumbnail: 'https://cdn.instagram.com/thumb.jpg',
+    }
+    const routed = routeSharedContent(payload)
+    const item = normalizeMobileCapture({
+      ...payload,
+      source: routed.platform !== 'generic' ? routed.platform : undefined,
+      ...routed.extracted,
+    })
+    expect(item.thumbnail).toBe('https://cdn.instagram.com/thumb.jpg')
+    expect(item.metadata.thumbnail).toBe('https://cdn.instagram.com/thumb.jpg')
   })
 })
