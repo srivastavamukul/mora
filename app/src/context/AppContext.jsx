@@ -15,6 +15,7 @@ import { getRecentReflections } from '../utils/getRecentReflections'
 import { buildFamiliarMemorySignals } from '../utils/buildFamiliarMemorySignals'
 import { buildPersonalRecallMoments } from '../utils/buildPersonalRecallMoments'
 import { buildMemoryStats } from '../utils/buildMemoryStats'
+import { deduplicateCapture } from '../utils/deduplicateCapture'
 
 const AppContext = createContext(null)
 
@@ -54,6 +55,37 @@ export function AppProvider({ children }) {
   })
 
   useEffect(() => initBridge(setItems), [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.__moraNativeAndroid) return
+
+    function onMobileShareItem(moraItem) {
+      try {
+        let existing = []
+        try {
+          const raw = localStorage.getItem('mora_items')
+          const parsed = JSON.parse(raw ?? 'null')
+          if (Array.isArray(parsed)) existing = parsed
+        } catch {}
+        const { isDuplicate } = deduplicateCapture(existing, moraItem)
+        if (isDuplicate) return { status: 'duplicate' }
+        setItems(prev => {
+          const { isDuplicate: stillDupe } = deduplicateCapture(prev, moraItem)
+          return stillDupe ? prev : [...prev, moraItem]
+        })
+        return { status: 'saved' }
+      } catch {
+        return { status: 'failed' }
+      }
+    }
+
+    import('../../../mobile/src/services/capacitorShareBridge.js')
+      .then(({ initCapacitorBridge, exposeNativeBridge }) => {
+        exposeNativeBridge()
+        initCapacitorBridge(onMobileShareItem)
+      })
+      .catch(() => {})
+  }, [])
   useEffect(() => { save('mora_items', items) }, [items])
   useEffect(() => { save('mora_sources', sources) }, [sources])
   useEffect(() => { save('mora_selectedItemId', selectedItemId) }, [selectedItemId])

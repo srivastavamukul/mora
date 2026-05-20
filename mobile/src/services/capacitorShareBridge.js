@@ -1,40 +1,66 @@
-import { App } from '@capacitor/app'
 import { handleShareIntent, initShareService, getPendingCount } from './shareIntentService.js'
 
 let bridgeReady = false
-let onItemCallback = null
+let minimizeTimer = null
 
-/**
- * Called by native share plugin (Android intent / iOS share extension)
- * with raw share payload before or after JS context is ready.
- * Safe to call multiple times — dedup handled by shareIntentService.
- */
+function showNativeNotification(status, title) {
+  try {
+    const nb = window.__moraNativeAndroid
+    if (!nb?.showNotification) return
+    if (status === 'saved') {
+      nb.showNotification('Saved to Mora ✓', title || 'Item captured')
+    } else if (status === 'duplicate') {
+      nb.showNotification('Already in Mora', title || 'Already saved')
+    } else {
+      nb.showNotification('Mora capture failed', 'Open Mora to review')
+    }
+  } catch {}
+}
+
+function scheduleMinimize() {
+  clearTimeout(minimizeTimer)
+  minimizeTimer = setTimeout(() => {
+    try { window.__moraNativeAndroid?.moveToBackground?.() } catch {}
+  }, 300)
+}
+
 export function receiveSharePayload(payload = {}) {
   try {
-    return handleShareIntent(payload)
+    const result = handleShareIntent(payload)
+    if (result.status === 'duplicate') {
+      showNativeNotification('duplicate', payload.title)
+      scheduleMinimize()
+    }
+    return result
   } catch {
+    showNativeNotification('failed', null)
     return { status: 'error', reason: 'bridge_receive_failed' }
   }
 }
 
-/**
- * Wire into Capacitor App events.
- * Call once on app startup, passing the function that writes a Mora item.
- *
- * @param {(moraItem: object) => void} onItem
- */
 export function initCapacitorBridge(onItem) {
   if (typeof onItem !== 'function') throw new Error('initCapacitorBridge: onItem must be a function')
   if (bridgeReady) return
 
-  onItemCallback = onItem
+  function wrappedOnItem(moraItem) {
+    let status = 'saved'
+    try {
+      const result = onItem(moraItem)
+      status = result?.status ?? 'saved'
+    } catch {
+      showNativeNotification('failed', moraItem?.title)
+      throw new Error('save_failed')
+    }
+    showNativeNotification(status, moraItem?.title)
+    scheduleMinimize()
+    return { status }
+  }
 
-  // Initialize service — replays any items queued before bridge was ready
   try {
-    initShareService(onItem)
+    initShareService(wrappedOnItem)
   } catch {}
 
-  // Android: pull share payload captured before JS context was ready
+  // Android cold-start: pull share payload captured before JS context was ready
   if (typeof window !== 'undefined' && window.__moraNativeAndroid) {
     try {
       const raw = window.__moraNativeAndroid.getPendingShare()
@@ -42,37 +68,18 @@ export function initCapacitorBridge(onItem) {
     } catch {}
   }
 
-  // Replay queue each time app returns to foreground (share while app was suspended)
-  App.addListener('appStateChange', ({ isActive }) => {
-    if (!isActive) return
-    if (getPendingCount() === 0) return
-    try {
-      initShareService(onItemCallback)
-    } catch {}
-  })
-
-  // Handle URL-scheme shares (e.g. mora://share?url=...)
-  App.addListener('appUrlOpen', ({ url }) => {
-    if (!url) return
-    try {
-      const parsed = new URL(url)
-      if (parsed.hostname !== 'share') return
-      const payload = {
-        url:   parsed.searchParams.get('url')   ?? undefined,
-        text:  parsed.searchParams.get('text')  ?? undefined,
-        title: parsed.searchParams.get('title') ?? undefined,
-      }
-      handleShareIntent(payload)
-    } catch {}
-  })
+  // Drain queue each time app returns to foreground (share while app was suspended)
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible') return
+      if (getPendingCount() === 0) return
+      try { initShareService(wrappedOnItem) } catch {}
+    })
+  }
 
   bridgeReady = true
 }
 
-/**
- * Expose bridge on globalThis so native Capacitor WebView bridge can reach it.
- * Call after initCapacitorBridge.
- */
 export function exposeNativeBridge() {
   globalThis.__moraBridge = { receiveSharePayload }
 }
