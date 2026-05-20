@@ -64,17 +64,12 @@ export function routeSharedContent(input = {}) {
   const { url, text } = input
   const platform = detectPlatform(url)
   const extractor = EXTRACTORS[platform] || null
-  const extracted = extractor ? extractor(input) : null
-
-  // TRACE-4: routing decision
-  console.log('[MoraTrace][Stage4-Route] url=', url, 'text=', text, '→ platform=', platform)
-  console.log('[MoraTrace][Stage4-Route] extracted=', JSON.stringify(extracted))
 
   return {
     platform,
     contentType: inferContentType(platform, url),
     normalizeReady: !!(url || text),
-    extracted,
+    extracted: extractor ? extractor(input) : null,
     input,
   }
 }

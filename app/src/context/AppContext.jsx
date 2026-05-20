@@ -60,8 +60,6 @@ export function AppProvider({ children }) {
     if (typeof window === 'undefined' || !window.__moraNativeAndroid) return
 
     function onMobileShareItem(moraItem) {
-      // TRACE-8: final item arriving at AppContext — this is what gets persisted
-      console.log('[MoraTrace][Stage8-Persist] moraItem:', JSON.stringify({ id: moraItem?.id, url: moraItem?.url, title: moraItem?.title, description: moraItem?.description, thumbnail: moraItem?.thumbnail, source: moraItem?.source, type: moraItem?.type }))
       try {
         let existing = []
         try {
@@ -70,15 +68,31 @@ export function AppProvider({ children }) {
           if (Array.isArray(parsed)) existing = parsed
         } catch {}
         const { isDuplicate } = deduplicateCapture(existing, moraItem)
-        if (isDuplicate) {
-          console.log('[MoraTrace][Stage8-Persist] REJECTED as duplicate')
-          return { status: 'duplicate' }
-        }
+        if (isDuplicate) return { status: 'duplicate' }
         setItems(prev => {
           const { isDuplicate: stillDupe } = deduplicateCapture(prev, moraItem)
-          if (stillDupe) console.log('[MoraTrace][Stage8-Persist] REJECTED as duplicate (race check)')
           return stillDupe ? prev : [...prev, moraItem]
         })
+
+        if (moraItem.url) {
+          import('../utils/enrichCapturedItem.js')
+            .then(({ enrichCapturedItem }) => enrichCapturedItem(moraItem.url, moraItem))
+            .then(enriched => {
+              if (!enriched) return
+              setItems(prev => prev.map(item =>
+                item.id === moraItem.id
+                  ? {
+                      ...item,
+                      ...enriched,
+                      metadata: { ...item.metadata, ...(enriched.metadata ?? {}) },
+                      updatedAt: Date.now(),
+                    }
+                  : item
+              ))
+            })
+            .catch(() => {})
+        }
+
         return { status: 'saved' }
       } catch {
         return { status: 'failed' }

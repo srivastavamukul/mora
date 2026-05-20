@@ -25,8 +25,6 @@ function scheduleMinimize() {
 }
 
 export function receiveSharePayload(payload = {}) {
-  // TRACE-2a: warm-start path (onNewIntent via eval)
-  console.log('[MoraTrace][Stage2-Bridge:receiveSharePayload]', JSON.stringify({ url: payload.url, title: payload.title, text: payload.text, thumbnail: payload.thumbnail, source: payload.source, type: payload.type }))
   try {
     const result = handleShareIntent(payload)
     if (result.status === 'duplicate') {
@@ -66,12 +64,7 @@ export function initCapacitorBridge(onItem) {
   if (typeof window !== 'undefined' && window.__moraNativeAndroid) {
     try {
       const raw = window.__moraNativeAndroid.getPendingShare()
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        // TRACE-2b: cold-start path (onCreate via getPendingShare)
-        console.log('[MoraTrace][Stage2-Bridge:coldStart]', JSON.stringify({ url: parsed.url, title: parsed.title, text: parsed.text, thumbnail: parsed.thumbnail, source: parsed.source, type: parsed.type }))
-        handleShareIntent(parsed)
-      }
+      if (raw) handleShareIntent(JSON.parse(raw))
     } catch {}
   }
 
