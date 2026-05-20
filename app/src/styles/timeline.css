@@ -67,3 +67,13 @@
   margin: 14px 0 0;
   letter-spacing: 0.01em;
 }
+
+@media (max-width: 768px) {
+  .m-timeline {
+    padding: 0;
+  }
+
+  .m-timeline-period {
+    margin-bottom: 40px;
+  }
+}

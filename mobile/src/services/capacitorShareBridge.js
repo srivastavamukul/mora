@@ -34,6 +34,14 @@ export function initCapacitorBridge(onItem) {
     initShareService(onItem)
   } catch {}
 
+  // Android: pull share payload captured before JS context was ready
+  if (typeof window !== 'undefined' && window.__moraNativeAndroid) {
+    try {
+      const raw = window.__moraNativeAndroid.getPendingShare()
+      if (raw) handleShareIntent(JSON.parse(raw))
+    } catch {}
+  }
+
   // Replay queue each time app returns to foreground (share while app was suspended)
   App.addListener('appStateChange', ({ isActive }) => {
     if (!isActive) return

@@ -1,11 +1,11 @@
 import { Link, useLocation } from 'react-router-dom'
 
 const navItems = [
-  { to: '/moodboard', icon: 'stack', label: 'Library' },
-  { to: '/nudge', icon: 'hourglass-medium', label: 'Wall' },
-  { to: '/constellations', icon: 'graph', label: 'Constellations' },
-  { to: '/sources', icon: 'link-simple', label: 'Sources' },
-  { to: '/settings', icon: 'gear-six', label: 'Settings' },
+  { to: '/moodboard',      icon: 'stack',           label: 'Library'     },
+  { to: '/archive',        icon: 'archive',          label: 'Reflections' },
+  { to: '/constellations', icon: 'graph',            label: 'Patterns'    },
+  { to: '/timeline',       icon: 'calendar-blank',   label: 'Timeline'    },
+  { to: '/settings',       icon: 'gear-six',         label: 'Settings'    },
 ]
 
 export default function BottomNav() {

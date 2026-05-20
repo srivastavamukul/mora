@@ -1,28 +1,34 @@
 import { Link, useLocation } from 'react-router-dom'
 
 const navItems = [
-  { to: '/moodboard', icon: 'stack', label: 'Library' },
-  { to: '/nudge', icon: 'hourglass-medium', label: 'Memory Wall' },
-  { to: '/constellations', icon: 'graph', label: 'Constellations' },
-  { to: '/archive', icon: 'archive', label: 'Reflections' },
-  { to: '/timeline', icon: 'calendar-blank', label: 'Timeline' },
-  { to: '/sources', icon: 'link-simple', label: 'Sources' },
-  { to: '/settings', icon: 'gear-six', label: 'Settings' },
+  { to: '/moodboard',      icon: 'stack',           label: 'Library'       },
+  { to: '/nudge',          icon: 'hourglass-medium', label: 'Memory Wall'   },
+  { to: '/constellations', icon: 'graph',            label: 'Constellations' },
+  { to: '/archive',        icon: 'archive',          label: 'Reflections'   },
+  { to: '/timeline',       icon: 'calendar-blank',   label: 'Timeline'      },
+  { to: '/sources',        icon: 'link-simple',      label: 'Sources'       },
+  { to: '/settings',       icon: 'gear-six',         label: 'Settings'      },
 ]
 
 export default function SideNav({ onCapture, captureAck = false }) {
   const location = useLocation()
 
   return (
-    <aside className="m-sidebar" aria-label="Primary">
-      <Link to="/moodboard" className="m-brand">
+    <aside className="m-sidebar" aria-label="Primary navigation">
+      <Link to="/moodboard" className="m-brand" title="Mora home">
         <span className="m-brand-word">Mora</span>
         <span className="m-brand-dot" />
       </Link>
 
-      <button type="button" className="m-capture-cta" aria-label="Capture a thought" onClick={onCapture}>
+      <button
+        type="button"
+        className="m-capture-cta"
+        aria-label="Capture a thought"
+        title="Capture a thought"
+        onClick={onCapture}
+      >
         <i className="ph ph-feather" />
-        Capture a thought
+        <span className="m-capture-cta-label">Capture a thought</span>
       </button>
       {captureAck ? <span className="m-capture-ack">Kept.</span> : null}
 
@@ -33,6 +39,7 @@ export default function SideNav({ onCapture, captureAck = false }) {
             <Link
               key={to}
               to={to}
+              title={label}
               className={'m-nav-item ' + (active ? 'is-active' : '')}
               aria-current={active ? 'page' : undefined}
             >
