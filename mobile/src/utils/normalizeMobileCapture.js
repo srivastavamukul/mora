@@ -1,4 +1,4 @@
-// Mobile share input → Mora item shape (mirrors normalizeCapture.js schema)
+import { safeParseUrl, inferPlatform, inferSource, inferType, isValidThumbnailUrl } from './urlUtils.js'
 
 const STOPWORDS = new Set([
   'the','and','for','with','this','that','from','you','your','are','was',
@@ -6,46 +6,14 @@ const STOPWORDS = new Set([
   'been','what','how','when','who','which','into','about','than','also',
 ])
 
-function safeParseUrl(url) {
-  if (!url || typeof url !== 'string') return null
-  try { return new URL(url) } catch { return null }
-}
-
-function inferPlatform(url) {
-  const parsed = safeParseUrl(url)
-  if (!parsed) return null
-  const h = parsed.hostname.toLowerCase()
-  if (h.includes('youtube.com') || h.includes('youtu.be')) return 'youtube'
-  if (h.includes('spotify.com')) return 'spotify'
-  if (h.includes('instagram.com')) return 'instagram'
-  if (h.includes('pinterest.com') || h.includes('pin.it')) return 'pinterest'
-  if (h.includes('x.com') || h.includes('twitter.com')) return 'x'
-  if (h.includes('linkedin.com')) return 'linkedin'
-  if (h.includes('medium.com')) return 'medium'
-  return null
-}
-
-function inferSource(url, explicitSource) {
-  if (explicitSource && explicitSource !== 'web') return explicitSource
-  const platform = inferPlatform(url)
-  if (platform) return platform
-  const parsed = safeParseUrl(url)
-  if (!parsed) return 'manual'
-  const domain = parsed.hostname.toLowerCase().replace(/^www\./, '').split('.')[0]
-  return domain || 'manual'
-}
-
-function inferType(source) {
-  const map = {
-    youtube: 'video',
-    spotify: 'song',
-    instagram: 'post',
-    pinterest: 'image',
-    x: 'post',
-    linkedin: 'post',
-    medium: 'article',
-  }
-  return map[source] || 'link'
+const PLATFORM_TITLE_FALLBACKS = {
+  youtube: 'YouTube Video',
+  spotify: 'Spotify Track',
+  instagram: 'Instagram Post',
+  pinterest: 'Pinterest Pin',
+  x: 'X Post',
+  linkedin: 'LinkedIn Post',
+  medium: 'Medium Article',
 }
 
 function extractTags(text) {
@@ -60,23 +28,49 @@ function extractTags(text) {
 }
 
 /**
- * normalizeMobileCapture({ url, text, title, source })
- * Returns a Mora item shape ready for storage.
+ * normalizeMobileCapture(input)
+ *
+ * input shape (from processEntry spread):
+ *   { url, text, title, source, thumbnail, type, creator, board, channel, artist, ...raw }
+ *
+ * title and thumbnail come from platform extractor if available (never placeholders).
+ * Falls back through: title → text snippet → platform fallback → 'Saved Link'.
+ * Thumbnail validated as absolute HTTP/HTTPS URL or discarded.
  */
 export function normalizeMobileCapture(input = {}) {
-  const { url, text, title, source: explicitSource } = input
+  const {
+    url,
+    text,
+    title,
+    source: explicitSource,
+    thumbnail: inputThumbnail,
+    type: inputType,
+    creator,
+    board,
+    channel,
+    artist,
+  } = input
   const now = Date.now()
 
   const source = inferSource(url, explicitSource)
-  const type = inferType(source)
+  const type = inputType || inferType(source)
   const parsed = safeParseUrl(url)
 
   const resolvedTitle =
     title?.trim() ||
     (text ? text.slice(0, 80).trim() : null) ||
+    PLATFORM_TITLE_FALLBACKS[source] ||
     'Saved Link'
 
+  const thumbnail = isValidThumbnailUrl(inputThumbnail) ? inputThumbnail : ''
+
   const tags = extractTags([title, text].filter(Boolean).join(' '))
+
+  const extraMeta = {}
+  if (creator) extraMeta.creator = creator
+  if (board)   extraMeta.board   = board
+  if (channel) extraMeta.channel = channel
+  if (artist)  extraMeta.artist  = artist
 
   return {
     id: String(now),
@@ -84,7 +78,7 @@ export function normalizeMobileCapture(input = {}) {
     url: url || null,
     source,
     type,
-    thumbnail: '',
+    thumbnail,
     description: text || '',
     tags,
     mood: null,
@@ -97,7 +91,7 @@ export function normalizeMobileCapture(input = {}) {
     privateNote: null,
     schemaVersion: 1,
     metadata: {
-      thumbnail: null,
+      thumbnail: isValidThumbnailUrl(inputThumbnail) ? inputThumbnail : null,
       description: text || '',
       source,
       type,
@@ -106,6 +100,7 @@ export function normalizeMobileCapture(input = {}) {
       canonicalUrl: url || null,
       origin: 'mobile-share',
       capturedAt: now,
+      ...extraMeta,
     },
     raw: { ...input },
   }

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { inferTitle, inferSource, normalizeItem } from '../normalizeCapture'
+import { inferTitle, inferSource, normalizeItem, isValidThumbnailUrl } from '../normalizeCapture'
+import { captureItem } from '../captureItem'
 
 // --- inferTitle ---
 
@@ -216,5 +217,101 @@ describe('normalizeItem — Instagram thumbnail fallback', () => {
       imageUrl: 'https://cdn.instagram.com/fallback.jpg',
     })
     expect(item.thumbnail).toBe('https://cdn.instagram.com/direct.jpg')
+  })
+})
+
+// --- isValidThumbnailUrl ---
+
+describe('isValidThumbnailUrl', () => {
+  it('accepts https URL', () => {
+    expect(isValidThumbnailUrl('https://example.com/img.jpg')).toBe(true)
+  })
+
+  it('accepts http URL', () => {
+    expect(isValidThumbnailUrl('http://example.com/img.jpg')).toBe(true)
+  })
+
+  it('rejects relative URL', () => {
+    expect(isValidThumbnailUrl('/images/thumb.jpg')).toBe(false)
+  })
+
+  it('rejects empty string', () => {
+    expect(isValidThumbnailUrl('')).toBe(false)
+  })
+
+  it('rejects null', () => {
+    expect(isValidThumbnailUrl(null)).toBe(false)
+  })
+
+  it('rejects data URI', () => {
+    expect(isValidThumbnailUrl('data:image/png;base64,abc')).toBe(false)
+  })
+})
+
+// --- normalizeItem thumbnail validation ---
+
+describe('normalizeItem — thumbnail URL validation', () => {
+  it('rejects relative thumbnail, falls through to imageUrl', () => {
+    const item = normalizeItem({
+      url: 'https://example.com/page',
+      title: 'Test',
+      thumbnail: '/images/local.jpg',
+      imageUrl: 'https://cdn.example.com/img.jpg',
+    })
+    expect(item.thumbnail).toBe('https://cdn.example.com/img.jpg')
+  })
+
+  it('rejects empty thumbnail, falls through to metadata.thumbnail', () => {
+    const item = normalizeItem({
+      url: 'https://example.com/page',
+      title: 'Test',
+      thumbnail: '',
+      imageUrl: '',
+      metadata: { thumbnail: 'https://cdn.example.com/meta.jpg' },
+    })
+    expect(item.thumbnail).toBe('https://cdn.example.com/meta.jpg')
+  })
+
+  it('returns empty string when all thumbnail sources invalid', () => {
+    const item = normalizeItem({
+      url: 'https://example.com/page',
+      title: 'Test',
+      thumbnail: '/bad.jpg',
+      imageUrl: '',
+    })
+    expect(item.thumbnail).toBe('')
+  })
+
+  it('metadata.thumbnail also validated — rejects relative', () => {
+    const item = normalizeItem({
+      url: 'https://example.com/page',
+      title: 'Test',
+      thumbnail: '',
+      metadata: { thumbnail: '/relative.jpg' },
+    })
+    expect(item.thumbnail).toBe('')
+    expect(item.metadata.thumbnail).toBe(null)
+  })
+})
+
+// --- captureItem — url-less items ---
+
+describe('captureItem — url-less items', () => {
+  it('allows item with title and no URL', () => {
+    const item = captureItem({ title: 'A memory note', type: 'note', url: '' })
+    expect(item).not.toBe(null)
+    expect(item.title).toBe('A memory note')
+    expect(item.url).toBe(null)
+  })
+
+  it('rejects item with no URL and no title', () => {
+    const item = captureItem({ title: '', url: '', type: 'note' })
+    expect(item).toBe(null)
+  })
+
+  it('allows item with URL and no title (derives title)', () => {
+    const item = captureItem({ url: 'https://example.com/', title: '' })
+    expect(item).not.toBe(null)
+    expect(item.url).toBe('https://example.com/')
   })
 })

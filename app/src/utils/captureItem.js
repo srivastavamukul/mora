@@ -3,8 +3,7 @@ import { normalizeItem } from './normalizeCapture'
 function validateItem(item) {
   if (!item || typeof item !== 'object') return null;
 
-  // MUST HAVE
-  if (!item.url || typeof item.url !== 'string') return null;
+  const hasUrl = item.url && typeof item.url === 'string'
 
   return {
     ...item,
@@ -19,12 +18,15 @@ function validateItem(item) {
     type: item.type || 'link',
 
     // Safety
-    url: item.url.trim(),
+    url: hasUrl ? item.url.trim() : null,
   };
 }
 
 export function captureItem(input = {}, existingItem = null, seenTitles = new Set()) {
   const { captureMode, ...rest } = input
+
+  // Reject at raw input level — nothing to save without a URL or explicit title
+  if (!rest.url?.trim() && !rest.title?.trim()) return null
 
   return validateItem(normalizeItem(
     {

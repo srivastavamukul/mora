@@ -1,5 +1,10 @@
 import { normalizeTag } from './filterItems'
 
+export function isValidThumbnailUrl(url) {
+  if (!url || typeof url !== 'string') return false
+  return url.startsWith('http://') || url.startsWith('https://')
+}
+
 export function safeParseUrl(url) {
   if (!url || typeof url !== 'string') return null
   try {
@@ -235,7 +240,7 @@ export function normalizeItem(formData, existingItem = null, seenTitles = new Se
     url: formData.url || null,
     source: source || 'web',
     type,
-    thumbnail: formData.thumbnail || formData.imageUrl || formData.metadata?.thumbnail || existingItem?.thumbnail || "",
+    thumbnail: [formData.thumbnail, formData.imageUrl, formData.metadata?.thumbnail, existingItem?.thumbnail].find(isValidThumbnailUrl) || "",
     description: formData.description || existingItem?.description || "",
     tags,
     mood: formData.mood?.trim() || null,
@@ -249,7 +254,7 @@ export function normalizeItem(formData, existingItem = null, seenTitles = new Se
     schemaVersion: existingItem?.schemaVersion || 1,
     metadata: {
       ...(existingItem?.metadata || {}),
-      thumbnail: formData.thumbnail || formData.imageUrl || formData.metadata?.thumbnail || existingItem?.metadata?.thumbnail || null,
+      thumbnail: [formData.thumbnail, formData.imageUrl, formData.metadata?.thumbnail, existingItem?.metadata?.thumbnail].find(isValidThumbnailUrl) || null,
       description: formData.description || existingItem?.metadata?.description || "",
       source: source || existingItem?.metadata?.source || "",
       type: type || existingItem?.metadata?.type || "",

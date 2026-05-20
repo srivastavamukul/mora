@@ -4,11 +4,7 @@ import { extractInstagramShare } from './extractInstagramShare.js'
 import { extractPinterestShare } from './extractPinterestShare.js'
 import { extractYouTubeShare }   from './extractYouTubeShare.js'
 import { extractSpotifyShare }   from './extractSpotifyShare.js'
-
-function safeParseUrl(url) {
-  if (!url || typeof url !== 'string') return null
-  try { return new URL(url) } catch { return null }
-}
+import { safeParseUrl } from './urlUtils.js'
 
 const PLATFORM_PATTERNS = [
   { platform: 'instagram', test: h => h.includes('instagram.com') },
@@ -34,11 +30,11 @@ function inferContentType(platform, url) {
     case 'pinterest': return 'pin'
     case 'spotify': {
       const parsed = safeParseUrl(url)
-      if (!parsed) return 'track'
+      if (!parsed) return 'song'
       if (parsed.pathname.includes('/playlist/')) return 'playlist'
       if (parsed.pathname.includes('/album/'))    return 'album'
       if (parsed.pathname.includes('/episode/'))  return 'episode'
-      return 'track'
+      return 'song'
     }
     default: return 'link'
   }
@@ -58,7 +54,7 @@ const EXTRACTORS = {
  * Shape:
  * {
  *   platform: 'instagram' | 'pinterest' | 'youtube' | 'spotify' | 'generic',
- *   contentType: 'video' | 'post' | 'pin' | 'track' | 'playlist' | 'album' | 'episode' | 'link',
+ *   contentType: string,
  *   normalizeReady: boolean,
  *   extracted: object | null,
  *   input: { url, text, title, source },

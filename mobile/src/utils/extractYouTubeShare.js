@@ -1,9 +1,4 @@
-// Extract structured metadata from a YouTube share input (no API calls)
-
-function safeParseUrl(url) {
-  if (!url || typeof url !== 'string') return null
-  try { return new URL(url) } catch { return null }
-}
+import { safeParseUrl } from './urlUtils.js'
 
 function extractVideoId(parsed) {
   if (!parsed) return null
@@ -14,27 +9,16 @@ function extractVideoId(parsed) {
   return parsed.searchParams.get('v') || null
 }
 
-function inferThumbnail(videoId) {
-  if (!videoId) return null
-  return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
-}
-
-/**
- * extractYouTubeShare({ url, text, title, source })
- * Returns YouTube-specific metadata. Deterministic, no API calls.
- * Thumbnail URL is a predictable YouTube CDN pattern (no auth required).
- */
 export function extractYouTubeShare(input = {}) {
   const { url, text, title } = input
   const parsed = safeParseUrl(url)
   const videoId = extractVideoId(parsed)
-
   return {
     source: 'youtube',
     type: 'video',
     url: url || null,
-    title: title?.trim() || (text ? text.slice(0, 80).trim() : null) || 'YouTube Video',
-    thumbnail: inferThumbnail(videoId),
+    title: title?.trim() || (text ? text.slice(0, 80).trim() : null) || null,
+    thumbnail: videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null,
     channel: null,
   }
 }
